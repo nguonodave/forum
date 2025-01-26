@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  forum:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app:/app
+    depends_on:
+      - db
+    environment:
+      - DB_PATH=/database/forum.db
+    command: ["./main"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s  
+  db:
+    image: nouchka/sqlite3
+      - db_data:/database 
+    environment:
+      - SQLITE_DATABASE=/database/forum.db
+    healthcheck:
+      test: ["CMD", "sqlite3", "/database/forum.db", ".databases"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s  
+
+volumes:
+  db_data:
