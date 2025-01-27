@@ -1,0 +1,14 @@
+# Ignore SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Ignore SQLite temporary/journal files
+*.db-journal
+*.sqlite-journal
+*.sqlite3-journal
+
+# Ignore backup database files
+*.db-backup
+*.sqlite-backup
+*.sqlite3-backup
