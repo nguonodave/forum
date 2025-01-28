@@ -63,3 +63,48 @@ func HandleRegister(db *sql.DB) http.HandlerFunc {
 		w.WriteHeader(http.StatusCreated)
 	}
 }
+
+func HandleLogin(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var creds Credentials
+		if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		// Retrieve user from database
+		var user model.User
+		err := db.QueryRow(
+			"SELECT id, email, password FROM users WHERE email = ?",
+			creds.Email,
+		).Scan(&user.ID, &user.Email, &user.Password)
+
+		if err == sql.ErrNoRows {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
+
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		// Verify password
+		if err := model.VerifyPassword(user.Password, creds.Password); err != nil {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
+
+		// Create session cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session",
+			Value:    generateSessionToken(), // pending implementation
+			Expires:  time.Now().Add(24 * time.Hour),
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteStrictMode,
+		})
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
