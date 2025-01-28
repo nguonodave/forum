@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // Database connection and initialization.
@@ -22,4 +24,22 @@ func InitializeDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open databas: %w", err)
 	}
+
+	// verify connection to database
+	if err := db.Ping(); err != nil {
+		return nil, fmt.Errorf("Failed to ping database: %w", err)
+	}
+	// apply  migrations
+	if err := applyMigration(db); err != nil {
+		return nil, fmt.Errorf("Failed to apply migrations: %w", err)
+	}
+	// configure connection pool
+	db.SetMaxOpenConns(1) // sqlite only supports 1 wrter  at a time
+	db.SetMaxIdleConns(1)
+
+	return db, nil
+}
+
+// Apply migrations to the database.
+func applyMigration(db *sql.DB) error {
 }
