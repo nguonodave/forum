@@ -30,5 +30,12 @@ type Post struct {
 	User     *User      `json:"user, omitempty"`
 	Category *Category  `json: "category, omitempty"`
 	Comments []*Comment `json: "comments, omitempty"`
-	Votes int 	`json:"votes"`
+	Votes    int        `json:"votes"`
+}
+
+// Category struct
+type Category struct {
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name" validate:"required"`
+	CreatedAt time.Time `json:"created_at"`
 }
