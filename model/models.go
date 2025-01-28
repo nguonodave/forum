@@ -36,7 +36,22 @@ type Post struct {
 // Category struct
 type Category struct {
 	ID        uuid.UUID `json:"id"`
-	PostId uuid.UUID `json: "post_id"`
+	PostId    uuid.UUID `json: "post_id"`
 	Name      string    `json:"name" validate:"required"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+// comment struct
+type Comment struct {
+	ID        uuid.UUID  `json:"id"`
+	UserID    uuid.UUID  `json:"user_id"`
+	PostID    uuid.UUID  `json:"post_id"`
+	ParentID  *uuid.UUID `json:"parent_id,omitempty"`
+	Content   string     `json:"content" validate:"required,min=2"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+
+	// Relationships
+	User    *User      `json:"user,omitempty"`
+	// Replies []*Comment `json:"replies,omitempty"`
 }
