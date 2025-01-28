@@ -63,3 +63,11 @@ type Vote struct {
 	Value     int       `json:"value" validate:"oneof=-1 1"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+
+//session struct
+type Session struct {
+	Token string `json:"-"`
+	UserID uuid.UUID `json:"-"`
+	ExpiresAt time.Time `json: "expires_at"`
+}
