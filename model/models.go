@@ -52,6 +52,14 @@ type Comment struct {
 	UpdatedAt time.Time  `json:"updated_at"`
 
 	// Relationships
-	User    *User      `json:"user,omitempty"`
+	User *User `json:"user,omitempty"`
 	// Replies []*Comment `json:"replies,omitempty"`
+}
+
+// votes struct(likes and dislikes)
+type Vote struct {
+	UserID    uuid.UUID `json:"-"`
+	PostID    uuid.UUID `json:"post_id"`
+	Value     int       `json:"value" validate:"oneof=-1 1"`
+	CreatedAt time.Time `json:"created_at"`
 }
