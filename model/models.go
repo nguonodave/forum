@@ -36,6 +36,7 @@ type Post struct {
 // Category struct
 type Category struct {
 	ID        uuid.UUID `json:"id"`
+	PostId uuid.UUID `json: "post_id"`
 	Name      string    `json:"name" validate:"required"`
 	CreatedAt time.Time `json:"created_at"`
 }
