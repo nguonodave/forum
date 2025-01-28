@@ -22,7 +22,7 @@ func InitializeDB() (*sql.DB, error) {
 	dsn := fmt.Sprintf("file:%s?_foreign_keys=on&_journal_mode=WAL", dbName)
 	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to open databas: %w", err)
+		return nil, fmt.Errorf("Failed to open database: %w", err)
 	}
 
 	// verify connection to database
@@ -42,4 +42,15 @@ func InitializeDB() (*sql.DB, error) {
 
 // Apply migrations to the database.
 func applyMigration(db *sql.DB) error {
+	// read schema file
+	schema, err := fs.ReadFile("database/schema.sql")
+	if err != nil {
+		return fmt.Errorf("failed to read schema file: %w", err)
+	}
+
+	// execute schema
+	if _, err := db.Exec(string(schema)); err != nil {
+		return fmt.Errorf("failed to execute schema: %w", err)
+	}
+	return nil
 }
