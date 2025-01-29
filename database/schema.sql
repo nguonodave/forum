@@ -36,3 +36,14 @@ CREATE TABLE IF NOT EXISTS comments (
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS votes (
+    id TEXT PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    post_id TEXT,
+    comment_id INTEGER,
+    type TEXT CHECK(type IN ('like', 'dislike')),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (post_id) REFERENCES posts(id),
+    FOREIGN KEY (comment_id) REFERENCES comments(id)
+);
