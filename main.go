@@ -1,5 +1,6 @@
 package main
 
+
 import (
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 )
 
 func main() {
+  println("hello forum")
 	// Initialize database
 	db, err := database.InitializeDB()
 	if err != nil {
@@ -17,3 +19,4 @@ func main() {
 
 	fmt.Println("Database operations completed successfully!")
 }
+
