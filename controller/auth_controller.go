@@ -8,6 +8,7 @@ import (
 
 	"forum/model"
 
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3" // SQL driver
 )
 
@@ -15,6 +16,11 @@ type Credentials struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Username string `json:"username,omitempty"`
+}
+
+// generateSessionToken generates a unique session token using UUID
+func generateSessionToken() string {
+	return uuid.New().String()
 }
 
 func HandleRegister(db *sql.DB) http.HandlerFunc {
