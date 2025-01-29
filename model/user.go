@@ -21,7 +21,7 @@ func VerifyPassword(password, hashedPassword string) bool {
 // HashPassword attempts to hash password using Cost value and returns the hashed password and error will be nil if successful
 // else hashed password will be an empty string and error will be not nil
 func HashPassword(password string) (string, error) {
-	if err := validatePassword(password); err != nil {
+	if err := ValidatePassword(password); err != nil {
 		return "", xerrors.ErrPasswordTooShort
 	}
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), Cost)
@@ -31,7 +31,7 @@ func HashPassword(password string) (string, error) {
 	return string(passwordBytes), nil
 }
 
-func validatePassword(password string) error {
+func ValidatePassword(password string) error {
 	if len(password) < MinimumPasswordLength {
 		return xerrors.ErrPasswordTooShort
 	}
