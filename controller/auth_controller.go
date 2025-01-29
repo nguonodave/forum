@@ -130,3 +130,42 @@ func HandleLogin(db *sql.DB) http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 	}
 }
+
+// ValidateSession applies for routes that require authentication.
+func ValidateSession(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Get the session cookie
+		cookie, err := r.Cookie("session")
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Check if the session exists in the database
+		var userID int
+		var expiresAt time.Time
+		err = db.QueryRow(
+			"SELECT user_id, expires_at FROM sessions WHERE token = ?",
+			cookie.Value,
+		).Scan(&userID, &expiresAt)
+
+		if err == sql.ErrNoRows {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		// Check if the session has expired
+		if time.Now().After(expiresAt) {
+			http.Error(w, "Session expired", http.StatusUnauthorized)
+			return
+		}
+
+		// Call the next handler
+		next(w, r)
+	}
+}
