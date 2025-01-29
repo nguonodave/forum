@@ -101,11 +101,27 @@ func HandleLogin(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
+		// Generate session token
+		sessionToken := generateSessionToken()
+
+		// Store session in the database
+		expiresAt := time.Now().Add(24 * time.Hour)
+		_, err = db.Exec(
+			"INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
+			sessionToken,
+			user.ID,
+			expiresAt,
+		)
+		if err != nil {
+			http.Error(w, "Failed to create session", http.StatusInternalServerError)
+			return
+		}
+
 		// Create session cookie
 		http.SetCookie(w, &http.Cookie{
 			Name:     "session",
-			Value:    generateSessionToken(), // pending implementation
-			Expires:  time.Now().Add(24 * time.Hour),
+			Value:    sessionToken,
+			Expires:  expiresAt,
 			HttpOnly: true,
 			Secure:   true,
 			SameSite: http.SameSiteStrictMode,
