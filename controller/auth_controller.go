@@ -2,7 +2,6 @@ package controller
 
 import (
 	"database/sql"
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -12,11 +11,11 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQL driver
 )
 
-type Credentials struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Username string `json:"username,omitempty"`
-}
+var (
+	Email    string
+	Password string
+	Username string
+)
 
 // generateSessionToken generates a unique session token using UUID
 func generateSessionToken() string {
@@ -25,30 +24,33 @@ func generateSessionToken() string {
 
 func HandleRegister(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var creds Credentials
-		if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "Invalid form data", http.StatusBadRequest)
 			return
 		}
+
+		Email = r.FormValue("email")
+		Password = r.FormValue("password")
+		Username = r.FormValue("username")
 
 		// Validate input
-		if err := model.ValidateEmail(creds.Email); err != nil {
+		if err := model.ValidateEmail(Email); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		if err := model.ValidatePassword(creds.Password); err != nil {
+		if err := model.ValidatePassword(Password); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		if model.IsEmailTaken(db, creds.Email) {
+		if model.IsEmailTaken(db, Email) {
 			http.Error(w, "Email already registered", http.StatusConflict)
 			return
 		}
 
 		// Hash password
-		hashedPassword, err := model.HashPassword(creds.Password)
+		hashedPassword, err := model.HashPassword(Password)
 		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
@@ -57,9 +59,9 @@ func HandleRegister(db *sql.DB) http.HandlerFunc {
 		// Insert user into database
 		_, err = db.Exec(
 			"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
-			creds.Email,
+			Email,
 			hashedPassword,
-			creds.Username,
+			Username,
 		)
 		if err != nil {
 			http.Error(w, "Failed to create user", http.StatusInternalServerError)
@@ -72,17 +74,20 @@ func HandleRegister(db *sql.DB) http.HandlerFunc {
 
 func HandleLogin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var creds Credentials
-		if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "Invalid form data", http.StatusBadRequest)
 			return
 		}
+
+		Email = r.FormValue("email")
+		Password = r.FormValue("password")
+		Username = r.FormValue("username")
 
 		// Retrieve user from database
 		var user model.User
 		err := db.QueryRow(
 			"SELECT id, email, password FROM users WHERE email = ?",
-			creds.Email,
+			Email,
 		).Scan(&user.ID, &user.Email, &user.Password)
 
 		if err == sql.ErrNoRows {
@@ -96,7 +101,7 @@ func HandleLogin(db *sql.DB) http.HandlerFunc {
 		}
 
 		// Verify password
-		if err := model.VerifyPassword(user.Password, creds.Password); err != nil {
+		if err := model.VerifyPassword(user.Password, Password); err != nil {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
