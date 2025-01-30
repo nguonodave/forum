@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS votes (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
     post_id TEXT,
-    comment_id INTEGER,
+    comment_id TEXT,
     type TEXT CHECK(type IN ('like', 'dislike')),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (post_id) REFERENCES posts(id),
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS votes (
 
 CREATE TABLE sessions (
     token TEXT PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id TEXT NOT NULL,
     expires_at DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
