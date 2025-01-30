@@ -24,12 +24,10 @@ type User struct {
 type Post struct {
 	ID         uuid.UUID
 	UserID     uuid.UUID
-	CategoryID uuid.UUID
 	Title      string
 	Content    string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	DeletedAt  time.Time
 
 	// relationships
 	User     *User
@@ -41,17 +39,14 @@ type Post struct {
 // Category struct
 type Category struct {
 	ID        uuid.UUID
-	PostId    uuid.UUID
 	Name      string
-	CreatedAt time.Time
 }
 
 // comment struct
 type Comment struct {
 	ID        uuid.UUID
-	UserID    uuid.UUID
 	PostID    uuid.UUID
-	ParentID  *uuid.UUID
+	UserID    uuid.UUID
 	Content   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -60,9 +55,11 @@ type Comment struct {
 
 // votes struct(likes and dislikes)
 type Vote struct {
+	ID        uuid.UUID
 	UserID    uuid.UUID
 	PostID    uuid.UUID
-	Value     int
+	CommentID    uuid.UUID
+	Type     string
 	CreatedAt time.Time
 }
 
