@@ -5,19 +5,17 @@
 <html>
 <head>
     <title>login/signup</title>
-    <meta charset="UTF-18">
-    <meta content="width=device-width, width=device-height, initial-scale=1">
-    <meta content="width=device-width, width=device-height, initial-scale=1.0">
-    <meta content="minimum-scale=0.5, maximum-scale=10, user-scalable=1">
-    <meta content="minimum-scale=0.5, maximum-scale=10, user-scalable=yes">
-    <link rel="stylesheet" href="/forum/static/login.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <link rel="stylesheet" href="../../static/css/login.css">
 </head>
 
 <body>
-<!-- form container -->
+
+<div class="container">
+    <!-- form container -->
     <div class="form-container">
         <h1 class="title">sign in to forum</h1>
-
         <!-- login form -->
         <form id="loginForm" class="form">
             <div class="input-group">
@@ -30,7 +28,6 @@
 
         <!-- signup form -->
         <form id="signupForm" class="form hidden">
-
             <!-- enter username here -->
             <div class="input-group">
                 <input type="text" id="signupEmail" required>
@@ -48,7 +45,6 @@
                 <input type="email" id="signupPassword" required>
                 <label for="signupPassword">Password</label>
             </div>
-
             <!-- this button for submitting during signup -->
             <button type="submit" class="btn-primary">sign up</button>
         </form>
@@ -58,7 +54,9 @@
             <button id="switchBtn" class="btn-text">Sign up</button>
         </div>
     </div>
+</div>
 
-
+<script type="text/javascript" src="../../static/js/login.js"></script>
 </body>
+
 </html>
