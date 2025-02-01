@@ -4,8 +4,9 @@ package model
 import (
 	"errors"
 	"forum/xerrors"
-	"golang.org/x/crypto/bcrypt"
 	"unicode"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 )
 
 // VerifyPassword compares the password and hashedPassword and checks if they match, if not it returns False else True (meaning they match)
-func VerifyPassword(password, hashedPassword string) bool {
+func IsValidPassword(password, hashedPassword string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }
 
