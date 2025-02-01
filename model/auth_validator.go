@@ -9,6 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+
 var (
 	Cost                  int = bcrypt.DefaultCost
 	MinimumPasswordLength int = 8
