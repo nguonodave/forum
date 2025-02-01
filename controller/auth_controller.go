@@ -101,7 +101,7 @@ func HandleLogin(db *sql.DB) http.HandlerFunc {
 		}
 
 		// Verify password
-		if err := model.VerifyPassword(user.Password, Password); err != nil {
+		if ok := model.IsValidPassword(user.Password, Password); ok != true {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
