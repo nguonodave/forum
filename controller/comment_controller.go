@@ -1,3 +1,2 @@
-package controllers
-
+package controller
 //Comment creation and retrieval.
