@@ -85,7 +85,7 @@ func ValidateEmail(email string) error {
 }
 
 // IsEmailTaken queries the database to check if the email provided exists returns true if found else false
-func IsEmailTaken(email string, db *sql.DB) bool {
+func IsEmailTaken(db *sql.DB, email string) bool {
 	var emailExists bool
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
 	if err != nil {
