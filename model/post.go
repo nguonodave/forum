@@ -209,3 +209,19 @@ func DeletePost(db *sql.DB, postID, userID uuid.UUID) error {
 
 	return tx.Commit()
 }
+
+func ValidatePost(post *Post) error {
+	if post.Title == "" {
+		return xerrors.ErrEmptyTitle
+	}
+
+	if post.Content == "" {
+		return xerrors.ErrEmptyContent
+	}
+
+	if post.UserID == uuid.Nil {
+		return xerrors.ErrInvalidUser
+	}
+
+	return nil
+}
