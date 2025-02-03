@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+</head>
+<body>
+<div class="overlay"></div>
+<div class="container">
+    <aside class="left-sidebar">
+        <div class="app-icon"></div>
+        <nav class="nav-menu">
+            <a href="/" class="nav-item active">
+                <i></i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+        <div class="user-account">
+            <div class="user-avatar"></div>
+            <div>
+                <div>John Doe</div>
+                <div>@johndoe</div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="content-section">
+        <header class="header">
+            <div class="app-icon mobile-only"></div>
+            <div class="search-bar">
+                <label>
+                    <input type="text" class="search-input" placeholder="Search...">
+                </label>
+            </div>
+            <div class="header-avatar"></div>
+        </header>
+        <div class="posts-container">
+            <!-- Generated posts -->
+        </div>
+    </main>
+
+    <aside class="right-sidebar">
+        <div class="recommendations">
+            <h3>Recommended Posts</h3>
+            <!-- Recommendations -->
+        </div>
+        <div class="about-section">
+            <h3>About</h3>
+            <p>Website information and quick links</p>
+        </div>
+    </aside>
+</div>
+<!-- add event listeners for responsive layout -->
+<script src="/static/js/base.js"></script>
+<!-- Dummy posts -->
+<script src="/static/js/posts.creator.js"></script>
+</body>
+</html>

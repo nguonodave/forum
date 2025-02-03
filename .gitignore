@@ -12,3 +12,10 @@
 *.db-backup
 *.sqlite-backup
 *.sqlite3-backup
+
+# Ignore html test design files
+view_tests
+template_tests
+
+# Ignore Jetbrains IDE settings
+.idea
