@@ -19,15 +19,55 @@ var port = flag.Int("P", 8080, "port to listen on")
 var open = flag.Bool("O", false, "open server index page in the default browser")
 
 func main() {
-	println("hello forum")
-	// Initialize database
-	db, err := database.InitializeDB()
-	if err != nil {
-		log.Fatalf("Database initialization failed: %v", err)
+	// parse the defined command-line flags
+	flag.Parse()
+	// configure file logging to temporary application logger file
+	{
+		logFilePath := path.Join(os.TempDir(), fmt.Sprintf("%d-forum-logger.log", os.Getpid()))
+		logger, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			log.Printf("failed to setup file logging: logging to stderr instead: %v\n", err)
+		} else {
+			log.Printf("saving logs to: %s\n", logFilePath)
+		}
+		log.SetOutput(logger)
+		defer fileio.Close(logger)
 	}
-	defer db.Close()
 
-	fmt.Println("Database operations completed successfully!")
+	// Initialize database
+	{
+		db, err := database.InitializeDB()
+		if err != nil {
+			log.Fatalf("Database initialization failed: %v", err)
+		}
+		defer db.Close()
+		fmt.Println("Database operations completed successfully!")
+	}
+
+	http.HandleFunc("/", handlers.Index)
+	// Browsers ping for the /favicon.ico icon, redirect to the respective static file
+	http.Handle("/favicon.ico", http.RedirectHandler("/static/svg/favicon.svg", http.StatusFound))
+	// Serve static files from the static dir, but, ensure not to expose the directory entries
+	staticDirFileServer := http.StripPrefix("/static/", http.FileServer(http.Dir("static")))
+	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
+		// clean to remove trailing slash in path, so that the
+		//paths `/static` and `/static/` both translate to `/static`
+		reqPath := filepath.Clean(r.URL.Path)
+		switch reqPath {
+		case "/static", "/static/css", "/static/js", "/static/svg":
+			handlers.ErrorPage(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+		staticDirFileServer.ServeHTTP(w, r)
+	})
+
+	servePort := fmt.Sprintf(":%d", *port)
+	url := fmt.Sprintf("http://localhost%s\n", servePort)
+	fmt.Printf("Server running at %s\n", url)
+	if *open {
+		openBrowser(url)
+	}
+	log.Fatal(http.ListenAndServe(servePort, nil))
 }
 
 // openBrowser opens a URL in the default web browser based on the operating
