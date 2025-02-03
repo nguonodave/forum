@@ -1,12 +1,14 @@
-package models
+package model
 
 // Handles database interaction and business logic.
 import (
 	"errors"
 	"forum/xerrors"
-	"golang.org/x/crypto/bcrypt"
 	"unicode"
+
+	"golang.org/x/crypto/bcrypt"
 )
+
 
 var (
 	Cost                  int = bcrypt.DefaultCost
@@ -14,7 +16,7 @@ var (
 )
 
 // VerifyPassword compares the password and hashedPassword and checks if they match, if not it returns False else True (meaning they match)
-func VerifyPassword(password, hashedPassword string) bool {
+func IsValidPassword(password, hashedPassword string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }
 
