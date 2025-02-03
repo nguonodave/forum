@@ -15,14 +15,18 @@
 <div class="container">
     <!-- form container -->
     <div class="form-container">
-        <h1 class="title">sign in to forum</h1>
+        <h1 id="form-title">Log in to forum</h1>
         <!-- login form -->
         <form id="loginForm" class="form">
             <div class="input-group">
-                <input type="text" id="loginEmail" required>
-                <label for="loginEmail">email or username</label>
+                <input type="text" id="loginEmailOrUsername" required>
+                <label for="loginEmailOrUsername">email or username</label>
             </div>
-            <!-- login button here -->
+            <div class="input-group">
+                <input type="text" id="loginPassword" required>
+                <label for="loginPassword">password</label>
+            </div>
+            <!-- submit login details-->
             <button type="submit" class="btn-primary">log in</button>
         </form>
 
@@ -30,7 +34,7 @@
         <form id="signupForm" class="form hidden">
             <!-- enter username here -->
             <div class="input-group">
-                <input type="text" id="signupEmail" required>
+                <input type="text" id="signupName" required>
                 <label for="signupName">username</label>
             </div>
 
@@ -45,7 +49,7 @@
                 <input type="email" id="signupPassword" required>
                 <label for="signupPassword">Password</label>
             </div>
-            <!-- this button for submitting during signup -->
+            <!-- submit for signup -->
             <button type="submit" class="btn-primary">sign up</button>
         </form>
 
