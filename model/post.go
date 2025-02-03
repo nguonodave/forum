@@ -171,3 +171,41 @@ func UpdatePost(db *sql.DB, post *Post) error {
 
 	return nil
 }
+
+// DeletePost deletes a post and its associated comments
+func DeletePost(db *sql.DB, postID, userID uuid.UUID) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Delete associated comments first
+	_, err = tx.Exec("DELETE FROM comments WHERE post_id = ?", postID)
+	if err != nil {
+		return err
+	}
+
+	// Delete associated votes
+	_, err = tx.Exec("DELETE FROM votes WHERE post_id = ?", postID)
+	if err != nil {
+		return err
+	}
+
+	// Delete the post
+	result, err := tx.Exec("DELETE FROM posts WHERE id = ? AND user_id = ?", postID, userID)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return xerrors.ErrInvalidPost
+	}
+
+	return tx.Commit()
+}
