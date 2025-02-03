@@ -1,1 +1,64 @@
 <!--  # Login page.-->
+<!-- login.js -->
+<!-- login.css -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>login/signup</title>
+    <meta charset="UTF-18">
+    <meta content="width=device-width, width=device-height, initial-scale=1">
+    <meta content="width=device-width, width=device-height, initial-scale=1.0">
+    <meta content="minimum-scale=0.5, maximum-scale=10, user-scalable=1">
+    <meta content="minimum-scale=0.5, maximum-scale=10, user-scalable=yes">
+    <link rel="stylesheet" href="/forum/static/login.css">
+</head>
+
+<body>
+<!-- form container -->
+    <div class="form-container">
+        <h1 class="title">sign in to forum</h1>
+
+        <!-- login form -->
+        <form id="loginForm" class="form">
+            <div class="input-group">
+                <input type="text" id="loginEmail" required>
+                <label for="loginEmail">email or username</label>
+            </div>
+            <!-- login button here -->
+            <button type="submit" class="btn-primary">log in</button>
+        </form>
+
+        <!-- signup form -->
+        <form id="signupForm" class="form hidden">
+
+            <!-- enter username here -->
+            <div class="input-group">
+                <input type="text" id="signupEmail" required>
+                <label for="signupName">username</label>
+            </div>
+
+            <!-- enter email here -->
+            <div class="input-group">
+                <input type="email" id="signupEmail" required>
+                <label for="signupEmail">email</label>
+            </div>
+
+            <!-- enter password here -->
+            <div class="input-group">
+                <input type="email" id="signupPassword" required>
+                <label for="signupPassword">Password</label>
+            </div>
+
+            <!-- this button for submitting during signup -->
+            <button type="submit" class="btn-primary">sign up</button>
+        </form>
+
+        <div class="switch-form">
+            <span id="switchText">Don't have an account?</span>
+            <button id="switchBtn" class="btn-text">Sign up</button>
+        </div>
+    </div>
+
+
+</body>
+</html>
