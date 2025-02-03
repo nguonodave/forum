@@ -2,13 +2,16 @@ package model
 
 // Handles database interaction and business logic.
 import (
+	"database/sql"
 	"errors"
-	"forum/xerrors"
+	"fmt"
+	"regexp"
 	"unicode"
+
+	"forum/xerrors"
 
 	"golang.org/x/crypto/bcrypt"
 )
-
 
 var (
 	Cost                  int = bcrypt.DefaultCost
@@ -70,4 +73,24 @@ func ValidatePassword(password string) error {
 	}
 
 	return nil
+}
+
+// ValidateEmail checks if email provided has a valid email syntax
+func ValidateEmail(email string) error {
+	emailPattern := `^(\w)(\w{1,}|\d{1,})+@\w+.\w{2,4}$`
+	if !regexp.MustCompile(emailPattern).MatchString(email) {
+		return fmt.Errorf("invalid email format")
+	}
+	return nil
+}
+
+// IsEmailTaken queries the database to check if the email provided exists returns true if found else false
+func IsEmailTaken(email string, db *sql.DB) bool {
+	var emailExists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
+	if err != nil {
+		fmt.Printf("Error checking if email exists: %v\n", err)
+		return false
+	}
+	return emailExists
 }
