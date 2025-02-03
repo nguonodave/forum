@@ -16,3 +16,6 @@
 # Ignore html test design files
 view_tests
 template_tests
+
+# Ignore Jetbrains IDE settings
+.idea
