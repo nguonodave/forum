@@ -2,6 +2,7 @@ package controller
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
@@ -90,7 +91,7 @@ func HandleLogin(db *sql.DB) http.HandlerFunc {
 			Email,
 		).Scan(&user.ID, &user.Email, &user.Password)
 
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
@@ -101,7 +102,7 @@ func HandleLogin(db *sql.DB) http.HandlerFunc {
 		}
 
 		// Verify password
-		if ok := model.IsValidPassword(user.Password, Password); ok != true {
+		if ok := model.VerifyPassword(user.Password, Password); ok != true {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
@@ -154,7 +155,7 @@ func ValidateSession(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
 			cookie.Value,
 		).Scan(&userID, &expiresAt)
 
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
