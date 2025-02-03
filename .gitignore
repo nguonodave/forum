@@ -12,3 +12,4 @@
 *.db-backup
 *.sqlite-backup
 *.sqlite3-backup
+.idea*
