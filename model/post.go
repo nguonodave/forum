@@ -153,7 +153,7 @@ func UpdatePost(db *sql.DB, post *Post) error {
 	result, err := db.Exec(`
 	
 	UPDATE posts
-	SET titles = ?, content = ?, updated_at = ?, category_id = ?
+	SET title = ?, content = ?, updated_at = ?, category_id = ?
 	WHERE id = ? AND user_id = ?
 	`, post.Title, post.Content, post.UpdatedAt, post.Category.ID, post.ID, post.UserID)
 	if err != nil {
