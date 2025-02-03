@@ -210,6 +210,8 @@ func DeletePost(db *sql.DB, postID, userID uuid.UUID) error {
 	return tx.Commit()
 }
 
+// ValidatePost checks if any required section of a post is missing
+// It returns an error if any section is missing
 func ValidatePost(post *Post) error {
 	if post.Title == "" {
 		return xerrors.ErrEmptyTitle
