@@ -125,7 +125,7 @@ document.querySelectorAll('input').forEach(input => {
 });
 
 // add password meter here
-// remember to change url endpoint depending on user if loggin in or sign up
+// remember to change url endpoint depending on user if login in or sign up
 // add remember me checkbox
 // add forgot password functionality
 // connect to backend

@@ -123,17 +123,6 @@ func HandleLogin(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// Create session cookie
-		http.SetCookie(w, &http.Cookie{
-			Name:     "session",
-			Value:    sessionToken,
-			Expires:  expiresAt,
-			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteStrictMode,
-		})
-
-		w.WriteHeader(http.StatusOK)
 	}
 }
 

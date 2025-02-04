@@ -45,6 +45,8 @@ func main() {
 	}
 
 	http.HandleFunc("/", handlers.Index)
+	http.HandleFunc("/login", handlers.Login)
+
 	// Browsers ping for the /favicon.ico icon, redirect to the respective static file
 	http.Handle("/favicon.ico", http.RedirectHandler("/static/svg/favicon.svg", http.StatusFound))
 	// Serve static files from the static dir, but, ensure not to expose the directory entries
