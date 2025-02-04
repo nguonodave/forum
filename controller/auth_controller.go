@@ -12,28 +12,31 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQL driver
 )
 
+// Expose the db variable for testing
 var db *sql.DB
+
+// SetDB sets the global database connection
+func SetDB(database *sql.DB) {
+	db = database
+}
 
 // generateSessionToken generates a unique session token using UUID
 func generateSessionToken() string {
 	return uuid.New().String()
 }
 
+// RegisterUser registers a new user
 func RegisterUser(email, password, username string) error {
-
 	// Validate input
 	if err := model.ValidateEmail(email); err != nil {
-
 		return err
 	}
 
 	if err := model.ValidatePassword(password); err != nil {
-
 		return err
 	}
 
 	if model.IsEmailTaken(db, email) {
-
 		return errors.New("email is already taken")
 	}
 
@@ -57,7 +60,7 @@ func RegisterUser(email, password, username string) error {
 	return nil
 }
 
-func VerifyLogin(email, password, username string) (string, string, error) {
+func VerifyLogin(email, password string) (string, string, error) {
 	// Retrieve user from database
 	var user model.User
 	err := db.QueryRow(
@@ -74,7 +77,7 @@ func VerifyLogin(email, password, username string) (string, string, error) {
 	}
 
 	// Verify password
-	if ok := model.IsValidPassword(user.Password, password); !ok {
+	if ok := model.IsValidPassword(password, user.Password); !ok {
 		return "", "", errors.New("invalid credentials")
 	}
 
@@ -83,11 +86,18 @@ func VerifyLogin(email, password, username string) (string, string, error) {
 
 	// Store session in the database
 	expiresAt := time.Now().Add(24 * time.Hour)
+	_, err = db.Exec(
+		"INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
+		user.ID, sessionToken, expiresAt,
+	)
+	if err != nil {
+		return "", "", errors.New("internal server error")
+	}
 
 	return sessionToken, expiresAt.String(), nil
 }
 
-// ValidateSession applies for routes that require authentication.
+// ValidateSession applies for routes that require authentication
 func ValidateSession(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Get the session cookie
