@@ -19,54 +19,42 @@ func generateSessionToken() string {
 	return uuid.New().String()
 }
 
-func HandleRegister(db *sql.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Invalid form data", http.StatusBadRequest)
-			return
-		}
+func RegisterUser(email, password, username string) error {
 
-		Email = r.FormValue("email")
-		Password = r.FormValue("password")
-		Username = r.FormValue("username")
+	// Validate input
+	if err := model.ValidateEmail(email); err != nil {
 
-		// Validate input
-		if err := model.ValidateEmail(Email); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if err := model.ValidatePassword(Password); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if model.IsEmailTaken(db, Email) {
-			http.Error(w, "Email already registered", http.StatusConflict)
-			return
-		}
-
-		// Hash password
-		hashedPassword, err := model.HashPassword(Password)
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-
-		// Insert user into database
-		_, err = db.Exec(
-			"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
-			Email,
-			hashedPassword,
-			Username,
-		)
-		if err != nil {
-			http.Error(w, "Failed to create user", http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
+		return err
 	}
+
+	if err := model.ValidatePassword(password); err != nil {
+
+		return err
+	}
+
+	if model.IsEmailTaken(db, email) {
+
+		return errors.New("email is already taken")
+	}
+
+	// Hash password
+	hashedPassword, err := model.HashPassword(password)
+	if err != nil {
+		return errors.New("internal server error")
+	}
+
+	// Insert user into database
+	_, err = db.Exec(
+		"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
+		email,
+		hashedPassword,
+		username,
+	)
+	if err != nil {
+		return errors.New("failed to create user")
+	}
+
+	return nil
 }
 
 func VerifyLogin(email, password, username string) (string, string, error) {
@@ -78,16 +66,16 @@ func VerifyLogin(email, password, username string) (string, string, error) {
 	).Scan(&user.ID, &user.Email, &user.Password)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return "", "", errors.New("Invalid credentials")
+		return "", "", errors.New("invalid credentials")
 	}
 
 	if err != nil {
-		return "", "", errors.New("Internal server error")
+		return "", "", errors.New("internal server error")
 	}
 
 	// Verify password
-	if ok := model.VerifyPassword(user.Password, password); ok != true {
-		return "", "", errors.New("Invalid credentials")
+	if ok := model.IsValidPassword(user.Password, password); !ok {
+		return "", "", errors.New("invalid credentials")
 	}
 
 	// Generate session token
