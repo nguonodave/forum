@@ -12,11 +12,7 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQL driver
 )
 
-var (
-	Email    string
-	Password string
-	Username string
-)
+var db *sql.DB
 
 // generateSessionToken generates a unique session token using UUID
 func generateSessionToken() string {
@@ -73,68 +69,34 @@ func HandleRegister(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func HandleLogin(db *sql.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Invalid form data", http.StatusBadRequest)
-			return
-		}
+func VerifyLogin(email, password, username string) (string, string, error) {
+	// Retrieve user from database
+	var user model.User
+	err := db.QueryRow(
+		"SELECT id, email, password FROM users WHERE email = ?",
+		email,
+	).Scan(&user.ID, &user.Email, &user.Password)
 
-		Email = r.FormValue("email")
-		Password = r.FormValue("password")
-		Username = r.FormValue("username")
-
-		// Retrieve user from database
-		var user model.User
-		err := db.QueryRow(
-			"SELECT id, email, password FROM users WHERE email = ?",
-			Email,
-		).Scan(&user.ID, &user.Email, &user.Password)
-
-		if errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-			return
-		}
-
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-
-		// Verify password
-		if ok := model.VerifyPassword(user.Password, Password); ok != true {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-			return
-		}
-
-		// Generate session token
-		sessionToken := generateSessionToken()
-
-		// Store session in the database
-		expiresAt := time.Now().Add(24 * time.Hour)
-		_, err = db.Exec(
-			"INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
-			sessionToken,
-			user.ID,
-			expiresAt,
-		)
-		if err != nil {
-			http.Error(w, "Failed to create session", http.StatusInternalServerError)
-			return
-		}
-
-		// Create session cookie
-		http.SetCookie(w, &http.Cookie{
-			Name:     "session",
-			Value:    sessionToken,
-			Expires:  expiresAt,
-			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteStrictMode,
-		})
-
-		w.WriteHeader(http.StatusOK)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", "", errors.New("Invalid credentials")
 	}
+
+	if err != nil {
+		return "", "", errors.New("Internal server error")
+	}
+
+	// Verify password
+	if ok := model.VerifyPassword(user.Password, password); ok != true {
+		return "", "", errors.New("Invalid credentials")
+	}
+
+	// Generate session token
+	sessionToken := generateSessionToken()
+
+	// Store session in the database
+	expiresAt := time.Now().Add(24 * time.Hour)
+
+	return sessionToken, expiresAt.String(), nil
 }
 
 // ValidateSession applies for routes that require authentication.
