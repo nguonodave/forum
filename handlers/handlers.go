@@ -1,12 +1,17 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
-	"forum/controller"
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
+	"strconv"
+
+	"forum/controller"
+	"forum/database"
+	"forum/model"
 )
 
 // templatesDir refers to the filepath of the directory containing the application's templates
@@ -34,7 +39,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if r.Method == "POST" {
-		println(3)
 		// parse form and populate r.Form
 		err := r.ParseForm()
 		if err != nil {
@@ -46,7 +50,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 		fmt.Println(email, password)
 		sessionToken, expiresAt, err := controller.VerifyLogin(email, password)
-
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -70,7 +73,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 // Register handles /register endpoint for registering
 func Register(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
 	case http.MethodPost:
 		err := r.ParseForm()
@@ -112,4 +114,33 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+}
+
+func GetPaginatedPostsHandler(w http.ResponseWriter, r *http.Request) {
+	db, err := database.InitializeDB()
+	if err != nil {
+		http.Error(w, "Failed to initialize database", http.StatusInternalServerError)
+	}
+
+	// Get `page` and `limit` from query parameters
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 50 {
+		limit = 10 // Default limit
+	}
+
+	offset := (page - 1) * limit
+
+	posts, err := model.GetPaginatedPosts(db, limit, offset)
+	if err != nil {
+		http.Error(w, "Failed to load posts", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(posts)
 }
