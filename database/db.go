@@ -36,7 +36,7 @@ func InitializeDB() (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to apply migrations: %w", err)
 	}
 	// configure connection pool
-	db.SetMaxOpenConns(1) // sqlite only supports 1 wrter  at a time
+	db.SetMaxOpenConns(1) // sqlite only supports 1 writer  at a time
 	db.SetMaxIdleConns(1)
 
 	return db, nil

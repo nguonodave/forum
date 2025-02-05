@@ -1,36 +1,41 @@
-/*
-grab elements from html by their id
-*/
 const switchBtn = document.getElementById('switchBtn');
 const switchText = document.getElementById('switchText');
 const loginForm = document.getElementById('loginForm');
 const signupForm = document.getElementById('signupForm');
 const formTitle = document.getElementById('form-title');
+const BASE_URL = window.location.origin;
+console.log(BASE_URL)
 
-
-/*
-add an event listener on switch button, when button is clicked, it toggles between login and signup form
-e.preventDefault() is to prevent page from re-loading
-classList.toggle() switches/flips between the signup and login, displaying the correct info
-*/
-switchBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginForm.classList.toggle('hidden');
-    signupForm.classList.toggle('hidden');
-    
-    // switch to signup form
-    if (switchBtn.textContent === 'Sign up') {
+function toggleForm(isSignup) {
+    if (isSignup) {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
         switchText.textContent = 'Already have an account?';
         switchBtn.textContent = 'Log in';
         formTitle.textContent = 'Sign up to forum';
     } else {
-        // switch to log in form
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
         switchText.textContent = "Don't have an account?";
         switchBtn.textContent = 'Sign up';
-        formTitle.textContent = 'Log in to forum'
+        formTitle.textContent = 'Log in to forum';
     }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    toggleForm(window.location.pathname === '/register');
 });
 
+window.addEventListener('popstate', () => {
+    toggleForm(window.location.pathname === '/register');
+});
+
+switchBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const isSignup = switchBtn.textContent === 'Sign up';
+    history.pushState(null, '', isSignup ? '/register' : '/login');
+    toggleForm(isSignup);
+});
 
 /*
 get all forms using querySelectorAll()
@@ -75,41 +80,47 @@ document.querySelectorAll('.form').forEach(form => {
 });
 
 async function login(emailOrUsername,password,isEmail){
-    const body = {};
-    if (isEmail){
-        body["email"] = emailOrUsername;
-    }else{
-        body["username"] = emailOrUsername;
-    }
-    body[password] = password;
-    let data =  await fetch('http://localhost:8080/login',
-        {
+    const body = isEmail
+        ? {email:emailOrUsername, password:password}
+        : {username: '', password: '', isEmail: false};
+
+    try {
+        let response = await fetch(`${BASE_URL}/login`, {
             method: 'POST',
             body: JSON.stringify(body),
-            headers: {'Content-Type': 'application/json; charset=UTF-8'}
+            headers: {'Content-Type': 'application/json'}
+        });
+
+        let data = await response.json();
+        console.log(data);
+        if (response.ok){
+            alert("login success");
+        }else{
+            alert('login error'+data.message);
         }
-    )
-    data = await data.json();
-    if (data.ok){
-        alert("login successfully!");
-    }else{
-        alert("error login in"+data.message);
+
+    }catch(error){
+        alert("net error"+error.message);
     }
 }
 
 async function signup(email,username,password){
-    const payload = {
-        "email":email,
-        "password":password,
-        "username":username,
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        method:'POST'
-    }
-    let data =  await fetch('http://localhost:8080/signup', payload)
-    if (data.ok){
-        alert("signup successfully!");
-    }else{
-        alert("error login in"+data.message);
+    const body = {email,username,password};
+    try{
+        let response = await fetch(`${BASE_URL}/signup`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {'Content-Type': 'application/json'}
+        });
+        let data = await response.json();
+        console.log("signup", data);
+        if (response.ok){
+            alert("signup success");
+        }else{
+            alert("error signing up"+data.message);
+        }
+    }catch(error){
+        alert("net error"+error.message);
     }
 }
 
@@ -124,8 +135,18 @@ document.querySelectorAll('input').forEach(input => {
     });
 });
 
+document.querySelectorAll('.input-group input').forEach(input => {
+    input.addEventListener('oninput', () => {
+        if (input.value.length >= 1) {
+            input.nextElementSibling.style.display = 'none'; // Hide the label
+        } else {
+            input.nextElementSibling.style.display = 'block'; // Show label if empty
+        }
+    });
+});
+
 // add password meter here
-// remember to change url endpoint depending on user if loggin in or sign up
+// remember to change url endpoint depending on user if login in or sign up
 // add remember me checkbox
 // add forgot password functionality
 // connect to backend
