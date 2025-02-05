@@ -15,41 +15,36 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQL driver
 )
 
-var (
-	Email    string
-	Password string
-	Username string
-	DB       *sql.DB
-)
+var DB *sql.DB
 
 // generateSessionToken generates a unique session token using UUID
 func generateSessionToken() string {
 	return uuid.New().String()
 }
 
-func HandleRegister(username, email, password) error {
-	if err := model.ValidateEmail(Email); err != nil {
+func HandleRegister(username, email, password string) error {
+	if err := model.ValidateEmail(email); err != nil {
 		return err
 	}
 
-	if err := model.ValidatePassword(Password); err != nil {
+	if err := model.ValidatePassword(password); err != nil {
 		return err
 	}
 
-	if model.IsEmailTaken(DB, Email) {
+	if model.IsEmailTaken(DB, email) {
 		return errors.New("email is already taken")
 	}
 
-	hashedPassword, err := model.HashPassword(Password)
+	hashedPassword, err := model.HashPassword(password)
 	if err != nil {
 		return errors.New("failed to hash password")
 	}
 
 	_, err = DB.Exec(
 		"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
-		Email,
+		email,
 		hashedPassword,
-		Username,
+		username,
 	)
 
 	if err != nil {
@@ -67,7 +62,7 @@ func HandleLogin(email, password string) (string, time.Time, error) {
 	var user model.User
 	err := DB.QueryRow(
 		"SELECT id, email, password FROM users WHERE email = ?",
-		Email,
+		email,
 	).Scan(&user.ID, &user.Email, &user.Password)
 
 	if err != nil {
@@ -77,7 +72,7 @@ func HandleLogin(email, password string) (string, time.Time, error) {
 		return "", time.Time{}, err
 	}
 
-	if ok := model.VerifyPassword(user.Password, Password); ok != true {
+	if ok := model.VerifyPassword(user.Password, email); ok != true {
 		return "", time.Time{}, xerrors.ErrInvalidCredentials
 	}
 
