@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"forum/xerrors"
 	"log"
 	"net/http"
 	"time"
@@ -15,14 +14,22 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQL driver
 )
 
-var DB *sql.DB
+// Expose the db variable for testing
+var db *sql.DB
+
+// SetDB sets the global database connection
+func SetDB(database *sql.DB) {
+	db = database
+}
 
 // generateSessionToken generates a unique session token using UUID
 func generateSessionToken() string {
 	return uuid.New().String()
 }
 
-func HandleRegister(username, email, password string) error {
+// RegisterUser registers a new user
+func RegisterUser(email, password, username string) error {
+	// Validate input
 	if err := model.ValidateEmail(email); err != nil {
 		return err
 	}
@@ -31,68 +38,69 @@ func HandleRegister(username, email, password string) error {
 		return err
 	}
 
-	if model.IsEmailTaken(DB, email) {
+	if model.IsEmailTaken(db, email) {
 		return errors.New("email is already taken")
 	}
 
+	// Hash password
 	hashedPassword, err := model.HashPassword(password)
 	if err != nil {
-		return errors.New("failed to hash password")
+		return errors.New("internal server error")
 	}
 
-	_, err = DB.Exec(
+	// Insert user into database
+	_, err = db.Exec(
 		"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
 		email,
 		hashedPassword,
 		username,
 	)
-
 	if err != nil {
-		return err
+		return errors.New("failed to create user")
 	}
+
 	return nil
 }
 
-// HandleLogin takes only the email and password and creates and checks if user exist in database
-// it returns:
-// 1. sessionToken else empty string
-// 2. time the session token expires else empty time struct
-// 3. error == nil if success
-func HandleLogin(email, password string) (string, time.Time, error) {
+func VerifyLogin(email, password string) (string, time.Time, error) {
+	// Retrieve user from database
 	var user model.User
-	err := DB.QueryRow(
+	err := db.QueryRow(
 		"SELECT id, email, password FROM users WHERE email = ?",
 		email,
 	).Scan(&user.ID, &user.Email, &user.Password)
 
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", time.Time{}, errors.New("invalid credentials")
+	}
+
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", time.Time{}, xerrors.ErrNoSuchUser
-		}
-		return "", time.Time{}, err
+		return "", time.Time{}, errors.New("internal server error")
 	}
 
-	if ok := model.VerifyPassword(user.Password, email); ok != true {
-		return "", time.Time{}, xerrors.ErrInvalidCredentials
+	// Verify password
+	if ok := model.IsValidPassword(password, user.Password); !ok {
+		return "", time.Time{}, errors.New("invalid credentials")
 	}
 
+	// Generate session token
 	sessionToken := generateSessionToken()
 
-	// expire after a day
-	expiresAt := time.Now().Add(24 * time.Hour)
-
-	_, err = DB.Exec(
-		"INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
-		sessionToken,
-		user.ID,
-		expiresAt,
+	// Store session in the database
+	expiresAt := time.Now().Add(24 * 14 * time.Hour)
+	_, err = db.Exec(
+		"INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
+		user.ID, sessionToken, expiresAt,
 	)
+	if err != nil {
+		return "", time.Time{}, errors.New("internal server error")
+	}
+
 	return sessionToken, expiresAt, nil
 }
 
-// ValidateSession is a middleware that checks if a users session exist in database and has not expired
-// to be used in routes that need authentication
-func ValidateSession(next http.HandlerFunc) http.HandlerFunc {
+// ValidateSession applies for routes that require authentication
+func ValidateSession(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Get the session cookie
 		cookie, err := r.Cookie("session")
@@ -104,7 +112,7 @@ func ValidateSession(next http.HandlerFunc) http.HandlerFunc {
 		var userID int
 		var expiresAt time.Time
 
-		err = DB.QueryRow(
+		err = db.QueryRow(
 			"SELECT user_id, expires_at FROM sessions WHERE token = ? LIMIT 1",
 			cookie.Value,
 		).Scan(&userID, &expiresAt)
@@ -127,7 +135,7 @@ func ValidateSession(next http.HandlerFunc) http.HandlerFunc {
 
 		// OPTIONAL FEATURE: refreshing token expiration for each request
 		// this is to make sure if the site is idle, we log out user to save resources
-		_, err = DB.Exec("UPDATE sessions SET expires_at = ? WHERE token = ?", time.Now().Add(24*time.Hour), cookie.Value)
+		_, err = db.Exec("UPDATE sessions SET expires_at = ? WHERE token = ?", time.Now().Add(24*time.Hour), cookie.Value)
 		if err != nil {
 			log.Printf("ERROR: database while refershing session %v\n", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)

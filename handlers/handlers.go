@@ -45,7 +45,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		email := r.Form.Get("email")
 		password := r.FormValue("password")
 		fmt.Println(email, password)
-		sessionToken, expiresAt, err := controller.HandleLogin(email, password)
+		sessionToken, expiresAt, err := controller.VerifyLogin(email, password)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -83,7 +83,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		password := r.Form.Get("password")
 		email := r.Form.Get("email")
 
-		err = controller.HandleRegister(username, email, password)
+		err = controller.RegisterUser(username, email, password)
 		if err != nil {
 			http.Error(w, "error during registration", http.StatusInternalServerError)
 			return
