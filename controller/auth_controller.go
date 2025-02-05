@@ -60,7 +60,7 @@ func RegisterUser(email, password, username string) error {
 	return nil
 }
 
-func VerifyLogin(email, password string) (string, string, error) {
+func VerifyLogin(email, password string) (string, time.Time, error) {
 	// Retrieve user from database
 	var user model.User
 	err := db.QueryRow(
@@ -69,32 +69,32 @@ func VerifyLogin(email, password string) (string, string, error) {
 	).Scan(&user.ID, &user.Email, &user.Password)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return "", "", errors.New("invalid credentials")
+		return "", time.Time{}, errors.New("invalid credentials")
 	}
 
 	if err != nil {
-		return "", "", errors.New("internal server error")
+		return "", time.Time{}, errors.New("internal server error")
 	}
 
 	// Verify password
 	if ok := model.IsValidPassword(password, user.Password); !ok {
-		return "", "", errors.New("invalid credentials")
+		return "", time.Time{}, errors.New("invalid credentials")
 	}
 
 	// Generate session token
 	sessionToken := generateSessionToken()
 
 	// Store session in the database
-	expiresAt := time.Now().Add(24 * time.Hour)
+	expiresAt := time.Now().Add(24 * 14 * time.Hour)
 	_, err = db.Exec(
 		"INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
 		user.ID, sessionToken, expiresAt,
 	)
 	if err != nil {
-		return "", "", errors.New("internal server error")
+		return "", time.Time{}, errors.New("internal server error")
 	}
 
-	return sessionToken, expiresAt.String(), nil
+	return sessionToken, expiresAt, nil
 }
 
 // ValidateSession applies for routes that require authentication
