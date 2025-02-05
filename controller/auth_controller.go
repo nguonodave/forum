@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"forum/xerrors"
 	"log"
 	"net/http"
 	"time"
@@ -113,7 +112,7 @@ func ValidateSession(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
 		var userID int
 		var expiresAt time.Time
 
-		err = DB.QueryRow(
+		err = db.QueryRow(
 			"SELECT user_id, expires_at FROM sessions WHERE token = ? LIMIT 1",
 			cookie.Value,
 		).Scan(&userID, &expiresAt)
@@ -136,7 +135,7 @@ func ValidateSession(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
 
 		// OPTIONAL FEATURE: refreshing token expiration for each request
 		// this is to make sure if the site is idle, we log out user to save resources
-		_, err = DB.Exec("UPDATE sessions SET expires_at = ? WHERE token = ?", time.Now().Add(24*time.Hour), cookie.Value)
+		_, err = db.Exec("UPDATE sessions SET expires_at = ? WHERE token = ?", time.Now().Add(24*time.Hour), cookie.Value)
 		if err != nil {
 			log.Printf("ERROR: database while refershing session %v\n", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
