@@ -227,3 +227,56 @@ func ValidatePost(post *Post) error {
 
 	return nil
 }
+
+// GetPaginatedPosts retrieves posts with pagination for lazy loading
+func GetPaginatedPosts(db *sql.DB, limit, offset int) ([]*Post, error) {
+	rows, err := db.Query(`
+		SELECT 
+			p.id, p.user_id, p.title, p.content, p.created_at, p.updated_at,
+			u.id, u.username,
+			c.id, c.name,
+			COALESCE(v.vote_count, 0) as votes
+		FROM posts p
+		LEFT JOIN users u ON p.user_id = u.id
+		LEFT JOIN categories c ON p.category_id = c.id
+		LEFT JOIN (
+			SELECT post_id, SUM(value) as vote_count 
+			FROM votes 
+			GROUP BY post_id
+		) v ON p.id = v.post_id
+		ORDER BY p.created_at DESC
+		LIMIT ? OFFSET ?
+	`, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []*Post
+	for rows.Next() {
+		post := &Post{
+			User:     &User{},
+			Category: &Category{},
+		}
+		err := rows.Scan(
+			&post.ID,
+			&post.UserID,
+			&post.Title,
+			&post.Content,
+			&post.CreatedAt,
+			&post.UpdatedAt,
+			&post.User.ID,
+			&post.User.Username,
+			&post.Category.ID,
+			&post.Category.Name,
+			&post.Votes,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		posts = append(posts, post)
+	}
+
+	return posts, nil
+}
