@@ -5,5 +5,7 @@ import (
 )
 
 var (
-	ErrPasswordTooShort = errors.New("password length too short, minimum of 8 characters required")
+	ErrPasswordTooShort   = errors.New("password length too short, minimum of 8 characters required")
+	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrNoSuchUser         = errors.New("no such user")
 )
