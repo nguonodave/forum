@@ -5,9 +5,11 @@ import (
 )
 
 var (
-	ErrPasswordTooShort = errors.New("password length too short, minimum of 8 characters required")
-	ErrEmptyTitle       = errors.New("post title cannot be empty")
-	ErrEmptyContent     = errors.New("post content cannot be empty")
-	ErrInvalidUser      = errors.New("invalid user ID")
-	ErrInvalidPost      = errors.New("post not found")
+	ErrPasswordTooShort   = errors.New("password length too short, minimum of 8 characters required")
+	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrNoSuchUser         = errors.New("no such user")
+	ErrEmptyTitle         = errors.New("post title cannot be empty")
+	ErrEmptyContent       = errors.New("post content cannot be empty")
+	ErrInvalidUser        = errors.New("invalid user ID")
+	ErrInvalidPost        = errors.New("post not found")
 )
