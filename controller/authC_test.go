@@ -2,11 +2,12 @@ package controller
 
 import (
 	"database/sql"
-	"forum/model"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"forum/model"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -221,7 +222,7 @@ func TestVerifyLogin(t *testing.T) {
 				if token == "" {
 					t.Error("VerifyLogin() token is empty")
 				}
-				if expires == "" {
+				if expires.IsZero() {
 					t.Error("VerifyLogin() expires is empty")
 				}
 
