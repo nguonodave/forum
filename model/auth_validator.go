@@ -18,7 +18,7 @@ var (
 	MinimumPasswordLength int = 8
 )
 
-// VerifyPassword compares the password and hashedPassword and checks if they match, if not it returns False else True (meaning they match)
+// IsValidPassword compares the password and hashedPassword and checks if they match, if not it returns False else True (meaning they match)
 func IsValidPassword(password, hashedPassword string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }
@@ -26,19 +26,27 @@ func IsValidPassword(password, hashedPassword string) bool {
 // HashPassword attempts to hash password using Cost value and returns the hashed password and error will be nil if successful
 // else hashed password will be an empty string and error will be not nil
 func HashPassword(password string) (string, error) {
+	fmt.Println("hashA")
 	if err := ValidatePassword(password); err != nil {
+		fmt.Println("hashB")
 		return "", xerrors.ErrPasswordTooShort
 	}
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), Cost)
 	if err != nil {
+		fmt.Println("hashC")
 		return "", err
 	}
+	fmt.Println("hashD")
 	return string(passwordBytes), nil
 }
 
 func ValidatePassword(password string) error {
 	if len(password) < MinimumPasswordLength {
 		return xerrors.ErrPasswordTooShort
+	}
+
+	if len(password) > 64 {
+		return errors.New("password too long")
 	}
 
 	var hasUpper, hasLower, hasNumber, hasPunct bool
@@ -81,7 +89,7 @@ func ValidateEmail(email string) error {
 	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	re := regexp.MustCompile(emailPattern)
 	match := re.MatchString(email)
-	fmt.Println(match, email)
+	fmt.Println("email matches regex pattern", match, email)
 	if !match {
 		return fmt.Errorf("invalid email format")
 	}
@@ -91,7 +99,13 @@ func ValidateEmail(email string) error {
 // IsEmailTaken queries the database to check if the email provided exists returns true if found else false
 func IsEmailTaken(db *sql.DB, email string) bool {
 	var emailExists bool
+	println()
+	println()
+	fmt.Println(*db)
+	println()
+	fmt.Println("IsEmailTaken() function failure")
 	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
+	fmt.Println(err)
 	if err != nil {
 		fmt.Printf("Error checking if email exists: %v\n", err)
 		return false

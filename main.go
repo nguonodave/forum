@@ -27,7 +27,7 @@ func main() {
 	// configure file logging to temporary application logger file
 	{
 		logFilePath := path.Join(os.TempDir(), fmt.Sprintf("%d-forum-logger.log", os.Getpid()))
-		logger, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
+		logger, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o644)
 		if err != nil {
 			log.Printf("failed to setup file logging: logging to stderr instead: %v\n", err)
 		} else {

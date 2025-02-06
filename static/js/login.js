@@ -4,8 +4,8 @@ const loginForm = document.getElementById('loginForm');
 const signupForm = document.getElementById('signupForm');
 const formTitle = document.getElementById('form-title');
 const BASE_URL = window.location.origin;
-console.log(BASE_URL)
 
+// Toggle between login and signup forms
 function toggleForm(isSignup) {
     if (isSignup) {
         loginForm.classList.add('hidden');
@@ -22,14 +22,17 @@ function toggleForm(isSignup) {
     }
 }
 
+// Initialize form based on the current URL path
 document.addEventListener('DOMContentLoaded', () => {
     toggleForm(window.location.pathname === '/register');
 });
 
+// Handle browser back/forward buttons
 window.addEventListener('popstate', () => {
     toggleForm(window.location.pathname === '/register');
 });
 
+// Switch between login and signup forms
 switchBtn.addEventListener('click', (e) => {
     e.preventDefault();
     const isSignup = switchBtn.textContent === 'Sign up';
@@ -37,85 +40,73 @@ switchBtn.addEventListener('click', (e) => {
     toggleForm(isSignup);
 });
 
-/*
-get all forms using querySelectorAll()
-for each form, add a submit event listener
-e.preventDefault() prevents form from submitting
-*/
+// Handle form submissions
 document.querySelectorAll('.form').forEach(form => {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        if (form.id === 'signupForm'){
+        if (form.id === 'signupForm') {
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
             const username = document.getElementById('signupName').value;
             const confirmPassword = document.getElementById('signupConfirmPassword').value;
-            // make sure username does not contain @ symbol
-            if (username.includes('@')){
-                alert("username cannot contain '@' symbol")
-                return
+
+            // Validate username and password
+            if (username.includes('@')) {
+                alert("Username cannot contain '@' symbol");
+                return;
             }
-            if(password !== confirmPassword){
-                alert('passwords do not match');
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
                 return;
             }
 
-            // send signup data to the backend
-            signup(email,password,username).then(response => {
-                if (response.ok) {
-                    alert('signup success');
-                    window.location.href = '/login';
-                }else{
-                    alert('signup failed' + response.message);
-                }
-            });
+            // Send signup data to the backend
+            const response = await signup(email, password, username);
+            if (response.ok) {
+                alert('Signup successful');
+                window.location.href = '/login';
+            } else {
+                console.log(response);
+                alert('Signup failed: ' + response.message);
+            }
 
-        }else if (form.id === 'loginForm'){
+        } else if (form.id === 'loginForm') {
             const usernameOrEmail = document.getElementById('loginEmailOrUsername').value;
             const password = document.getElementById('loginPassword').value;
-
-            // username should not contain email
             const isEmail = usernameOrEmail.includes('@');
 
-            login(usernameOrEmail,password,isEmail).then(response => {
-                if(response.ok){
-                    alert('login success');
-                    window.location.href = '/'; // redirect to homepage
-                }else{
-                    alert('login failed'+response.message);
-                }
-            });
+            // Send login data to the backend
+            const response = await login(usernameOrEmail, password, isEmail);
+            if (response.ok) {
+                alert('Login successful');
+                window.location.href = '/';
+            } else {
+                alert('Login failed: ' + response.message);
+            }
         }
-        // form.reset();
     });
-})
+});
 
-
-async function login(usernameOrEmail, password, isEmail){
-    const body = {}
-    if (isEmail){
-        body['email'] = usernameOrEmail;
-    }else{
-        body['username'] = usernameOrEmail;
-    }
-    body['password'] = password;
-    console.log("login body",body);
+// Login function
+async function login(usernameOrEmail, password, isEmail) {
+    const body = isEmail ? { email: usernameOrEmail, password } : { username: usernameOrEmail, password };
 
     try {
         const response = await fetch('/login', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
         });
-        const data = await response.text();
-        return { ok : response.ok , message: data.message }
-    }catch(error){
-        console.log(error);
-        return { ok: false, message: error };
+        const data = await response.json(); // Parse JSON response
+        return { ok: response.ok, message: data.message };
+    } catch (error) {
+        console.error('Login error:', error);
+        return { ok: false, message: 'An error occurred during login' };
     }
 }
 
+// Signup function
 async function signup(email, password, username) {
     const body = { email, password, username };
 
@@ -125,19 +116,14 @@ async function signup(email, password, username) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
         });
-
-        if (response.ok) {
-            const data = await response.json();
-            return { ok: true, message: data.message };
-        } else {
-            const errorText = await response.text();
-            return { ok: false, message: errorText };
-        }
+        const data = await response.json(); // Parse JSON response
+        return { ok: response.ok, message: data.message };
     } catch (error) {
-        console.log(">>>", error);
-        return { ok: false, message: error.toString() };
+        console.error('Signup error:', error);
+        return { ok: false, message: 'An error occurred during signup' };
     }
 }
+
 // Add input validation styling
 document.querySelectorAll('input').forEach(input => {
     input.addEventListener('input', () => {
@@ -148,22 +134,3 @@ document.querySelectorAll('input').forEach(input => {
         }
     });
 });
-
-document.querySelectorAll('.input-group input').forEach(input => {
-    input.addEventListener('oninput', () => {
-        if (input.value.length >= 1) {
-            input.nextElementSibling.style.display = 'none'; // Hide the label
-        } else {
-            input.nextElementSibling.style.display = 'block'; // Show label if empty
-        }
-    });
-});
-
-
-
-
-// add password meter here
-// remember to change url endpoint depending on user if login in or sign up
-// add remember me checkbox
-// add forgot password functionality
-// connect to backend

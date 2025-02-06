@@ -1,73 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>login/signup</title>
+    <title>Login/Signup</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <link rel="stylesheet" href="../../static/css/login.css">
 </head>
-
 <body>
 <div class="container">
-    <!-- form container -->
     <div class="form-container">
         <h1 id="form-title" style="margin-bottom: 20px; color: white">Log in to forum</h1>
-        <!-- login form -->
+
+        <!-- Login Form -->
         <form id="loginForm" class="form" method="POST" action="/login">
             <div class="input-group">
-                <input name="email" type="text" id="loginEmailOrUsername" required>
-                <label for="loginEmailOrUsername">email or username</label>
+                <input type="text" id="loginEmailOrUsername" name="email" required>
+                <label for="loginEmailOrUsername">Email or username</label>
             </div>
             <div class="input-group">
-                <input name="password" type="password" id="loginPassword" required>
-                <label for="loginPassword">password</label>
+                <input type="password" id="loginPassword" name="password" required>
+                <label for="loginPassword">Password</label>
             </div>
-
-{{/*            <!-- show password check box -->*/}}
-{{/*            <div class="show-password">*/}}
-{{/*                <input type="checkbox" id="show-password">*/}}
-{{/*                <label for="show-password">see password</label>*/}}
-{{/*            </div>*/}}
-
-            <!-- submit login details-->
-            <button type="submit" class="btn-primary">log in</button>
+            <button type="submit" class="btn-primary">Log in</button>
         </form>
 
-        <!-- signup form -->
-        <form id="signupForm" class="form hidden" action="/register" method="POST">
-            <!-- enter username here -->
+        <!-- Signup Form -->
+        <form id="signupForm" class="form hidden" method="POST" action="/register">
             <div class="input-group">
-                <input type="text" id="signupName" required>
-                <label for="signupName">username</label>
+                <input type="text" id="signupName" name="username" required>
+                <label for="signupName">Username</label>
             </div>
-
-            <!-- enter email here -->
             <div class="input-group">
                 <input type="email" id="signupEmail" name="email" required>
-                <label for="signupEmail">email</label>
+                <label for="signupEmail">Email</label>
             </div>
-
-            <!-- enter password here -->
             <div class="input-group">
                 <input type="password" id="signupPassword" name="password" required>
-                <label for="signupPassword">password</label>
+                <label for="signupPassword">Password</label>
             </div>
-
-            <!-- confirm password here -->
             <div class="input-group">
                 <input type="password" id="signupConfirmPassword" name="confirmPassword" required>
-                <label for="signupConfirmPassword">confirm password</label>
+                <label for="signupConfirmPassword">Confirm password</label>
             </div>
-
-            <!-- submit for signup -->
-            <button type="submit" class="btn-primary">sign up</button>
+            <button type="submit" class="btn-primary">Sign up</button>
         </form>
 
+        <!-- Switch Form -->
         <div class="switch-form">
             <span id="switchText">Don't have an account?</span>
             <button id="switchBtn" class="btn-text">Sign up</button>
         </div>
-
     </div>
 </div>
 

@@ -13,43 +13,55 @@ import (
 // templatesDir refers to the filepath of the directory containing the application's templates
 var templatesDir = "view"
 
-// Login handles both GET and POST methods, if method is GET it renders the page
-// if method is POST it gets the values from the form and internally checks if details exist in the database
+// renderTemplate is a helper function to render HTML templates
+func renderTemplate(w http.ResponseWriter, templateFile string, data interface{}) {
+	templatePath := filepath.Join(templatesDir, templateFile)
+	temp, err := template.ParseFiles(templatePath)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Printf("Error parsing template %s: %v", templateFile, err)
+		return
+	}
+
+	err = temp.Execute(w, data)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Printf("Error executing template %s: %v", templateFile, err)
+		return
+	}
+}
+
+// jsonResponse is a helper function to send JSON responses
+func jsonResponse(w http.ResponseWriter, statusCode int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	response := map[string]string{"message": message}
+	json.NewEncoder(w).Encode(response)
+}
+
+// Login handles both GET and POST methods
 func Login(w http.ResponseWriter, r *http.Request) {
-	templateFile := "auth/login.html"
-	if r.Method == "GET" {
-		TemplateError := func(message string, err error) {
-			http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
-			log.Printf("%s: %v", message, err)
-		}
-		temp, err := template.ParseFiles(filepath.Join(templatesDir, templateFile))
-		if err != nil {
-			TemplateError("error parsing template", err)
-			return
-		}
-		err = temp.Execute(w, struct{}{})
-		if err != nil {
-			TemplateError("error executing template", err)
-			return
-		}
-	} else if r.Method == "POST" {
-		fmt.Printf("body  %s\n", r.Body)
+	switch r.Method {
+	case http.MethodGet:
+		renderTemplate(w, "auth/login.html", nil)
+
+	case http.MethodPost:
 		var data struct {
 			Email    string `json:"email"`
 			Username string `json:"username"`
 			Password string `json:"password"`
 		}
-		err := json.NewDecoder(r.Body).Decode(&data)
-		if err != nil {
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 			return
 		}
-		fmt.Println("Received data:", data.Email, data.Username, data.Password)
+
+		fmt.Printf("Received login data: Email=%s, Username=%s, Password=%s\n", data.Email, data.Username, data.Password)
+
 		sessionToken, expiresAt, err := controller.HandleLogin(data.Email, data.Password)
-		fmt.Println("session", sessionToken, "expires at", expiresAt)
-		println()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			jsonResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -61,59 +73,45 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteStrictMode,
 		})
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"message": "Login successful"}`))
-		http.Redirect(w, r, "/", http.StatusFound)
-	} else {
+
+		jsonResponse(w, http.StatusOK, "Login successful")
+
+	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
 	}
 }
 
-// Register handles /register endpoint for registering
+// Register handles /register endpoint for user registration
 func Register(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodGet:
+		renderTemplate(w, "auth/login.html", nil)
+
 	case http.MethodPost:
 		var data struct {
 			Username string `json:"username"`
 			Email    string `json:"email"`
 			Password string `json:"password"`
 		}
-		err := json.NewDecoder(r.Body).Decode(&data)
-		if err != nil {
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
-			return
-		}
-		fmt.Println("Received data:", data.Username, data.Email, data.Password)
-		err = controller.HandleRegister(data.Username, data.Email, data.Password)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"message": "Registration successful"}`))
-	case http.MethodGet:
-		templateFile := "auth/login.html"
 
-		TemplateError := func(message string, err error) {
-			http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
-			log.Printf("%s: %v", message, err)
-		}
-		temp, err := template.ParseFiles(filepath.Join(templatesDir, templateFile))
-		if err != nil {
-			TemplateError("error parsing template", err)
+		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+			fmt.Println(err, 1)
+			jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 			return
 		}
-		err = temp.Execute(w, struct{}{})
-		if err != nil {
-			TemplateError("error executing template", err)
+
+		fmt.Printf("Received registration data: Username=%s, Email=%s, Password=%s\n", data.Username, data.Email, data.Password)
+
+		if err := controller.HandleRegister(data.Username, data.Email, data.Password); err != nil {
+			fmt.Println(err, 2)
+			jsonResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
+
+		fmt.Println("Registration successful")
+		jsonResponse(w, http.StatusOK, "Registration successful")
+
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
 	}
 }

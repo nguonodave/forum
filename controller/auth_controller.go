@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -30,21 +31,30 @@ func generateSessionToken() string {
 // HandleRegister registers a new user
 func HandleRegister(username, email, password string) error {
 	// Validate input
+	println(333)
 	if err := model.ValidateEmail(email); err != nil {
+		println(3334)
 		return err
 	}
 
+	println(3335)
 	if err := model.ValidatePassword(password); err != nil {
+		println(3336)
 		return err
 	}
 
-	if model.IsEmailTaken(db, email) {
-		return errors.New("email is already taken")
-	}
+	println(3337)
+	//if model.IsEmailTaken(db, email) {
+	//	println(3338)
+	//	return errors.New("email is already taken")
+	//}
 
 	// Hash password
 	hashedPassword, err := model.HashPassword(password)
+	fmt.Println(hashedPassword)
+	println(33322)
 	if err != nil {
+		println(3339)
 		return errors.New("internal server error")
 	}
 
@@ -56,9 +66,12 @@ func HandleRegister(username, email, password string) error {
 		username,
 	)
 	if err != nil {
+		println(33310)
 		return errors.New("failed to create user")
 	}
 
+	println(33311)
+	fmt.Println("success in creating user")
 	return nil
 }
 
