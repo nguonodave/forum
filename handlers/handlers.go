@@ -73,7 +73,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 // Register handles /register endpoint for registering
 func Register(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
 	case http.MethodPost:
 		var data struct {
@@ -93,9 +92,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"message": "Registration successful"}`))
-		http.Redirect(w, r, "/", http.StatusFound)
 	case http.MethodGet:
 		templateFile := "auth/login.html"
 

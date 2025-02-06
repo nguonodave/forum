@@ -116,25 +116,28 @@ async function login(usernameOrEmail, password, isEmail){
     }
 }
 
-async function signup(email, password, username){
-    const body = {email,password,username};
+async function signup(email, password, username) {
+    const body = { email, password, username };
 
     try {
         const response = await fetch('/register', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
         });
-        console.log("<<<",response)
-        const data = await response.json();
-        console.log("???",data)
-        return { ok : data.ok , message: data.message }
-    }catch (error){
-        console.log(">>>",error);
-        return { ok: false, message: error };
+
+        if (response.ok) {
+            const data = await response.json();
+            return { ok: true, message: data.message };
+        } else {
+            const errorText = await response.text();
+            return { ok: false, message: errorText };
+        }
+    } catch (error) {
+        console.log(">>>", error);
+        return { ok: false, message: error.toString() };
     }
 }
-
 // Add input validation styling
 document.querySelectorAll('input').forEach(input => {
     input.addEventListener('input', () => {
@@ -157,11 +160,6 @@ document.querySelectorAll('.input-group input').forEach(input => {
 });
 
 
-// toggles between showing user the password and hiding it
-document.getElementById('showPassword').addEventListener('change', function(){
-    let passwordField = document.getElementById('password');
-    passwordField.type = this.checked ? 'text' : 'password';
-});
 
 
 // add password meter here
