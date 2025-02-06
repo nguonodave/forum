@@ -19,7 +19,7 @@ var (
 )
 
 // VerifyPassword compares the password and hashedPassword and checks if they match, if not it returns False else True (meaning they match)
-func VerifyPassword(password, hashedPassword string) bool {
+func IsValidPassword(password, hashedPassword string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }
 
@@ -77,8 +77,12 @@ func ValidatePassword(password string) error {
 
 // ValidateEmail checks if email provided has a valid email syntax
 func ValidateEmail(email string) error {
-	emailPattern := `^(\w)(\w{1,}|\d{1,})+@\w+.\w{2,4}$`
-	if !regexp.MustCompile(emailPattern).MatchString(email) {
+	// Improved regex pattern
+	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	re := regexp.MustCompile(emailPattern)
+	match := re.MatchString(email)
+	fmt.Println(match, email)
+	if !match {
 		return fmt.Errorf("invalid email format")
 	}
 	return nil

@@ -13,21 +13,28 @@
     <div class="form-container">
         <h1 id="form-title" style="margin-bottom: 20px; color: white">Log in to forum</h1>
         <!-- login form -->
-        <form id="loginForm" class="form">
+        <form id="loginForm" class="form" method="POST" action="/login">
             <div class="input-group">
-                <input type="text" id="loginEmailOrUsername" required>
+                <input name="email" type="text" id="loginEmailOrUsername" required>
                 <label for="loginEmailOrUsername">email or username</label>
             </div>
             <div class="input-group">
-                <input type="text" id="loginPassword" required>
+                <input name="password" type="password" id="loginPassword" required>
                 <label for="loginPassword">password</label>
             </div>
+
+{{/*            <!-- show password check box -->*/}}
+{{/*            <div class="show-password">*/}}
+{{/*                <input type="checkbox" id="show-password">*/}}
+{{/*                <label for="show-password">see password</label>*/}}
+{{/*            </div>*/}}
+
             <!-- submit login details-->
             <button type="submit" class="btn-primary">log in</button>
         </form>
 
         <!-- signup form -->
-        <form id="signupForm" class="form hidden">
+        <form id="signupForm" class="form hidden" action="/register" method="POST">
             <!-- enter username here -->
             <div class="input-group">
                 <input type="text" id="signupName" required>
@@ -36,19 +43,19 @@
 
             <!-- enter email here -->
             <div class="input-group">
-                <input type="email" id="signupEmail" required>
+                <input type="email" id="signupEmail" name="email" required>
                 <label for="signupEmail">email</label>
             </div>
 
             <!-- enter password here -->
             <div class="input-group">
-                <input type="password" id="signupPassword" required>
+                <input type="password" id="signupPassword" name="password" required>
                 <label for="signupPassword">password</label>
             </div>
 
             <!-- confirm password here -->
             <div class="input-group">
-                <input type="password" id="signupConfirmPassword" required>
+                <input type="password" id="signupConfirmPassword" name="confirmPassword" required>
                 <label for="signupConfirmPassword">confirm password</label>
             </div>
 

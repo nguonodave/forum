@@ -45,82 +45,93 @@ e.preventDefault() prevents form from submitting
 document.querySelectorAll('.form').forEach(form => {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        if (form.id === 'signupForm') {
+
+        if (form.id === 'signupForm'){
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
             const username = document.getElementById('signupName').value;
             const confirmPassword = document.getElementById('signupConfirmPassword').value;
-            
-            // send password to backend together with email/username and see if they match
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
+            // make sure username does not contain @ symbol
+            if (username.includes('@')){
+                alert("username cannot contain '@' symbol")
+                return
+            }
+            if(password !== confirmPassword){
+                alert('passwords do not match');
                 return;
             }
-            signup(email,username,password).then();
 
-        }else if(form.id === 'loginForm'){
+            // send signup data to the backend
+            signup(email,password,username).then(response => {
+                if (response.ok) {
+                    alert('signup success');
+                    window.location.href = '/login';
+                }else{
+                    alert('signup failed' + response.message);
+                }
+            });
+
+        }else if (form.id === 'loginForm'){
             const usernameOrEmail = document.getElementById('loginEmailOrUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            // if loginEmailOrUsername contains @ symbol means it is an email value
-            // if it does not contain @ then it is the username
-            if (usernameOrEmail.includes('@')) {
-                login(usernameOrEmail,password,true).then();
-            }else{
-                login(usernameOrEmail,password,false).then();
-            }
+            // username should not contain email
+            const isEmail = usernameOrEmail.includes('@');
+
+            login(usernameOrEmail,password,isEmail).then(response => {
+                if(response.ok){
+                    alert('login success');
+                    window.location.href = '/'; // redirect to homepage
+                }else{
+                    alert('login failed'+response.message);
+                }
+            });
         }
-        
-        // Here you would typically send data to a server
-        alert('Form submitted successfully!');
-
-        // clear all fields after submission
-        form.reset();
+        // form.reset();
     });
-});
+})
 
-async function login(emailOrUsername,password,isEmail){
-    const body = isEmail
-        ? {email:emailOrUsername, password:password}
-        : {username: '', password: '', isEmail: false};
+
+async function login(usernameOrEmail, password, isEmail){
+    const body = {}
+    if (isEmail){
+        body['email'] = usernameOrEmail;
+    }else{
+        body['username'] = usernameOrEmail;
+    }
+    body['password'] = password;
+    console.log("login body",body);
 
     try {
-        let response = await fetch(`${BASE_URL}/login`, {
+        const response = await fetch('/login', {
             method: 'POST',
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(body),
-            headers: {'Content-Type': 'application/json'}
         });
-
-        let data = await response.json();
-        console.log(data);
-        if (response.ok){
-            alert("login success");
-        }else{
-            alert('login error'+data.message);
-        }
-
+        const data = await response.text();
+        return { ok : response.ok , message: data.message }
     }catch(error){
-        alert("net error"+error.message);
+        console.log(error);
+        return { ok: false, message: error };
     }
 }
 
-async function signup(email,username,password){
-    const body = {email,username,password};
-    try{
-        let response = await fetch(`${BASE_URL}/signup`, {
+async function signup(email, password, username){
+    const body = {email,password,username};
+
+    try {
+        const response = await fetch('/register', {
             method: 'POST',
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(body),
-            headers: {'Content-Type': 'application/json'}
         });
-        let data = await response.json();
-        console.log("signup", data);
-        if (response.ok){
-            alert("signup success");
-        }else{
-            alert("error signing up"+data.message);
-        }
-    }catch(error){
-        alert("net error"+error.message);
+        console.log("<<<",response)
+        const data = await response.json();
+        console.log("???",data)
+        return { ok : data.ok , message: data.message }
+    }catch (error){
+        console.log(">>>",error);
+        return { ok: false, message: error };
     }
 }
 
@@ -144,6 +155,14 @@ document.querySelectorAll('.input-group input').forEach(input => {
         }
     });
 });
+
+
+// toggles between showing user the password and hiding it
+document.getElementById('showPassword').addEventListener('change', function(){
+    let passwordField = document.getElementById('password');
+    passwordField.type = this.checked ? 'text' : 'password';
+});
+
 
 // add password meter here
 // remember to change url endpoint depending on user if login in or sign up

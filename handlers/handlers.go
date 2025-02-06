@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"forum/controller"
 	"html/template"
@@ -16,9 +17,7 @@ var templatesDir = "view"
 // if method is POST it gets the values from the form and internally checks if details exist in the database
 func Login(w http.ResponseWriter, r *http.Request) {
 	templateFile := "auth/login.html"
-	fmt.Println("resp", *r)
 	if r.Method == "GET" {
-		println(2)
 		TemplateError := func(message string, err error) {
 			http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
 			log.Printf("%s: %v", message, err)
@@ -34,19 +33,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if r.Method == "POST" {
-		println(3)
-		// parse form and populate r.Form
-		err := r.ParseForm()
+		fmt.Printf("body  %s\n", r.Body)
+		var data struct {
+			Email    string `json:"email"`
+			Username string `json:"username"`
+			Password string `json:"password"`
+		}
+		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
 			return
 		}
-
-		email := r.Form.Get("email")
-		password := r.FormValue("password")
-		fmt.Println(email, password)
-		sessionToken, expiresAt, err := controller.HandleLogin(email, password)
-
+		fmt.Println("Received data:", data.Email, data.Username, data.Password)
+		sessionToken, expiresAt, err := controller.HandleLogin(data.Email, data.Password)
+		fmt.Println("session", sessionToken, "expires at", expiresAt)
+		println()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -60,7 +61,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteStrictMode,
 		})
-
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"message": "Login successful"}`))
 		http.Redirect(w, r, "/", http.StatusFound)
 	} else {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -73,24 +76,26 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodPost:
-		err := r.ParseForm()
+		var data struct {
+			Username string `json:"username"`
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		}
+		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
 			return
 		}
-
-		username := r.Form.Get("username")
-		password := r.Form.Get("password")
-		email := r.Form.Get("email")
-
-		err = controller.HandleRegister(username, email, password)
+		fmt.Println("Received data:", data.Username, data.Email, data.Password)
+		err = controller.HandleRegister(data.Username, data.Email, data.Password)
 		if err != nil {
-			http.Error(w, "error during registration", http.StatusInternalServerError)
+			fmt.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		http.Redirect(w, r, "/login", http.StatusFound)
-
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"message": "Registration successful"}`))
+		http.Redirect(w, r, "/", http.StatusFound)
 	case http.MethodGet:
 		templateFile := "auth/login.html"
 
