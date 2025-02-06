@@ -137,7 +137,7 @@ func GetPaginatedPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	posts, err := model.GetPaginatedPosts(db, limit, offset)
 	if err != nil {
-		http.Error(w, "Failed to load posts", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
