@@ -38,8 +38,8 @@ type Post struct {
 
 // Category struct
 type Category struct {
-	ID   uuid.UUID
-	Name string
+	ID   *uuid.UUID
+	Name *string
 }
 
 // comment struct
