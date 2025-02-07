@@ -18,28 +18,30 @@ const (
 	schemaFile = "schema.sql"
 )
 
-func InitializeDB() (*sql.DB, error) {
+var Db *sql.DB
+
+func InitializeDB() error {
 	// open database connection
 	// data source name
 	dsn := fmt.Sprintf("file:%s?_foreign_keys=on&_journal_mode=WAL", dbName)
 	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return fmt.Errorf("failed to open database: %w", err)
 	}
 
 	// verify connection to database
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("failed to ping database: %w", err)
+		return fmt.Errorf("failed to ping database: %w", err)
 	}
 	// apply  migrations
 	if err := applyMigration(db); err != nil {
-		return nil, fmt.Errorf("failed to apply migrations: %w", err)
+		return fmt.Errorf("failed to apply migrations: %w", err)
 	}
 	// configure connection pool
 	db.SetMaxOpenConns(1) // sqlite only supports 1 writer  at a time
 	db.SetMaxIdleConns(1)
-
-	return db, nil
+	Db = db
+	return nil
 }
 
 // Apply migrations to the database.
