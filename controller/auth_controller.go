@@ -43,6 +43,9 @@ func HandleRegister(username, email, password string) error {
 		return err
 	}
 
+	if model.IsEmailTaken(db, email) {
+		return errors.New("email is already taken")
+	}
 	println(3337)
 	//if model.IsEmailTaken(db, email) {
 	//	println(3338)

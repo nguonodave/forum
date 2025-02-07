@@ -3,11 +3,28 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"forum/controller"
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
+	"strconv"
+	"os"
+	"os/exec"
+	"path"
+	"path/filepath"
+	"runtime"
+
+	"forum/database"
+	"forum/fileio"
+)
+
+var (
+	port = flag.Int("P", 8080, "port to listen on")
+	
+
+	"forum/controller"
+	"forum/database"
+	"forum/model"
 )
 
 // templatesDir refers to the filepath of the directory containing the application's templates
@@ -114,4 +131,62 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
+}
+
+func GetPaginatedPostsHandler(w http.ResponseWriter, r *http.Request) {
+	db, err := database.InitializeDB()
+	if err != nil {
+		http.Error(w, "Failed to initialize database", http.StatusInternalServerError)
+	}
+
+	// Get `page` and `limit` from query parameters
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 50 {
+		limit = 10 // Default limit
+	}
+
+	offset := (page - 1) * limit
+
+	posts, err := model.GetPaginatedPosts(db, limit, offset)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(posts)
+}
+
+func GetPaginatedPostsHandler(w http.ResponseWriter, r *http.Request) {
+	db, err := database.InitializeDB()
+	if err != nil {
+		http.Error(w, "Failed to initialize database", http.StatusInternalServerError)
+	}
+
+	// Get `page` and `limit` from query parameters
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 50 {
+		limit = 10 // Default limit
+	}
+
+	offset := (page - 1) * limit
+
+	posts, err := model.GetPaginatedPosts(db, limit, offset)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(posts)
 }
