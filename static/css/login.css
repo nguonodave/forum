@@ -115,3 +115,11 @@ body {
 .hidden {
     display: none;
 }
+
+/*.show-password:{*/
+/*    font-size: 34px;*/
+/*    color: white;*/
+/*}*/
+.show-password:hover{
+    cursor: pointer;
+}

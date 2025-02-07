@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -27,42 +28,62 @@ func generateSessionToken() string {
 	return uuid.New().String()
 }
 
-// RegisterUser registers a new user
-func RegisterUser(email, password, username string) error {
+// HandleRegister registers a new user
+func HandleRegister(username, email, password string) error {
 	// Validate input
+	println(333)
 	if err := model.ValidateEmail(email); err != nil {
+		println(3334)
 		return err
 	}
 
+	println(3335)
 	if err := model.ValidatePassword(password); err != nil {
+		println(3336)
 		return err
 	}
 
-	if model.IsEmailTaken(db, email) {
+	println(3337)
+	if model.IsEmailTaken(email) {
+		return errors.New("email is already taken")
+	}
+	println(3338)
+	if model.IsEmailTaken(email) {
+		println(3338)
 		return errors.New("email is already taken")
 	}
 
 	// Hash password
 	hashedPassword, err := model.HashPassword(password)
+	fmt.Println(hashedPassword)
+	println(33322)
 	if err != nil {
+		println(3339)
 		return errors.New("internal server error")
 	}
-
+	fmt.Println("dddd")
 	// Insert user into database
 	_, err = db.Exec(
-		"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
+		"INSERT INTO users (email, password, username) VALUES (?, ?, ?);",
 		email,
 		hashedPassword,
 		username,
 	)
 	if err != nil {
+		fmt.Println("kuna error")
+	}
+	fmt.Println(">>> 001")
+	if err != nil {
+		println(33310)
 		return errors.New("failed to create user")
 	}
 
+	println(33311)
+	fmt.Println("success in creating user")
 	return nil
 }
 
-func VerifyLogin(email, password string) (string, time.Time, error) {
+func HandleLogin(email, password string) (string, time.Time, error) {
 	// Retrieve user from database
 	var user model.User
 	err := db.QueryRow(
