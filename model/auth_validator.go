@@ -2,12 +2,12 @@ package model
 
 // Handles database interaction and business logic.
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"regexp"
 	"unicode"
 
+	"forum/database"
 	"forum/xerrors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -97,14 +97,13 @@ func ValidateEmail(email string) error {
 }
 
 // IsEmailTaken queries the database to check if the email provided exists returns true if found else false
-func IsEmailTaken(db *sql.DB, email string) bool {
+func IsEmailTaken(email string) bool {
 	var emailExists bool
 	println()
 	println()
-	fmt.Println(*db)
 	println()
 	fmt.Println("IsEmailTaken() function failure")
-	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
+	err := database.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
 	fmt.Println(err)
 	if err != nil {
 		fmt.Printf("Error checking if email exists: %v\n", err)

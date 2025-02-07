@@ -121,11 +121,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPaginatedPostsHandler(w http.ResponseWriter, r *http.Request) {
-	db, err := database.InitializeDB()
-	if err != nil {
-		http.Error(w, "Failed to initialize database", http.StatusInternalServerError)
-	}
-
 	// Get `page` and `limit` from query parameters
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
@@ -139,7 +134,7 @@ func GetPaginatedPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	offset := (page - 1) * limit
 
-	posts, err := model.GetPaginatedPosts(db, limit, offset)
+	posts, err := model.GetPaginatedPosts(database.Db, limit, offset)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

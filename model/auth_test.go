@@ -115,7 +115,7 @@ func TestIsEmailTaken(t *testing.T) {
 			WithArgs(email).
 			WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(true))
 
-		assert.True(t, IsEmailTaken(db, email))
+		assert.True(t, IsEmailTaken(email))
 	})
 
 	t.Run("EmailNotTaken", func(t *testing.T) {
@@ -124,7 +124,7 @@ func TestIsEmailTaken(t *testing.T) {
 			WithArgs(email).
 			WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(false))
 
-		assert.False(t, IsEmailTaken(db, email))
+		assert.False(t, IsEmailTaken(email))
 	})
 
 	t.Run("DatabaseError", func(t *testing.T) {
@@ -133,7 +133,7 @@ func TestIsEmailTaken(t *testing.T) {
 			WithArgs(email).
 			WillReturnError(errors.New("database error"))
 
-		assert.False(t, IsEmailTaken(db, email))
+		assert.False(t, IsEmailTaken(email))
 	})
 
 	if err := mock.ExpectationsWereMet(); err != nil {

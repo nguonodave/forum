@@ -4,10 +4,10 @@ INSERT INTO users (username, email, password) VALUES
                                                   ('bob', 'bob@example.com', 'password123');
 
 -- Seed Categories
-INSERT INTO categories (name) VALUES
-                                  ('Technology'),
-                                  ('Health'),
-                                  ('Lifestyle');
+INSERT INTO categories (id, name) VALUES
+                                  (1, 'Technology'),
+                                  (2, 'Health'),
+                                  (3, 'Lifestyle');
 
 -- Seed Posts
 INSERT INTO posts (user_id, title, content) VALUES

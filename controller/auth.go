@@ -43,14 +43,15 @@ func HandleRegister(username, email, password string) error {
 		return err
 	}
 
-	if model.IsEmailTaken(db, email) {
+	println(3337)
+	if model.IsEmailTaken(email) {
 		return errors.New("email is already taken")
 	}
-	println(3337)
-	//if model.IsEmailTaken(db, email) {
-	//	println(3338)
-	//	return errors.New("email is already taken")
-	//}
+	println(3338)
+	if model.IsEmailTaken(email) {
+		println(3338)
+		return errors.New("email is already taken")
+	}
 
 	// Hash password
 	hashedPassword, err := model.HashPassword(password)
@@ -60,14 +61,18 @@ func HandleRegister(username, email, password string) error {
 		println(3339)
 		return errors.New("internal server error")
 	}
-
+	fmt.Println("dddd")
 	// Insert user into database
 	_, err = db.Exec(
-		"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
+		"INSERT INTO users (email, password, username) VALUES (?, ?, ?);",
 		email,
 		hashedPassword,
 		username,
 	)
+	if err != nil {
+		fmt.Println("kuna error")
+	}
+	fmt.Println(">>> 001")
 	if err != nil {
 		println(33310)
 		return errors.New("failed to create user")

@@ -39,11 +39,11 @@ func main() {
 
 	// Initialize database
 	{
-		db, err := database.InitializeDB()
+		err := database.InitializeDB()
 		if err != nil {
 			log.Fatalf("Database initialization failed: %v", err)
 		}
-		defer db.Close()
+		defer database.Db.Close()
 		fmt.Println("Database operations completed successfully!")
 	}
 
