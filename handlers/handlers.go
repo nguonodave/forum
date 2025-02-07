@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"html/template"
 	"log"
@@ -14,8 +13,6 @@ import (
 	"forum/database"
 	"forum/model"
 )
-
-var port = flag.Int("P", 8080, "port to listen on")
 
 // templatesDir refers to the filepath of the directory containing the application's templates
 var templatesDir = "view"
