@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -111,8 +112,8 @@ func GetPostsByCategory(db *sql.DB, categoryID uuid.UUID) ([]*Post, error) {
 	var posts []*Post
 	for rows.Next() {
 		post := &Post{
-			User:     &User{},
-			Category: &Category{ID: categoryID},
+			User: &User{},
+			// Category: &Category{ID: categoryID},
 		}
 		err := rows.Scan(
 			&post.ID,
@@ -226,4 +227,102 @@ func ValidatePost(post *Post) error {
 	}
 
 	return nil
+}
+
+// GetPaginatedPosts retrieves posts with pagination for lazy loading
+// GetPaginatedPosts retrieves posts with pagination for lazy loading
+func GetPaginatedPosts(db *sql.DB, limit, offset int) ([]*Post, error) {
+	rows, err := db.Query(`
+		SELECT 
+			p.id, p.user_id, p.title, p.content, p.created_at, p.updated_at,
+			u.id, u.username,
+			c.id, c.name,
+			COALESCE(v.vote_count, 0) as votes
+		FROM posts p
+		LEFT JOIN users u ON p.user_id = u.id
+		LEFT JOIN post_categories pc ON p.id = pc.post_id
+		LEFT JOIN categories c ON pc.category_id = c.id
+		LEFT JOIN (
+			SELECT 
+				post_id,
+				SUM(CASE WHEN type = 'like' THEN 1 WHEN type = 'dislike' THEN -1 ELSE 0 END) as vote_count 
+			FROM votes 
+			GROUP BY post_id
+		) v ON p.id = v.post_id
+		ORDER BY p.created_at DESC
+		LIMIT ? OFFSET ?
+	`, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []*Post
+	for rows.Next() {
+		post := &Post{
+			User:     &User{},
+			Category: &Category{},
+		}
+
+		var postID, userID, categoryID sql.NullString // Use sql.NullString to handle NULL values in the query
+		var username sql.NullString                   // Added for username column
+		var votes int
+
+		err := rows.Scan(
+			&postID, // Scan the post ID as string first
+			&post.UserID,
+			&post.Title,
+			&post.Content,
+			&post.CreatedAt,
+			&post.UpdatedAt,
+			&userID,     // Scan the user ID as string
+			&username,   // Scan the username as sql.NullString
+			&categoryID, // Scan the category ID as sql.NullString
+			&post.Category.Name,
+			&votes,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Parse UUIDs if they are not NULL
+		post.ID, err = uuid.Parse(postID.String)
+		if err != nil && postID.Valid {
+			return nil, fmt.Errorf("invalid UUID for post ID: %v", err)
+		}
+
+		post.User.ID, err = uuid.Parse(userID.String)
+		if err != nil && userID.Valid {
+			return nil, fmt.Errorf("invalid UUID for user ID: %v", err)
+		}
+
+		// Handle category ID parsing only if it is not NULL
+		if categoryID.Valid {
+			parsedCategoryID, err := uuid.Parse(categoryID.String)
+			if err != nil {
+				return nil, fmt.Errorf("invalid UUID for category ID: %v", err)
+			}
+			// Assign the parsed UUID's address to post.Category.ID
+			post.Category.ID = &parsedCategoryID
+		} else {
+			// If category ID is NULL, set Category to nil
+			post.Category = nil
+		}
+
+		// Handle username assignment if not NULL
+		if username.Valid {
+			post.User.Username = username.String
+		} else {
+			// Handle the case where username is NULL (Optional: Set to a default value or leave empty)
+			post.User.Username = "Anonymous" // Or you can set it to an empty string: ""
+		}
+
+		// Assign vote count
+		post.Votes = votes
+
+		// Append the post to the list
+		posts = append(posts, post)
+	}
+
+	return posts, nil
 }
