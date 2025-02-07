@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login/Signup</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <link rel="stylesheet" href="../../static/css/login.css">
+</head>
+<body>
+<div class="container">
+    <div class="form-container">
+        <h1 id="form-title" style="margin-bottom: 20px; color: white">Log in to forum</h1>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="form" method="POST" action="/login">
+            <div class="input-group">
+                <input type="text" id="loginEmailOrUsername" name="email" required>
+                <label for="loginEmailOrUsername">Email or username</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="loginPassword" name="password" required>
+                <label for="loginPassword">Password</label>
+            </div>
+            <button type="submit" class="btn-primary">Log in</button>
+        </form>
+
+        <!-- Signup Form -->
+        <form id="signupForm" class="form hidden" method="POST" action="/register">
+            <div class="input-group">
+                <input type="text" id="signupName" name="username" required>
+                <label for="signupName">Username</label>
+            </div>
+            <div class="input-group">
+                <input type="email" id="signupEmail" name="email" required>
+                <label for="signupEmail">Email</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="signupPassword" name="password" required>
+                <label for="signupPassword">Password</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="signupConfirmPassword" name="confirmPassword" required>
+                <label for="signupConfirmPassword">Confirm password</label>
+            </div>
+            <button type="submit" class="btn-primary">Sign up</button>
+        </form>
+
+        <!-- Switch Form -->
+        <div class="switch-form">
+            <span id="switchText">Don't have an account?</span>
+            <button id="switchBtn" class="btn-text">Sign up</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="../../static/js/login.js"></script>
+</body>
+</html>
