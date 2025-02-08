@@ -9,7 +9,7 @@ import (
 
 // Database struct
 type Database struct {
-	db *sql.DB
+	Db *sql.DB
 }
 
 // user struct

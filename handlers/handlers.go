@@ -56,6 +56,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			Password string `json:"password"`
 		}
 
+		DBase := &model.Database{}
+
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 			jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 			return
@@ -63,7 +65,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Received login data: Email=%s, Username=%s, Password=%s\n", data.Email, data.Username, data.Password)
 
-		sessionToken, expiresAt, err := controller.HandleLogin(data.Email, data.Password)
+		sessionToken, expiresAt, err := controller.HandleLogin(DBase, data.Email, data.Password)
 		if err != nil {
 			jsonResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -98,6 +100,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			Password string `json:"password"`
 		}
 
+		DBase := &model.Database{}
+
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 			fmt.Println(err, 1)
 			jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
@@ -106,7 +110,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Received registration data: Username=%s, Email=%s, Password=%s\n", data.Username, data.Email, data.Password)
 
-		if err := controller.HandleRegister(data.Username, data.Email, data.Password); err != nil {
+		if err := controller.HandleRegister(DBase, data.Username, data.Email, data.Password); err != nil {
 			fmt.Println(err, 2)
 			jsonResponse(w, http.StatusInternalServerError, err.Error())
 			return

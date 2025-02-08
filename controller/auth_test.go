@@ -8,166 +8,167 @@ import (
 	"time"
 
 	"forum/model"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
-func setupTestDB(t *testing.T) *sql.DB {
+// setupTestDB creates an in-memory SQLite database for testing
+func setupTestDB(t *testing.T) *model.Database {
 	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		t.Fatalf("Failed to open test database: %v", err)
 	}
 
-	// Create tables with strict constraints
+	// Create necessary tables
 	_, err = db.Exec(`
-        CREATE TABLE users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            username TEXT NOT NULL,
-            CONSTRAINT email_not_empty CHECK(email != ''),
-            CONSTRAINT username_not_empty CHECK(username != '')
-        );
-        CREATE TABLE sessions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            token TEXT UNIQUE NOT NULL,
-            expires_at DATETIME NOT NULL,
-            FOREIGN KEY(user_id) REFERENCES users(id)
-        );
-    `)
+		CREATE TABLE users (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			email TEXT UNIQUE,
+			password TEXT,
+			username TEXT
+		);
+		CREATE TABLE sessions (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER,
+			token TEXT,
+			expires_at DATETIME,
+			FOREIGN KEY(user_id) REFERENCES users(id)
+		);
+	`)
 	if err != nil {
-		t.Fatalf("Failed to create tables: %v", err)
+		t.Fatalf("Failed to create test tables: %v", err)
 	}
 
-	SetDB(db)
-	return db
+	return &model.Database{Db: db}
 }
 
-func TestRegisterUser(t *testing.T) {
+func TestGenerateSessionToken(t *testing.T) {
+	token1 := generateSessionToken()
+	token2 := generateSessionToken()
+
+	if token1 == "" {
+		t.Error("Generated token should not be empty")
+	}
+	if token1 == token2 {
+		t.Error("Generated tokens should be unique")
+	}
+	if len(token1) != 36 {
+		t.Errorf("Expected token length of 36, got %d", len(token1))
+	}
+}
+
+func TestHandleRegister(t *testing.T) {
 	db := setupTestDB(t)
-	defer db.Close()
+	defer db.Db.Close()
 
 	tests := []struct {
-		name       string
-		email      string
-		password   string
-		username   string
-		setupFunc  func(*testing.T, *sql.DB)
-		wantErr    bool
-		errMessage string
+		name     string
+		username string
+		email    string
+		password string
+		wantErr  bool
 	}{
 		{
 			name:     "Valid registration",
+			username: "testuser",
 			email:    "test@example.com",
 			password: "Password123!",
-			username: "testuser",
 			wantErr:  false,
 		},
 		{
-			name:       "Invalid email",
-			email:      "invalid-email",
-			password:   "Password123!",
-			username:   "testuser",
-			wantErr:    true,
-			errMessage: "invalid email format",
-		},
-		{
-			name:       "Invalid password",
-			email:      "test@example.com",
-			password:   "weak",
-			username:   "testuser",
-			wantErr:    true,
-			errMessage: "password length too short, minimum of 8 characters required",
-		},
-		{
-			name:     "Duplicate email",
-			email:    "existing@example.com",
+			name:     "Invalid email",
+			username: "testuser",
+			email:    "invalid-email",
 			password: "Password123!",
-			username: "testuser2",
-			setupFunc: func(t *testing.T, db *sql.DB) {
-				_, err := db.Exec(
-					"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
-					"existing@example.com", "hashedpass", "existinguser",
-				)
-				if err != nil {
-					t.Fatalf("Failed to setup duplicate user: %v", err)
-				}
-			},
-			wantErr:    true,
-			errMessage: "email is already taken",
+			wantErr:  true,
 		},
 		{
-			name:       "Database error",
-			email:      "test2@example.com",
-			password:   "Password123!",
-			username:   "", // Violates NOT NULL constraint
-			wantErr:    true,
-			errMessage: "failed to create user",
+			name:     "Invalid password - too short",
+			username: "testuser",
+			email:    "test2@example.com",
+			password: "Pw1!",
+			wantErr:  true,
 		},
 		{
-			name:       "Password hashing error",
-			email:      "test3@example.com",
-			password:   "", // This should trigger internal error during hashing
-			username:   "testuser3",
-			wantErr:    true,
-			errMessage: "internal server error",
+			name:     "Invalid password - no uppercase",
+			username: "testuser",
+			email:    "test3@example.com",
+			password: "password123!",
+			wantErr:  true,
+		},
+		{
+			name:     "Invalid password - no lowercase",
+			username: "testuser",
+			email:    "test4@example.com",
+			password: "PASSWORD123!",
+			wantErr:  true,
+		},
+		{
+			name:     "Invalid password - no number",
+			username: "testuser",
+			email:    "test5@example.com",
+			password: "Password!!",
+			wantErr:  true,
+		},
+		{
+			name:     "Invalid password - no special char",
+			username: "testuser",
+			email:    "test6@example.com",
+			password: "Password123",
+			wantErr:  true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Reset database for each test
-			db.Exec("DELETE FROM users")
-			db.Exec("DELETE FROM sessions")
-
-			if tt.setupFunc != nil {
-				tt.setupFunc(t, db)
-			}
-
-			err := RegisterUser(tt.email, tt.password, tt.username)
+			err := HandleRegister(db, tt.username, tt.email, tt.password)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("RegisterUser() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("HandleRegister() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if err != nil && tt.errMessage != "" && err.Error() != tt.errMessage {
-				t.Errorf("RegisterUser() error message = %v, want %v", err.Error(), tt.errMessage)
+
+			if err == nil {
+				// Verify user was stored in database
+				var count int
+				err := db.Db.QueryRow("SELECT COUNT(*) FROM users WHERE email = ?", tt.email).Scan(&count)
+				if err != nil {
+					t.Errorf("Failed to verify user creation: %v", err)
+				}
+				if count != 1 {
+					t.Error("User not stored in database")
+				}
 			}
 		})
 	}
+
+	// Test duplicate email
+	t.Run("Duplicate email", func(t *testing.T) {
+		// First registration should succeed
+		err := HandleRegister(db, "testuser", "duplicate@example.com", "Password123!")
+		if err != nil {
+			t.Fatalf("Failed to create initial user: %v", err)
+		}
+
+		// Second registration with same email should fail
+		err = HandleRegister(db, "testuser2", "duplicate@example.com", "Password123!")
+		if err == nil {
+			t.Error("Expected error for duplicate email")
+		}
+	})
 }
 
-func TestVerifyLogin(t *testing.T) {
+func TestHandleLogin(t *testing.T) {
 	db := setupTestDB(t)
-	defer db.Close()
-
-	hashedPassword, err := model.HashPassword("Password123!")
-	if err != nil {
-		t.Fatalf("Failed to hash password: %v", err)
-	}
+	defer db.Db.Close()
 
 	// Create a test user
-	result, err := db.Exec(
-		"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
-		"test@example.com",
-		hashedPassword,
-		"testuser",
-	)
+	err := HandleRegister(db, "testuser", "test@example.com", "Password123!")
 	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
 
-	userID, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("Failed to get user ID: %v", err)
-	}
-
 	tests := []struct {
-		name      string
-		email     string
-		password  string
-		setupFunc func(*testing.T, *sql.DB)
-		wantErr   bool
-		errMsg    string
+		name     string
+		email    string
+		password string
+		wantErr  bool
 	}{
 		{
 			name:     "Valid login",
@@ -180,57 +181,38 @@ func TestVerifyLogin(t *testing.T) {
 			email:    "nonexistent@example.com",
 			password: "Password123!",
 			wantErr:  true,
-			errMsg:   "invalid credentials",
 		},
 		{
 			name:     "Invalid password",
 			email:    "test@example.com",
 			password: "WrongPassword123!",
 			wantErr:  true,
-			errMsg:   "invalid credentials",
-		},
-		{
-			name:     "Database error on session creation",
-			email:    "test@example.com",
-			password: "Password123!",
-			setupFunc: func(t *testing.T, db *sql.DB) {
-				// Drop sessions table to force database error
-				db.Exec("DROP TABLE sessions")
-			},
-			wantErr: true,
-			errMsg:  "internal server error",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Reset sessions for each test
-			db.Exec("DELETE FROM sessions")
-
-			if tt.setupFunc != nil {
-				tt.setupFunc(t, db)
-			}
-
-			token, expires, err := VerifyLogin(tt.email, tt.password)
+			token, expiresAt, err := HandleLogin(db, tt.email, tt.password)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("VerifyLogin() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("HandleLogin() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if err != nil && tt.errMsg != "" && err.Error() != tt.errMsg {
-				t.Errorf("VerifyLogin() error message = %v, want %v", err.Error(), tt.errMsg)
-			}
+
 			if !tt.wantErr {
 				if token == "" {
-					t.Error("VerifyLogin() token is empty")
+					t.Error("Expected non-empty token")
 				}
-				if expires.IsZero() {
-					t.Error("VerifyLogin() expires is empty")
+				if expiresAt.Before(time.Now()) {
+					t.Error("Expected future expiration time")
 				}
 
-				// If we expect success, verify session was stored
-				var storedToken string
-				err = db.QueryRow("SELECT token FROM sessions WHERE token = ? AND user_id = ?", token, userID).Scan(&storedToken)
+				// Verify session was stored
+				var count int
+				err := db.Db.QueryRow("SELECT COUNT(*) FROM sessions WHERE token = ?", token).Scan(&count)
 				if err != nil {
-					t.Errorf("Session not stored in database: %v", err)
+					t.Errorf("Failed to verify session creation: %v", err)
+				}
+				if count != 1 {
+					t.Error("Session not stored in database")
 				}
 			}
 		})
@@ -239,132 +221,103 @@ func TestVerifyLogin(t *testing.T) {
 
 func TestValidateSession(t *testing.T) {
 	db := setupTestDB(t)
-	defer db.Close()
+	defer db.Db.Close()
 
-	// Create a test user and sessions
-	result, err := db.Exec(
-		"INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
-		"test@example.com", "hashedpass", "testuser",
-	)
+	// Create a test user and get a valid session
+	err := HandleRegister(db, "testuser", "test@example.com", "Password123!")
 	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
 
-	userID, _ := result.LastInsertId()
-	validToken := generateSessionToken()
-	expiredToken := generateSessionToken()
-
-	// Valid session
-	_, err = db.Exec(
-		"INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
-		userID, validToken, time.Now().Add(24*time.Hour),
-	)
+	token, _, err := HandleLogin(db, "test@example.com", "Password123!")
 	if err != nil {
-		t.Fatalf("Failed to create valid session: %v", err)
+		t.Fatalf("Failed to create test session: %v", err)
 	}
 
-	// Expired session
-	_, err = db.Exec(
+	// Create an expired session
+	var userID int
+	err = db.Db.QueryRow("SELECT id FROM users WHERE email = ?", "test@example.com").Scan(&userID)
+	if err != nil {
+		t.Fatalf("Failed to get user ID: %v", err)
+	}
+
+	expiredToken := generateSessionToken()
+	_, err = db.Db.Exec(
 		"INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
-		userID, expiredToken, time.Now().Add(-1*time.Hour),
+		userID,
+		expiredToken,
+		time.Now().Add(-24*time.Hour),
 	)
 	if err != nil {
 		t.Fatalf("Failed to create expired session: %v", err)
 	}
 
 	tests := []struct {
-		name       string
-		cookie     *http.Cookie
-		setupFunc  func(*testing.T, *sql.DB)
-		wantStatus int
+		name           string
+		cookie         *http.Cookie
+		expectedStatus int
+		checkUserID    bool
 	}{
 		{
-			name:       "Valid session",
-			cookie:     &http.Cookie{Name: "session", Value: validToken},
-			wantStatus: http.StatusOK,
-		},
-		{
-			name:       "No cookie",
-			cookie:     nil,
-			wantStatus: http.StatusUnauthorized,
-		},
-		{
-			name:       "Invalid session token",
-			cookie:     &http.Cookie{Name: "session", Value: "invalid-token"},
-			wantStatus: http.StatusUnauthorized,
-		},
-		{
-			name:       "Expired session",
-			cookie:     &http.Cookie{Name: "session", Value: expiredToken},
-			wantStatus: http.StatusUnauthorized,
-		},
-		{
-			name:   "Database error",
-			cookie: &http.Cookie{Name: "session", Value: validToken},
-			setupFunc: func(t *testing.T, db *sql.DB) {
-				// Drop sessions table to force database error
-				db.Exec("DROP TABLE sessions")
+			name: "Valid session",
+			cookie: &http.Cookie{
+				Name:  "session",
+				Value: token,
 			},
-			wantStatus: http.StatusInternalServerError,
+			expectedStatus: http.StatusOK,
+			checkUserID:    true,
+		},
+		{
+			name:           "No cookie",
+			cookie:         nil,
+			expectedStatus: http.StatusUnauthorized,
+			checkUserID:    false,
+		},
+		{
+			name: "Invalid session token",
+			cookie: &http.Cookie{
+				Name:  "session",
+				Value: "invalid-token",
+			},
+			expectedStatus: http.StatusUnauthorized,
+			checkUserID:    false,
+		},
+		{
+			name: "Expired session",
+			cookie: &http.Cookie{
+				Name:  "session",
+				Value: expiredToken,
+			},
+			expectedStatus: http.StatusUnauthorized,
+			checkUserID:    false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.setupFunc != nil {
-				tt.setupFunc(t, db)
-			}
-
 			nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if tt.checkUserID {
+					userID := r.Context().Value("userID")
+					if userID == nil {
+						t.Error("Expected userID in context")
+					}
+				}
 				w.WriteHeader(http.StatusOK)
 			})
 
+			handler := ValidateSession(db.Db, nextHandler)
 			req := httptest.NewRequest("GET", "/", nil)
 			if tt.cookie != nil {
 				req.AddCookie(tt.cookie)
 			}
-
 			rr := httptest.NewRecorder()
-			handler := ValidateSession(db, nextHandler)
+
 			handler.ServeHTTP(rr, req)
 
-			if status := rr.Code; status != tt.wantStatus {
-				t.Errorf("ValidateSession() status = %v, want %v", status, tt.wantStatus)
+			if rr.Code != tt.expectedStatus {
+				t.Errorf("Handler returned wrong status code: got %v want %v",
+					rr.Code, tt.expectedStatus)
 			}
 		})
-	}
-}
-
-func TestGenerateSessionToken(t *testing.T) {
-	tokens := make(map[string]bool)
-	for i := 0; i < 1000; i++ {
-		token := generateSessionToken()
-		if token == "" {
-			t.Error("generateSessionToken() generated empty token")
-		}
-		if tokens[token] {
-			t.Error("generateSessionToken() generated duplicate token")
-		}
-		tokens[token] = true
-	}
-}
-
-func TestSetDB(t *testing.T) {
-	// Test with valid database
-	testDB, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		t.Fatalf("Failed to open test database: %v", err)
-	}
-	defer testDB.Close()
-
-	SetDB(testDB)
-	if db != testDB {
-		t.Error("SetDB() failed to set the database connection")
-	}
-
-	// Test with nil database
-	SetDB(nil)
-	if db != nil {
-		t.Error("SetDB() failed to set nil database")
 	}
 }

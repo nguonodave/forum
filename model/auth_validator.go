@@ -4,10 +4,10 @@ package model
 import (
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
 	"unicode"
 
-	"forum/database"
 	"forum/xerrors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -97,13 +97,17 @@ func ValidateEmail(email string) error {
 }
 
 // IsEmailTaken queries the database to check if the email provided exists returns true if found else false
-func IsEmailTaken(email string) bool {
+func IsEmailTaken(DBase *Database, email string) bool {
+	if DBase.Db == nil {
+		log.Println("IsEmailTaken() received a nil database connection")
+		return false
+	}
 	var emailExists bool
 	println()
 	println()
 	println()
 	fmt.Println("IsEmailTaken() function failure")
-	err := database.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
+	err := DBase.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
 	fmt.Println(err)
 	if err != nil {
 		fmt.Printf("Error checking if email exists: %v\n", err)
