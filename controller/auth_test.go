@@ -5,7 +5,6 @@ import (
 )
 
 type mockDB struct {
-	*sql.DB
 	execFunc     func(query string, args ...interface{}) (sql.Result, error)
 	queryRowFunc func(query string, args ...interface{}) *sql.Row
 }
