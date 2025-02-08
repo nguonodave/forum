@@ -31,10 +31,7 @@ func (m mockResult) RowsAffected() (int64, error) {
 }
 
 func (m *mockDB) Exec(query string, args ...interface{}) (sql.Result, error) {
-	if m.execFunc != nil {
-		return m.execFunc(query, args...)
-	}
-	return &mockResult{1, 1}, nil
+	return m.execFunc(query, args...)
 }
 
 func (m *mockDB) QueryRow(query string, args ...interface{}) *sql.Row {
