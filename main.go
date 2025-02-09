@@ -24,6 +24,7 @@ var (
 func main() {
 	// parse the defined command-line flags
 	flag.Parse()
+
 	// configure file logging to temporary application logger file
 	{
 		logFilePath := path.Join(os.TempDir(), fmt.Sprintf("%d-forum-logger.log", os.Getpid()))
@@ -38,27 +39,25 @@ func main() {
 	}
 
 	// Initialize database
-	{
-		err := database.InitializeDB()
-		if err != nil {
-			log.Fatalf("Database initialization failed: %v", err)
-		}
-		defer database.Db.Close()
-		fmt.Println("Database operations completed successfully!")
+	db, err := database.InitializeDB()
+	if err != nil {
+		log.Fatalf("Database initialization failed: %v", err)
 	}
+	defer db.Db.Close() // ✅ Correctly defer closing the database connection
+	fmt.Println("Database initialized successfully!")
 
+	// Register handlers with database dependency
 	http.HandleFunc("/", handlers.Index)
-	http.HandleFunc("/login", handlers.Login)
-	http.HandleFunc("/register", handlers.Register)
-	http.HandleFunc("/api/posts", handlers.GetPaginatedPostsHandler)
+	http.HandleFunc("/login", handlers.Login(db))
+	http.HandleFunc("/register", handlers.Register(db))
+	http.HandleFunc("/api/posts", handlers.GetPaginatedPostsHandler(db))
 
 	// Browsers ping for the /favicon.ico icon, redirect to the respective static file
 	http.Handle("/favicon.ico", http.RedirectHandler("/static/svg/favicon.svg", http.StatusFound))
-	// Serve static files from the static dir, but, ensure not to expose the directory entries
+
+	// Serve static files from the static dir, but ensure not to expose the directory entries
 	staticDirFileServer := http.StripPrefix("/static/", http.FileServer(http.Dir("static")))
 	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
-		// clean to remove trailing slash in path, so that the
-		// paths `/static` and `/static/` both translate to `/static`
 		reqPath := filepath.Clean(r.URL.Path)
 		switch reqPath {
 		case "/static", "/static/css", "/static/js", "/static/svg":
@@ -68,6 +67,7 @@ func main() {
 		staticDirFileServer.ServeHTTP(w, r)
 	})
 
+	// Start server
 	servePort := fmt.Sprintf(":%d", *port)
 	url := fmt.Sprintf("http://localhost%s\n", servePort)
 	fmt.Printf("Server running at %s\n", url)
@@ -77,9 +77,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(servePort, nil))
 }
 
-// openBrowser opens a URL in the default web browser based on the operating
-// system that the code is running on. It handles Linux, Windows,and macOS platforms.
-// It takes a single parameter which is a string representing the URL to open.
+// Open a URL in the default web browser
 func openBrowser(url string) {
 	var err error
 	switch runtime.GOOS {
@@ -93,6 +91,6 @@ func openBrowser(url string) {
 		err = fmt.Errorf("unsupported platform")
 	}
 	if err != nil {
-		log.Printf("Failed to open browser:%v", err)
+		log.Printf("Failed to open browser: %v", err)
 	}
 }
