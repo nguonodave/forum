@@ -22,13 +22,14 @@ func renderTemplate(w http.ResponseWriter, templateFile string, data interface{}
 	templatePath := filepath.Join(templatesDir, templateFile)
 	temp, err := template.ParseFiles(templatePath)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
 		log.Printf("Error parsing template %s: %v", templateFile, err)
 		return
 	}
 
 	err = temp.Execute(w, data)
 	if err != nil {
+		fmt.Println("rrr")
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		log.Printf("Error executing template %s: %v", templateFile, err)
 		return
@@ -47,9 +48,9 @@ func jsonResponse(w http.ResponseWriter, statusCode int, message string) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		renderTemplate(w, "auth/login.html", nil)
-
+		renderTemplate(w, "auth/auth.html", nil)
 	case http.MethodPost:
+
 		var data struct {
 			Email    string `json:"email"`
 			Username string `json:"username"`
@@ -91,7 +92,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func Register(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		renderTemplate(w, "auth/login.html", nil)
+		renderTemplate(w, "auth/auth.html", nil)
 
 	case http.MethodPost:
 		var data struct {
