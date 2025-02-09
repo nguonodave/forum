@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
+	"forum/model"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -18,34 +19,36 @@ const (
 	schemaFile = "schema.sql"
 )
 
-var Db *sql.DB
-
-func InitializeDB() error {
-	// open database connection
-	// data source name
+func InitializeDB() (*model.Database, error) {
+	// Open database connection
 	dsn := fmt.Sprintf("file:%s?_foreign_keys=on&_journal_mode=WAL", dbName)
-	db, err := sql.Open("sqlite3", dsn)
+	sqlDB, err := sql.Open("sqlite3", dsn)
 	if err != nil {
-		return fmt.Errorf("failed to open database: %w", err)
+		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
-	// verify connection to database
-	if err := db.Ping(); err != nil {
-		return fmt.Errorf("failed to ping database: %w", err)
+	// Verify connection
+	if err := sqlDB.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
-	// apply  migrations
+
+	// Wrap in model.Database
+	db := &model.Database{Db: sqlDB}
+
+	// Apply migrations
 	if err := applyMigration(db); err != nil {
-		return fmt.Errorf("failed to apply migrations: %w", err)
+		return nil, fmt.Errorf("failed to apply migrations: %w", err)
 	}
-	// configure connection pool
-	db.SetMaxOpenConns(1) // sqlite only supports 1 writer  at a time
-	db.SetMaxIdleConns(1)
-	Db = db
-	return nil
+
+	// Configure connection pool
+	sqlDB.SetMaxOpenConns(1)
+	sqlDB.SetMaxIdleConns(1)
+
+	return db, nil // ✅ Return the initialized database
 }
 
 // Apply migrations to the database.
-func applyMigration(db *sql.DB) error {
+func applyMigration(db *model.Database) error {
 	// read schema file
 	schema, err := fs.ReadFile(schemaFile)
 	if err != nil {
@@ -53,7 +56,7 @@ func applyMigration(db *sql.DB) error {
 	}
 
 	// execute schema
-	if _, err := db.Exec(string(schema)); err != nil {
+	if _, err := db.Db.Exec(string(schema)); err != nil {
 		return fmt.Errorf("failed to execute schema: %w", err)
 	}
 	return nil
