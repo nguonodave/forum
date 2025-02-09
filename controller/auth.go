@@ -15,78 +15,51 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQL driver
 )
 
-// Expose the db variable for testing
-var db *sql.DB
-
-// SetDB sets the global database connection
-func SetDB(database *sql.DB) {
-	db = database
-}
-
 // generateSessionToken generates a unique session token using UUID
 func generateSessionToken() string {
 	return uuid.New().String()
 }
 
 // HandleRegister registers a new user
-func HandleRegister(username, email, password string) error {
+func HandleRegister(DBase *model.Database, username, email, password string) error {
 	// Validate input
-	println(333)
 	if err := model.ValidateEmail(email); err != nil {
-		println(3334)
 		return err
 	}
-
-	println(3335)
 	if err := model.ValidatePassword(password); err != nil {
-		println(3336)
 		return err
 	}
 
-	println(3337)
-	if model.IsEmailTaken(email) {
-		return errors.New("email is already taken")
-	}
-	println(3338)
-	if model.IsEmailTaken(email) {
-		println(3338)
+	// Check if email is already taken
+	if model.IsEmailTaken(DBase, email) {
 		return errors.New("email is already taken")
 	}
 
 	// Hash password
 	hashedPassword, err := model.HashPassword(password)
-	fmt.Println(hashedPassword)
-	println(33322)
 	if err != nil {
-		println(3339)
 		return errors.New("internal server error")
 	}
-	fmt.Println("dddd")
+
 	// Insert user into database
-	_, err = db.Exec(
+	_, err = DBase.Db.Exec(
 		"INSERT INTO users (email, password, username) VALUES (?, ?, ?);",
 		email,
 		hashedPassword,
 		username,
 	)
 	if err != nil {
-		fmt.Println("kuna error")
-	}
-	fmt.Println(">>> 001")
-	if err != nil {
-		println(33310)
 		return errors.New("failed to create user")
 	}
 
-	println(33311)
-	fmt.Println("success in creating user")
+	fmt.Println("Success: User created!")
 	return nil
 }
 
-func HandleLogin(email, password string) (string, time.Time, error) {
+func HandleLogin(DBase *model.Database, email, password string) (string, time.Time, error) {
 	// Retrieve user from database
 	var user model.User
-	err := db.QueryRow(
+	err := DBase.Db.QueryRow(
 		"SELECT id, email, password FROM users WHERE email = ?",
 		email,
 	).Scan(&user.ID, &user.Email, &user.Password)
@@ -109,7 +82,7 @@ func HandleLogin(email, password string) (string, time.Time, error) {
 
 	// Store session in the database
 	expiresAt := time.Now().Add(24 * 14 * time.Hour)
-	_, err = db.Exec(
+	_, err = DBase.Db.Exec(
 		"INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
 		user.ID, sessionToken, expiresAt,
 	)
@@ -166,7 +139,7 @@ func ValidateSession(db *sql.DB, next http.HandlerFunc) http.HandlerFunc {
 		// store user id in context for next handlers
 		ctx := context.WithValue(r.Context(), "userID", userID)
 		// if you want to retrieve user id in the next handlers use the syntax below:
-		// userID = r.Context().Value("userID").(int)
+		// userID = r.Context().Value( userID").(int)
 		next(w, r.WithContext(ctx))
 	}
 }
