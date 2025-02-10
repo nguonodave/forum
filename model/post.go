@@ -5,18 +5,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
-
 	"forum/xerrors"
+
+	"github.com/google/uuid"
 )
 
 // CreatePost creates a new post
-func CreatePost(db *sql.DB, post *Post) error {
+func CreatePost(db *Database, post *Post) error {
 	if err := ValidatePost(post); err != nil {
 		return err
 	}
 
-	tx, err := db.Begin()
+	tx, err := db.Db.Begin()
 	if err != nil {
 		return err
 	}
@@ -39,10 +39,10 @@ func CreatePost(db *sql.DB, post *Post) error {
 }
 
 // GetPostByID retrieves a post by its ID including relationships
-func GetPostByID(db *sql.DB, postID uuid.UUID) (*Post, error) {
+func GetPostByID(db *Database, postID uuid.UUID) (*Post, error) {
 	post := &Post{}
 
-	err := db.QueryRow(`
+	err := db.Db.QueryRow(`
 		SELECT 
 			p.id, p.user_id, p.title, p.content, p.created_at, p.updated_at,
 			u.id, u.username,
@@ -88,8 +88,8 @@ func GetPostByID(db *sql.DB, postID uuid.UUID) (*Post, error) {
 	return post, nil
 }
 
-func GetPostsByCategory(db *sql.DB, categoryID uuid.UUID) ([]*Post, error) {
-	rows, err := db.Query(`
+func GetPostsByCategory(db *Database, categoryID uuid.UUID) ([]*Post, error) {
+	rows, err := db.Db.Query(`
 		SELECT 
 			p.id, p.user_id, p.title, p.content, p.created_at, p.updated_at,
 			u.id, u.username,
@@ -144,14 +144,14 @@ func GetPostsByCategory(db *sql.DB, categoryID uuid.UUID) ([]*Post, error) {
 }
 
 // UpdatePost updates an existing post
-func UpdatePost(db *sql.DB, post *Post) error {
+func UpdatePost(db *Database, post *Post) error {
 	if err := ValidatePost(post); err != nil {
 		return err
 	}
 
 	post.UpdatedAt = time.Now()
 
-	result, err := db.Exec(`
+	result, err := db.Db.Exec(`
 	
 	UPDATE posts
 	SET title = ?, content = ?, updated_at = ?, category_id = ?
@@ -174,8 +174,8 @@ func UpdatePost(db *sql.DB, post *Post) error {
 }
 
 // DeletePost deletes a post and its associated comments
-func DeletePost(db *sql.DB, postID, userID uuid.UUID) error {
-	tx, err := db.Begin()
+func DeletePost(db *Database, postID, userID uuid.UUID) error {
+	tx, err := db.Db.Begin()
 	if err != nil {
 		return err
 	}
@@ -231,8 +231,8 @@ func ValidatePost(post *Post) error {
 
 // GetPaginatedPosts retrieves posts with pagination for lazy loading
 // GetPaginatedPosts retrieves posts with pagination for lazy loading
-func GetPaginatedPosts(db *sql.DB, limit, offset int) ([]*Post, error) {
-	rows, err := db.Query(`
+func GetPaginatedPosts(db *Database, limit, offset int) ([]*Post, error) {
+	rows, err := db.Db.Query(`
 		SELECT 
 			p.id, p.user_id, p.title, p.content, p.created_at, p.updated_at,
 			u.id, u.username,

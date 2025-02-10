@@ -1,14 +1,12 @@
 package model
 
 import (
-	"database/sql"
-
 	"github.com/google/uuid"
 )
 
 // GetCommentsByPostID retrieves all comments for a post
-func GetCommentsByPostID(db *sql.DB, postID uuid.UUID) ([]*Comment, error) {
-	rows, err := db.Query(`
+func GetCommentsByPostID(db *Database, postID uuid.UUID) ([]*Comment, error) {
+	rows, err := db.Db.Query(`
 		SELECT 
 			c.id, c.user_id, c.content, c.created_at,
 			u.id, u.username

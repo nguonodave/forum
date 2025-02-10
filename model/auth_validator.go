@@ -26,9 +26,7 @@ func IsValidPassword(password, hashedPassword string) bool {
 // HashPassword attempts to hash password using Cost value and returns the hashed password and error will be nil if successful
 // else hashed password will be an empty string and error will be not nil
 func HashPassword(password string) (string, error) {
-	fmt.Println("hashA")
 	if err := ValidatePassword(password); err != nil {
-		fmt.Println("hashB")
 		return "", xerrors.ErrPasswordTooShort
 	}
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), Cost)
@@ -36,7 +34,6 @@ func HashPassword(password string) (string, error) {
 		fmt.Println("hashC")
 		return "", err
 	}
-	fmt.Println("hashD")
 	return string(passwordBytes), nil
 }
 
@@ -98,20 +95,18 @@ func ValidateEmail(email string) error {
 
 // IsEmailTaken queries the database to check if the email provided exists returns true if found else false
 func IsEmailTaken(DBase *Database, email string) bool {
-	if DBase.Db == nil {
-		log.Println("IsEmailTaken() received a nil database connection")
+	if DBase == nil || DBase.Db == nil {
+		log.Println("[ERROR] IsEmailTaken(): Database connection is nil")
 		return false
 	}
+
 	var emailExists bool
-	println()
-	println()
-	println()
-	fmt.Println("IsEmailTaken() function failure")
 	err := DBase.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
-	fmt.Println(err)
+
 	if err != nil {
-		fmt.Printf("Error checking if email exists: %v\n", err)
+		log.Printf("[ERROR] IsEmailTaken(): Error checking email existence: %v\n", err)
 		return false
 	}
+
 	return emailExists
 }

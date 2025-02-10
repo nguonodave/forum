@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"forum/model"
@@ -20,12 +21,16 @@ func generateSessionToken() string {
 	return uuid.New().String()
 }
 
-// HandleRegister registers a new user
 func HandleRegister(DBase *model.Database, username, email, password string) error {
+	if DBase == nil || DBase.Db == nil {
+		return errors.New("database connection is missing")
+	}
+
 	// Validate input
 	if err := model.ValidateEmail(email); err != nil {
 		return err
 	}
+
 	if err := model.ValidatePassword(password); err != nil {
 		return err
 	}
@@ -41,14 +46,21 @@ func HandleRegister(DBase *model.Database, username, email, password string) err
 		return errors.New("internal server error")
 	}
 
+	// Generate UUID for user ID
+	userID := uuid.New().String()
+
 	// Insert user into database
-	_, err = DBase.Db.Exec(
-		"INSERT INTO users (email, password, username) VALUES (?, ?, ?);",
+	_, DBErr := DBase.Db.Exec(
+		"INSERT INTO users (id, email, password, username) VALUES (?, ?, ?, ?);",
+		userID,
 		email,
 		hashedPassword,
 		username,
 	)
-	if err != nil {
+	if DBErr != nil {
+		if strings.Contains(DBErr.Error(), "UNIQUE constraint failed") {
+			return errors.New("email or username already exists")
+		}
 		return errors.New("failed to create user")
 	}
 
