@@ -2,7 +2,9 @@ package model
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"math/rand"
 	"time"
 
 	"forum/xerrors"
@@ -71,7 +73,7 @@ func GetPostByID(db *Database, postID uuid.UUID) (*Post, error) {
 		&post.Votes,
 	)
 
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, xerrors.ErrInvalidPost
 	}
 
@@ -230,7 +232,6 @@ func ValidatePost(post *Post) error {
 }
 
 // GetPaginatedPosts retrieves posts with pagination for lazy loading
-// GetPaginatedPosts retrieves posts with pagination for lazy loading
 func GetPaginatedPosts(db *Database, limit, offset int) ([]*Post, error) {
 	rows, err := db.Db.Query(`
 		SELECT 
@@ -313,8 +314,7 @@ func GetPaginatedPosts(db *Database, limit, offset int) ([]*Post, error) {
 		if username.Valid {
 			post.User.Username = username.String
 		} else {
-			// Handle the case where username is NULL (Optional: Set to a default value or leave empty)
-			post.User.Username = "Anonymous" // Or you can set it to an empty string: ""
+			post.User.Username = RandomUsername()
 		}
 
 		// Assign vote count
@@ -325,4 +325,19 @@ func GetPaginatedPosts(db *Database, limit, offset int) ([]*Post, error) {
 	}
 
 	return posts, nil
+}
+
+// RandomUsername generates a random username using adjectives and nouns and numbers
+func RandomUsername() string {
+	adjectives := []string{"Brave", "Clever", "Swift", "Mighty", "Silent", "Fierce", "Gentle", "Loyal", "Curious", "Wise", "Mashed", "Tall"}
+	nouns := []string{"Tiger", "Hawk", "Wolf", "Panther", "Eagle", "Fox", "Lion", "Shark", "Bear", "Otter", "Potato", "Ghost", "Egg"}
+
+	source := rand.NewSource(time.Now().UnixNano())
+	rnd := rand.New(source)
+
+	adj := adjectives[rnd.Intn(len(adjectives))]
+	noun := nouns[rnd.Intn(len(nouns))]
+	number := rnd.Intn(9000) + 1000
+
+	return fmt.Sprintf("%s%s%d", adj, noun, number)
 }

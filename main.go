@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"forum/controller"
 	"log"
 	"net/http"
 	"os"
@@ -47,7 +48,7 @@ func main() {
 	fmt.Println("Database initialized successfully!")
 
 	// Register handlers with database dependency
-	http.HandleFunc("/", handlers.Index)
+	http.HandleFunc("/", controller.ValidateSession(db, handlers.Index))
 	http.HandleFunc("/login", handlers.Login(db))
 	http.HandleFunc("/register", handlers.Register(db))
 	http.HandleFunc("/api/posts", handlers.GetPaginatedPostsHandler(db))

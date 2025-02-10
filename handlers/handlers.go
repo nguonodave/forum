@@ -58,6 +58,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 
 			// Decode JSON request
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+				fmt.Println("126", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
@@ -65,6 +66,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 			// Call HandleLogin with the database instance
 			sessionToken, expiresAt, err := controller.HandleLogin(DBase, data.Email, data.Password)
 			if err != nil {
+				fmt.Println("125", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -80,6 +82,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 			})
 
 			jsonResponse(w, http.StatusOK, "Login successful")
+			http.Redirect(w, r, "/", http.StatusFound)
 
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -102,12 +105,14 @@ func Register(DBase *model.Database) http.HandlerFunc {
 
 			// Decode JSON request
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+				fmt.Println("124", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
 
 			// Register user
 			if err := controller.HandleRegister(DBase, data.Username, data.Email, data.Password); err != nil {
+				fmt.Println("123", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}

@@ -9,6 +9,15 @@ import (
 
 // Index handler designed for the application's index page
 func Index(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	templateFile := "base.html"
 	type Content struct {
 		Message string

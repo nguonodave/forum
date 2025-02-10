@@ -123,3 +123,36 @@ body {
 .show-password:hover{
     cursor: pointer;
 }
+
+.notification {
+    position: relative;
+    top: 10px;
+    right: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.notification.show {
+    opacity: 1;
+}
+
+.notification.success {
+    background-color: #077aad; /* Green */
+}
+
+.notification.error {
+    background-color: #e71f0d; /* Red */
+}
+
+.notification.warning {
+    background-color: #ee5d19; /* Orange */
+}
+
+.notification.info {
+    background-color: #71c2ff; /* Blue */
+}

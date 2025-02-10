@@ -110,3 +110,17 @@ func IsEmailTaken(DBase *Database, email string) bool {
 
 	return emailExists
 }
+
+func IsUserNameTaken(DBase *Database, username string) bool {
+	if DBase == nil || DBase.Db == nil {
+		fmt.Println("[ERROR] IsUserNameTaken(): Database connection is nil")
+		return false
+	}
+	var userExists bool
+	err := DBase.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&userExists)
+	if err != nil {
+		log.Printf("[ERROR] IsUserNameTaken(): Error checking user existence: %v\n", err)
+		return false
+	}
+	return userExists
+}

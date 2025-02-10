@@ -4,10 +4,17 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3bc12b57-8f80-4c00-93aa-98e95f97bb71" name="Changes" comment="">
+    <list default="true" id="88d8e72e-f76f-4c14-b039-b5dcadda5eeb" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/controller/auth.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/handlers.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/handlers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/index.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/index.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/auth_validator.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/auth_validator.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/post.go" beforeDir="false" afterPath="$PROJECT_DIR$/model/post.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/login.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/login.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/js/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/login.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/view/auth/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/view/auth/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/view/auth/auth.html" beforeDir="false" afterPath="$PROJECT_DIR$/view/auth/auth.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,12 +24,17 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="CSS File" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
   <component name="GOROOT" url="file://$PROJECT_DIR$/../go/pkg/mod/golang.org/toolchain@v0.0.1-go1.23.2.linux-amd64" />
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="front-fix" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -37,10 +49,13 @@
     &quot;accountId&quot;: &quot;a1c2f54a-1468-4648-aae0-69475e2352fc&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/main.go" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 7
+  &quot;associatedIndex&quot;: 8
 }</component>
-  <component name="ProjectId" id="2sFiOt1EqZyNgpm9eia5MUSuGFL" />
+  <component name="ProjectId" id="2sqBNokm49cJbCgz4Si72pw79gf" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
@@ -50,30 +65,33 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Go Build.go build ip.go.executor": "Run",
     "Go Build.go build scratch_13.go.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "test",
+    "git-widget-placeholder": "front-002",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "/home/ramuiruri/forum",
-    "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm"
-  },
-  "keyToStringList": {
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "go"
-    ]
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.lookFeel"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Go Build.go build ip.go">
+    <configuration name="go build ip.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="forum" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="forum" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$APPLICATION_CONFIG_DIR$/scratches/ip.go" />
+      <method v="2" />
+    </configuration>
     <configuration name="go build scratch_13.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="forum" />
       <working_directory value="$PROJECT_DIR$" />
@@ -85,6 +103,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build ip.go" />
         <item itemvalue="Go Build.go build scratch_13.go" />
       </list>
     </recent_temporary>
@@ -100,9 +119,6 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
