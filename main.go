@@ -70,7 +70,7 @@ func main() {
 
 	// Start server
 	servePort := fmt.Sprintf(":%d", *port)
-	url := fmt.Sprintf("http://localhost%s\n", servePort)
+	url := fmt.Sprintf("%s\n", servePort)
 	fmt.Printf("Server running at %s\n", url)
 	if *open {
 		openBrowser(url)

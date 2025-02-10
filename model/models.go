@@ -12,7 +12,7 @@ type Database struct {
 	Db *sql.DB
 }
 
-// user struct
+// User struct
 type User struct {
 	ID       uuid.UUID
 	Username string
@@ -20,7 +20,7 @@ type User struct {
 	Password string
 }
 
-// post struct
+// Post struct
 type Post struct {
 	ID        uuid.UUID
 	UserID    uuid.UUID
@@ -42,7 +42,7 @@ type Category struct {
 	Name *string
 }
 
-// comment struct
+// Comment struct
 type Comment struct {
 	ID        uuid.UUID
 	PostID    uuid.UUID
@@ -53,7 +53,7 @@ type Comment struct {
 	User      *User
 }
 
-// votes struct(likes and dislikes)
+// Vote struct(likes and dislikes)
 type Vote struct {
 	ID        uuid.UUID
 	UserID    uuid.UUID
@@ -63,7 +63,7 @@ type Vote struct {
 	CreatedAt time.Time
 }
 
-// session struct
+// Session struct
 type Session struct {
 	Token     string
 	UserID    uuid.UUID
