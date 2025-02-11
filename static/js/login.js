@@ -53,22 +53,22 @@ document.querySelectorAll('.form').forEach(form => {
 
             // Validate username and password
             if (username.includes('@')) {
-                alert("Username cannot contain '@' symbol");
+                showNotification("Username cannot contain '@' symbol",'error');
                 return;
             }
             if (password !== confirmPassword) {
-                alert('Passwords do not match');
+                showNotification('Passwords do not match',"error");
                 return;
             }
 
             // Send signup data to the backend
             const response = await signup(email, password, username);
             if (response.ok) {
-                alert('Signup successful');
+                showNotification('Signup successful','success');
                 window.location.href = '/login';
             } else {
                 console.log(response);
-                alert('Signup failed: ' + response.message);
+                showNotification('Signup failed: ' + response.message, 'error');
             }
 
         } else if (form.id === 'loginForm') {
@@ -79,10 +79,12 @@ document.querySelectorAll('.form').forEach(form => {
             // Send login data to the backend
             const response = await login(usernameOrEmail, password, isEmail);
             if (response.ok) {
-                alert('Login successful');
-                window.location.href = '/';
+                showNotification('Login successful');
+                setTimeout(() => {
+                    window.location.href = '/';
+                },3000)
             } else {
-                alert('Login failed: ' + response.message);
+                showNotification('Login failed: ' + response.message,'error');
             }
         }
     });
@@ -134,3 +136,14 @@ document.querySelectorAll('input').forEach(input => {
         }
     });
 });
+
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.classList.remove('success', 'error', 'warning', 'info', 'show'); // Remove all previous classes
+    notification.classList.add(type, 'show');
+
+    setTimeout(() => {
+        notification.classList.remove(type, 'show');
+    }, 3000);
+}

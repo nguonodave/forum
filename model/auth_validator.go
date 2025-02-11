@@ -31,7 +31,6 @@ func HashPassword(password string) (string, error) {
 	}
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), Cost)
 	if err != nil {
-		fmt.Println("hashC")
 		return "", err
 	}
 	return string(passwordBytes), nil
@@ -102,11 +101,24 @@ func IsEmailTaken(DBase *Database, email string) bool {
 
 	var emailExists bool
 	err := DBase.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
-
 	if err != nil {
 		log.Printf("[ERROR] IsEmailTaken(): Error checking email existence: %v\n", err)
 		return false
 	}
 
 	return emailExists
+}
+
+func IsUserNameTaken(DBase *Database, username string) bool {
+	if DBase == nil || DBase.Db == nil {
+		fmt.Println("[ERROR] IsUserNameTaken(): Database connection is nil")
+		return false
+	}
+	var userExists bool
+	err := DBase.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&userExists)
+	if err != nil {
+		log.Printf("[ERROR] IsUserNameTaken(): Error checking user existence: %v\n", err)
+		return false
+	}
+	return userExists
 }

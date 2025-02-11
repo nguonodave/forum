@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"forum/controller"
 	"forum/model"
@@ -51,20 +52,20 @@ func Login(DBase *model.Database) http.HandlerFunc {
 
 		case http.MethodPost:
 			var data struct {
-				Email    string `json:"email"`
-				Username string `json:"username"`
+				Email    string `json:"email,omitempty"`
+				Username string `json:"username,omitempty"`
 				Password string `json:"password"`
 			}
 
-			// Decode JSON request
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+				log.Printf("error decoding login data: %v", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
 
-			// Call HandleLogin with the database instance
-			sessionToken, expiresAt, err := controller.HandleLogin(DBase, data.Email, data.Password)
+			sessionToken, expiresAt, err := controller.HandleLogin(DBase, data.Email, data.Username, data.Password)
 			if err != nil {
+				log.Printf("%v", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -80,6 +81,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 			})
 
 			jsonResponse(w, http.StatusOK, "Login successful")
+			http.Redirect(w, r, "/", http.StatusFound)
 
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -102,12 +104,14 @@ func Register(DBase *model.Database) http.HandlerFunc {
 
 			// Decode JSON request
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+				log.Printf("%v", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
 
 			// Register user
 			if err := controller.HandleRegister(DBase, data.Username, data.Email, data.Password); err != nil {
+				fmt.Printf("%v", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -145,5 +149,50 @@ func GetPaginatedPostsHandler(db *model.Database) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(posts)
+	}
+}
+
+func Logout(db *model.Database) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			jsonResponse(w, http.StatusMethodNotAllowed, "not allowed")
+			return
+		}
+		cookie, err := r.Cookie("session")
+		if err != nil {
+			http.Error(w, "no session found", http.StatusUnauthorized)
+			return
+		}
+
+		sessionToken := cookie.Value
+
+		query := "DELETE FROM sessions WHERE token = ?"
+		result, err := db.Db.Exec(query, sessionToken)
+		if err != nil {
+			fmt.Printf("%v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			fmt.Printf("%v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		if rowsAffected == 0 {
+			http.Error(w, "session not found", http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session",
+			Value:    "",
+			Expires:  time.Now().Add(-time.Hour),
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteStrictMode,
+		})
+		jsonResponse(w, http.StatusOK, "logout successful")
 	}
 }
