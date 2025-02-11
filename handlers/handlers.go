@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"forum/controller"
 	"forum/model"
@@ -51,20 +52,18 @@ func Login(DBase *model.Database) http.HandlerFunc {
 
 		case http.MethodPost:
 			var data struct {
-				Email    string `json:"email"`
-				Username string `json:"username"`
+				Email    string `json:"email,omitempty"`
+				Username string `json:"username,omitempty"`
 				Password string `json:"password"`
 			}
 
-			// Decode JSON request
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-				fmt.Println("126", err)
+				fmt.Println("126 decoding login data", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
 
-			// Call HandleLogin with the database instance
-			sessionToken, expiresAt, err := controller.HandleLogin(DBase, data.Email, data.Password)
+			sessionToken, expiresAt, err := controller.HandleLogin(DBase, data.Email, data.Username, data.Password)
 			if err != nil {
 				fmt.Println("125", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
@@ -151,4 +150,50 @@ func GetPaginatedPostsHandler(db *model.Database) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(posts)
 	}
+}
+
+func Logout(db *model.Database) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			jsonResponse(w, http.StatusMethodNotAllowed, "not allowed")
+			return
+		}
+		cookie, err := r.Cookie("session")
+		if err != nil {
+			http.Error(w, "no session found", http.StatusUnauthorized)
+			return
+		}
+
+		sessionToken := cookie.Value
+
+		query := "DELETE FROM sessions WHERE token = ?"
+		result, err := db.Db.Exec(query, sessionToken)
+		if err != nil {
+			fmt.Println("001", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			fmt.Println("002")
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		if rowsAffected == 0 {
+			http.Error(w, "session not found", http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session",
+			Value:    "",
+			Expires:  time.Now().Add(-time.Hour),
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteStrictMode,
+		})
+		jsonResponse(w, http.StatusOK, "logout successful")
+	}
+
 }

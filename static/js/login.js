@@ -80,7 +80,9 @@ document.querySelectorAll('.form').forEach(form => {
             const response = await login(usernameOrEmail, password, isEmail);
             if (response.ok) {
                 showNotification('Login successful');
-                window.location.href = '/';
+                setTimeout(() => {
+                    window.location.href = '/';
+                },3000)
             } else {
                 showNotification('Login failed: ' + response.message,'error');
             }
@@ -143,5 +145,5 @@ function showNotification(message, type = 'success') {
 
     setTimeout(() => {
         notification.classList.remove(type, 'show');
-    }, 100);
+    }, 3000);
 }

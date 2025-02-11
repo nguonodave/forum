@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -67,20 +66,37 @@ func HandleRegister(DBase *model.Database, username, email, password string) err
 	return nil
 }
 
-func HandleLogin(DBase *model.Database, email, password string) (string, time.Time, error) {
+func HandleLogin(DBase *model.Database, email, username, password string) (string, time.Time, error) {
 
 	var user model.User
-	err := DBase.Db.QueryRow(
-		"SELECT id, email, password FROM users WHERE email = ?",
-		email,
-	).Scan(&user.ID, &user.Email, &user.Password)
-
-	if errors.Is(err, sql.ErrNoRows) {
-		return "", time.Time{}, errors.New("invalid credentials")
+	if email == "" && username == "" {
+		return "", time.Time{}, errors.New("email and username is missing")
 	}
 
-	if err != nil {
-		return "", time.Time{}, errors.New("internal server error")
+	switch {
+	case email != "":
+
+		err := DBase.Db.QueryRow(
+			"SELECT id, email, password FROM users WHERE email = ?",
+			email,
+		).Scan(&user.ID, &user.Email, &user.Password)
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", time.Time{}, errors.New("invalid credentials")
+		}
+
+		if err != nil {
+			return "", time.Time{}, errors.New("internal server error")
+		}
+	case username != "":
+		row := DBase.Db.QueryRow("SELECT id, username, password FROM users WHERE username = ?", username)
+		err := row.Scan(&user.ID, &user.Username, &user.Password)
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", time.Time{}, errors.New("invalid credentials")
+		}
+		if err != nil {
+			return "", time.Time{}, errors.New("internal server error")
+		}
 	}
 
 	if ok := model.IsValidPassword(password, user.Password); !ok {
@@ -90,7 +106,7 @@ func HandleLogin(DBase *model.Database, email, password string) (string, time.Ti
 	sessionToken := generateSessionToken()
 
 	expiresAt := time.Now().Add(24 * 14 * time.Hour)
-	_, err = DBase.Db.Exec(
+	_, err := DBase.Db.Exec(
 		"INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
 		user.ID, sessionToken, expiresAt,
 	)
@@ -136,19 +152,10 @@ func ValidateSession(DBase *model.Database, next http.HandlerFunc) http.HandlerF
 			return
 		}
 
-		// OPTIONAL FEATURE: refreshing token expiration for each request
-		// this is to make sure if the site is idle, we log out user to save resources
-		_, err = DBase.Db.Exec("UPDATE sessions SET expires_at = ? WHERE token = ?", time.Now().Add(24*time.Hour), cookie.Value)
-		if err != nil {
-			log.Printf("ERROR: database while refershing session %v\n", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-
 		// store user id in context for next handlers
 		ctx := context.WithValue(r.Context(), "userID", userID)
 		// if you want to retrieve user id in the next handlers use the syntax below:
-		// userID = r.Context().Value( userID").(string)
+		// userID = r.Context().Value("userID").(string)
 		next(w, r.WithContext(ctx))
 	}
 }

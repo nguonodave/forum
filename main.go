@@ -23,10 +23,8 @@ var (
 )
 
 func main() {
-	// parse the defined command-line flags
 	flag.Parse()
 
-	// configure file logging to temporary application logger file
 	{
 		logFilePath := path.Join(os.TempDir(), fmt.Sprintf("%d-forum-logger.log", os.Getpid()))
 		logger, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o644)
@@ -39,19 +37,18 @@ func main() {
 		defer fileio.Close(logger)
 	}
 
-	// Initialize database
 	db, err := database.InitializeDB()
 	if err != nil {
 		log.Fatalf("Database initialization failed: %v", err)
 	}
-	defer db.Db.Close() // ✅ Correctly defer closing the database connection
+	defer db.Db.Close()
 	fmt.Println("Database initialized successfully!")
 
-	// Register handlers with database dependency
 	http.HandleFunc("/", controller.ValidateSession(db, handlers.Index))
 	http.HandleFunc("/login", handlers.Login(db))
 	http.HandleFunc("/register", handlers.Register(db))
 	http.HandleFunc("/api/posts", handlers.GetPaginatedPostsHandler(db))
+	http.HandleFunc("/logout", handlers.Logout(db))
 
 	// Browsers ping for the /favicon.ico icon, redirect to the respective static file
 	http.Handle("/favicon.ico", http.RedirectHandler("/static/svg/favicon.svg", http.StatusFound))
@@ -68,9 +65,8 @@ func main() {
 		staticDirFileServer.ServeHTTP(w, r)
 	})
 
-	// Start server
 	servePort := fmt.Sprintf(":%d", *port)
-	url := fmt.Sprintf("%s\n", servePort)
+	url := fmt.Sprintf("http://localhost%s", servePort)
 	fmt.Printf("Server running at %s\n", url)
 	if *open {
 		openBrowser(url)
