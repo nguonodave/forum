@@ -58,14 +58,14 @@ func Login(DBase *model.Database) http.HandlerFunc {
 			}
 
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-				fmt.Println("126 decoding login data", err)
+				log.Printf("error decoding login data: %v", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
 
 			sessionToken, expiresAt, err := controller.HandleLogin(DBase, data.Email, data.Username, data.Password)
 			if err != nil {
-				fmt.Println("125", err)
+				log.Printf("%v", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -104,14 +104,14 @@ func Register(DBase *model.Database) http.HandlerFunc {
 
 			// Decode JSON request
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-				fmt.Println("124", err)
+				log.Printf("%v", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
 
 			// Register user
 			if err := controller.HandleRegister(DBase, data.Username, data.Email, data.Password); err != nil {
-				fmt.Println("123", err)
+				fmt.Printf("%v", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -169,13 +169,13 @@ func Logout(db *model.Database) http.HandlerFunc {
 		query := "DELETE FROM sessions WHERE token = ?"
 		result, err := db.Db.Exec(query, sessionToken)
 		if err != nil {
-			fmt.Println("001", err)
+			fmt.Printf("%v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 		rowsAffected, err := result.RowsAffected()
 		if err != nil {
-			fmt.Println("002")
+			fmt.Printf("%v", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -195,5 +195,4 @@ func Logout(db *model.Database) http.HandlerFunc {
 		})
 		jsonResponse(w, http.StatusOK, "logout successful")
 	}
-
 }

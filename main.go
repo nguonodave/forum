@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"forum/controller"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+
+	"forum/controller"
 
 	"forum/database"
 	"forum/fileio"

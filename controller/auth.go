@@ -67,7 +67,6 @@ func HandleRegister(DBase *model.Database, username, email, password string) err
 }
 
 func HandleLogin(DBase *model.Database, email, username, password string) (string, time.Time, error) {
-
 	var user model.User
 	if email == "" && username == "" {
 		return "", time.Time{}, errors.New("email and username is missing")
@@ -120,7 +119,6 @@ func HandleLogin(DBase *model.Database, email, username, password string) (strin
 // ValidateSession applies for routes that require authentication
 func ValidateSession(DBase *model.Database, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		cookie, err := r.Cookie("session")
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -135,14 +133,12 @@ func ValidateSession(DBase *model.Database, next http.HandlerFunc) http.HandlerF
 		)
 
 		err = row.Scan(&userID, &expiresAt)
-
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				http.Redirect(w, r, "/login", http.StatusSeeOther)
 				return
 			}
 			fmt.Printf("ERROR: failed to scan session: %v\n", err)
-			fmt.Println("128", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
