@@ -26,6 +26,7 @@ type Post struct {
 	UserID    uuid.UUID
 	Title     string
 	Content   string
+	ImageURL  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
