@@ -152,6 +152,27 @@ func GetPaginatedPostsHandler(db *model.Database) http.HandlerFunc {
 	}
 }
 
+func CategoriesHandler(db *model.Database) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		categories, err := model.GetCategories(db.Db)
+		if err != nil {
+			http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
+			return
+		}
+
+		tmpl, err := template.ParseFiles(".html")
+		if err != nil {
+			http.Error(w, "Error loading template", http.StatusInternalServerError)
+			return
+		}
+
+		err = tmpl.Execute(w, categories)
+		if err != nil {
+			http.Error(w, "Template execution error", http.StatusInternalServerError)
+		}
+	}
+}
+
 func Logout(db *model.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
