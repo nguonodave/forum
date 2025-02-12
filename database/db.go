@@ -7,6 +7,7 @@ import (
 
 	"forum/model"
 
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -45,20 +46,45 @@ func InitializeDB() (*model.Database, error) {
 	sqlDB.SetMaxOpenConns(1)
 	sqlDB.SetMaxIdleConns(1)
 
-	return db, nil // ✅ Return the initialized database
+	return db, nil
 }
 
 // Apply migrations to the database.
 func applyMigration(db *model.Database) error {
-	// read schema file
+	// Read schema file
 	schema, err := fs.ReadFile(schemaFile)
 	if err != nil {
 		return fmt.Errorf("failed to read schema file: %w", err)
 	}
 
-	// execute schema
+	// Execute schema
 	if _, err := db.Db.Exec(string(schema)); err != nil {
 		return fmt.Errorf("failed to execute schema: %w", err)
 	}
+
+	// Insert predefined categories
+	if err := insertDefaultCategories(db); err != nil {
+		return fmt.Errorf("failed to insert default categories: %w", err)
+	}
+
+	return nil
+}
+
+// Insert default categories into the database.
+func insertDefaultCategories(db *model.Database) error {
+	categories := []string{"General", "Technology", "Sports", "Entertainment", "Health"}
+
+	for _, name := range categories {
+		id := uuid.New() // Generate a new UUID
+
+		_, err := db.Db.Exec(
+			"INSERT INTO categories (id, name) VALUES (?, ?) ON CONFLICT(name) DO NOTHING;",
+			id.String(), name,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to insert category %s: %w", name, err)
+		}
+	}
+
 	return nil
 }
