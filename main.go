@@ -47,7 +47,7 @@ func main() {
 	fmt.Println("Database initialized successfully!")
 
 	http.HandleFunc("/", controller.ValidateSession(db, handlers.Index))
-	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(handlers.Login(db)))
+	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(db.Db, handlers.Login(db)))
 	http.HandleFunc("/register", handlers.Register(db))
 	http.HandleFunc("/api/posts", handlers.GetPaginatedPostsHandler(db))
 	http.HandleFunc("/logout", handlers.Logout(db))
