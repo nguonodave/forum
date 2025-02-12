@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"forum/controller"
 	"forum/middlewares"
 
 	"forum/database"
@@ -46,7 +45,7 @@ func main() {
 	defer db.Db.Close()
 	fmt.Println("Database initialized successfully!")
 
-	http.HandleFunc("/", controller.ValidateSession(db, handlers.Index))
+	http.HandleFunc("/", handlers.Index(db.Db))
 	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(db.Db, handlers.Login(db)))
 	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(db.Db, handlers.Register(db)))
 	http.HandleFunc("/api/posts", handlers.GetPaginatedPostsHandler(db))
