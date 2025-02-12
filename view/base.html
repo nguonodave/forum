@@ -19,7 +19,21 @@
         
         <div class="about-section">
             <h3>Filters</h3>
-            <p>Website information and quick links</p>
+           <div class="dropdown">
+            <button class="dropdown-btn">Categories ▼</button>
+            <div class="dropdown-content">
+                {{ range .Categories}}
+                <a href="/categories/{{.ID }}">{{.Name}}</a>
+                {{ end}}
+            </div>
+           </div>
+
+           {{if .UserLoggedIn}}
+           <div class="user-filters">
+            <a href="/my-posts">My Posts</a>
+            <a href="/liked-posts">Liked Posts</a>
+           </div>
+           {{end}}
         </div>
     </aside>
 
@@ -42,8 +56,13 @@
         <div class="user-account">
             <div class="user-avatar"></div>
             <div>
-                <div>John Doe</div>
-                <div>@johndoe</div>
+               {{ if .UserLoggedIn }}
+               <div>@{{ .User.username}}</div>
+               <a href="/logout" class="btn-primary">Logout</a>
+               {{else}}
+               <div>@Guest</div>
+               <a href="/login" class="btn-primary">Logout</a>
+            {{end}}
             </div>
         </div>
         </nav>
