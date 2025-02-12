@@ -18,6 +18,18 @@ func Index(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
+		// fetch all categories
+
+		// if method is POST (filters)
+			// form value
+				// GetPost(db, value)
+					// if value not empty, SELECT from db WHERE value
+					// else SELECT (*)
+			// populate posts
+		// else if GET
+			// all posts
+			// populate posts
+
 		if r.Method != "GET" {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
