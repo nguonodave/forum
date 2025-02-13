@@ -10,10 +10,7 @@ import (
 	"time"
 
 	"forum/controller"
-	"forum/helperfunc"
 	"forum/model"
-
-	"github.com/google/uuid"
 )
 
 // templatesDir refers to the filepath of the directory containing the application's templates
@@ -43,7 +40,11 @@ func jsonResponse(w http.ResponseWriter, statusCode int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	response := map[string]string{"message": message}
-	json.NewEncoder(w).Encode(response)
+	err := json.NewEncoder(w).Encode(response)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 func Login(DBase *model.Database) http.HandlerFunc {
@@ -145,80 +146,6 @@ func CategoriesHandler(db *model.Database) http.HandlerFunc {
 		if err != nil {
 			http.Error(w, "Template execution error", http.StatusInternalServerError)
 		}
-	}
-}
-
-func HandleVoteRequest(db *model.Database) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Set response header
-		w.Header().Set("Content-Type", "application/json")
-
-		// Only allow POST method
-		if r.Method != http.MethodPost {
-			http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
-		// Get user ID from session
-		userID, err := helperfunc.GetUserIDFromSession(r)
-		if err != nil {
-			http.Error(w, "User not authenticated", http.StatusUnauthorized)
-			return
-		}
-
-		// Parse request body
-		var requestBody struct {
-			PostID    string `json:"postId,omitempty"`
-			CommentID string `json:"commentId,omitempty"`
-			Type      string `json:"type"`
-		}
-
-		if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			return
-		}
-
-		// Validate vote type
-		if requestBody.Type != "like" && requestBody.Type != "dislike" {
-			http.Error(w, "Invalid vote type", http.StatusBadRequest)
-			return
-		}
-
-		// Prepare vote request
-		voteReq := &model.VoteRequest{
-			UserID: userID,
-			Type:   requestBody.Type,
-		}
-
-		// Set PostID or CommentID based on request
-		if requestBody.PostID != "" {
-			postID, err := uuid.Parse(requestBody.PostID)
-			if err != nil {
-				http.Error(w, "Invalid post ID", http.StatusBadRequest)
-				return
-			}
-			voteReq.PostID = &postID
-		} else if requestBody.CommentID != "" {
-			commentID, err := uuid.Parse(requestBody.CommentID)
-			if err != nil {
-				http.Error(w, "Invalid comment ID", http.StatusBadRequest)
-				return
-			}
-			voteReq.CommentID = &commentID
-		} else {
-			http.Error(w, "Must provide either postId or commentId", http.StatusBadRequest)
-			return
-		}
-
-		// Process vote
-		response, err := model.HandleVote(db, voteReq)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Send response
-		json.NewEncoder(w).Encode(response)
 	}
 }
 

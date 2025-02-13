@@ -116,10 +116,6 @@ body {
     display: none;
 }
 
-/*.show-password:{*/
-/*    font-size: 34px;*/
-/*    color: white;*/
-/*}*/
 .show-password:hover{
     cursor: pointer;
 }
@@ -155,4 +151,17 @@ body {
 
 .notification.info {
     background-color: #71c2ff; /* Blue */
+}
+
+.passwordMessage {
+    border: 2px solid #1d99e7;
+    border-radius: 5px;
+    border-top: 2px solid #38444d;
+    padding: 8px;
+    margin-top: 10px;
+    color: #bc1b1b;
+    font-size: 14px;
+    background-color: #b3d1ef;
+    display: none;
+    text-align: left;
 }
