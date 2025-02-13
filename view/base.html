@@ -20,56 +20,53 @@
         <div class="about-section">
           <h3>Filters</h3>
           <div class="filters">
-             <div class="category-filters">
+            <div class="category-filters">
             <h3>Categories</h3>
             <div class="filter-option category-filter">Technology</div>
             <div class="filter-option category-filter">Design</div>
             <div class="filter-option category-filter">Development</div>
           </div>
+          </div>
+          
     
             {{ if .UserLoggedIn }}
             <div class="filter-option">My Posts</div>
             <div class="filter-option">Liked Posts</div>
             {{end}}
-          </div>
-    
-         
-        </div>
-    
-      </aside>
+        </div> 
+    </aside>
 
-  <main class="content-section">
-    <header class="header">
-      <div class="app-icon mobile-only"></div>
-      <div class="search-bar">
-        <input 
-          type="text" 
-          placeholder="What's on your mind?" 
-          class="post-input" 
-          onclick="handleCreatePost()"
-          readonly
-        >
-      </div>
-      <div class="header-avatar"></div>
-    </header>
+    <main class="content-section">
+        <header class="header">
+            <div class="app-icon mobile-only"></div>
+        <div class="search-bar">
+            <input 
+                type="text" 
+                placeholder="What's on your mind?" 
+                class="post-input" 
+                onclick="handleCreatePost()"
+                readonly>
+        </div>
+        <div class="header-avatar"></div>
+        </header>
 
     {{ if .UserLoggedIn }}
     <div id="createPostOverlay" class="create-post-overlay" style="display:none;">
       <div id="createPostDiv" class="create-post-container">
-        <button class="close-create-post" onclick="closeCreatePostDiv()">&times;</button>
-        <h2>Create a Post</h2>
-        <form id="createPostForm">
-          <input type="text" id="postTitle" placeholder="Title" required>
-          <textarea id="postContent" placeholder="Content" required></textarea>
-          <select id="postCategory" required>
-            <option value="">Select Category</option>
-            <option value="Technology">Technology</option>
-            <option value="Design">Design</option>
-            <option value="Development">Development</option>
-          </select>
-          <input type="file" id="postImage" accept="image/*">
-          <button type="submit" class="submit-post-btn">Post</button>
-        </form>
+            <button class="close-create-post" onclick="closeCreatePostDiv()">&times;</button>
+            <h2>Create a Post</h2>
+            <form id="createPostForm">
+            <input type="text" id="postTitle" placeholder="Title" required>
+            <textarea id="postContent" placeholder="Content" required></textarea>
+            <select id="postCategory" required>
+                <option value="">Select Category</option>
+                <option value="Technology">Technology</option>
+                <option value="Design">Design</option>
+                <option value="Development">Development</option>
+            </select>
+            <input type="file" id="postImage" accept="image/*">
+            <button type="submit" class="submit-post-btn">Post</button>
+            </form>
       </div>
     </div>
     {{ else }}
@@ -80,12 +77,9 @@
         <a href="/login" class="submit-post-btn">Go to Login</a>
       </div>
       {{ end }}
-
-    </div>
-    
-   
     
     <div class="posts-container">
+        <h1>Posts here.....</h1>
         {{ range .Posts }}
         <div class="post">
           <div class="post-header">
@@ -107,7 +101,6 @@
           {{ end }}
   
           <p class="post-content">{{ .Content }}</p>
-  
           <div class="post-actions">
             <button class="like-btn"> Like ({{ .Likes }})</button>
             <button class="dislike-btn"> Dislike ({{ .Dislikes }})</button>
@@ -115,27 +108,24 @@
           </div>
         </div>
         {{ end }}
-      </div>
-  
-    </main>
-    <aside class="left-sidebar">
-      <div class="app-icon"></div>
-      <div class="user-account">
-        <div class="user-avatar"></div>
-        <div>
-          {{ if .UserLoggedIn }}
-          <div>@{{ .User.Username}}</div>
-          <a href="/logout" class="btn-primary">Logout</a>
-          {{else}}
-          <div>@Guest</div>
-          <a href="/login" class="btn-primary">Login</a>
-          {{end}}
         </div>
-      </div>
-    </aside>
-  
-  </div>
+    </main>
 
+    <aside class="left-sidebar">
+        <div class="app-icon"></div>
+        <div class="user-account">
+          <div class="user-avatar"></div>
+          <div>
+            {{ if .UserLoggedIn }}
+            <div>@{{ .User.Username}}</div>
+            <a href="/logout" class="btn-primary">Logout</a>
+            {{else}}
+            <div>@Guest</div>
+            <a href="/login" class="btn-primary">Login</a>
+            {{end}}
+          </div>
+        </div>
+    </aside>
 </div>
 
 <script src="/static/js/base.js"></script>
