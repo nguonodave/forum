@@ -13,7 +13,7 @@ import (
 )
 
 // Session cookie name constant
-const SessionCookieName = "session_token"
+const SessionCookieName = "session"
 
 // GetSessionToken retrieves the session token from the request cookie
 func GetSessionToken(r *http.Request) (string, error) {
