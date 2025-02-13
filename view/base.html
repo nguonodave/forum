@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Forum</title>
   <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
 </head>
 <body class="{{ if .UserLoggedIn }}logged-in{{ end }}" data-is-logged-in="{{ if .UserLoggedIn }}true{{ else }}false{{ end }}">
 <div class="overlay"></div>
@@ -13,12 +16,12 @@
         <div class="logo">
           <div class="recommendations">
             <div class="app-icon"></div>
-            <h2>Forum</h2>
+            <h1 class="monoton-regular">Forum</h1>
           </div>
         </div>
     
         <div class="about-section">
-          <h3>Filters</h3>
+          <h2>Filters</h2>
           <div class="filters">
             <div class="category-filters">
             <h3>Categories</h3>
@@ -37,9 +40,9 @@
     </aside>
 
     <main class="content-section">
-        <header class="header">
-            <div class="app-icon mobile-only"></div>
+       
         <div class="search-bar">
+            <div class="user-avatar"></div>
             <input 
                 type="text" 
                 placeholder="What's on your mind?" 
@@ -47,83 +50,77 @@
                 onclick="handleCreatePost()"
                 readonly>
         </div>
-        <div class="header-avatar"></div>
-        </header>
 
-    {{ if .UserLoggedIn }}
-    <div id="createPostOverlay" class="create-post-overlay" style="display:none;">
-      <div id="createPostDiv" class="create-post-container">
-            <button class="close-create-post" onclick="closeCreatePostDiv()">&times;</button>
-            <h2>Create a Post</h2>
-            <form id="createPostForm">
-            <input type="text" id="postTitle" placeholder="Title" required>
-            <textarea id="postContent" placeholder="Content" required></textarea>
-            <select id="postCategory" required>
-                <option value="">Select Category</option>
-                <option value="Technology">Technology</option>
-                <option value="Design">Design</option>
-                <option value="Development">Development</option>
-            </select>
-            <input type="file" id="postImage" accept="image/*">
-            <button type="submit" class="submit-post-btn">Post</button>
-            </form>
-      </div>
-    </div>
-    {{ else }}
-    <div id="loginPromptOverlay" class="create-post-overlay" style="display:none;">
-      <div class="create-post-container login-prompt">
-        <h2>Please Login</h2>
-        <p>You need to be logged in to create a post.</p>
-        <a href="/login" class="submit-post-btn">Go to Login</a>
-      </div>
-      {{ end }}
-    
-    <div class="posts-container">
-        <h1>Posts here.....</h1>
-        {{ range .Posts }}
-        <div class="post">
-          <div class="post-header">
-            <div class="user-info">
-              <div class="user-avatar"></div>
-              <div>
-                <span class="username">{{ .Username }}</span>
-                <span class="post-time">{{ .CreatedAt }}</span>
-              </div>
+        <div class="posts-container">
+            <div class="post">
+                <div class="post-header">
+                    <div class="user-info">
+                        <div class="user-avatar"></div>
+                        <div>
+                        <span class="username">Fana</span>
+                        <span class="post-time">11.30</span>
+                        </div>
+                    </div>
+                </div>
+        
+                <h2 class="post-title">Hello</h2>
+        
+                <div class="post-image">
+                    <img src="/static/images/peakpx(1).jpg" alt="Post Image">
+                </div>
+        
+                <p class="post-content">I love Jinx</p>
+                    <div class="post-actions">
+                    <button class="like-btn"> Like (1000)</button>
+                    <button class="dislike-btn"> Dislike (2)</button>
+                    <button class="comment-btn"> Comment (2)</button>
             </div>
-          </div>
-  
-          <h2 class="post-title">{{ .Title }}</h2>
-  
-          {{ if .Image }}
-          <div class="post-image">
-            <img src="{{ .Image }}" alt="Post Image">
-          </div>
-          {{ end }}
-  
-          <p class="post-content">{{ .Content }}</p>
-          <div class="post-actions">
-            <button class="like-btn"> Like ({{ .Likes }})</button>
-            <button class="dislike-btn"> Dislike ({{ .Dislikes }})</button>
-            <button class="comment-btn"> Comment ({{ .CommentsCount }})</button>
-          </div>
         </div>
-        {{ end }}
+
+
+        {{ if .UserLoggedIn }}
+        <div id="createPostOverlay" class="create-post-overlay" style="display:none;">
+            <div id="createPostDiv" class="create-post-container">
+                    <button class="close-create-post" onclick="closeCreatePostDiv()">&times;</button>
+                    <h2>Create a Post</h2>
+                    <form id="createPostForm">
+                        <input type="text" id="postTitle" placeholder="Title" required>
+                        <textarea id="postContent" placeholder="Content" required></textarea>
+                        <select id="postCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Design">Design</option>
+                            <option value="Development">Development</option>
+                        </select>
+                        <input type="file" id="postImage" accept="image/*">
+                        <button type="submit" class="submit-post-btn">Post</button>
+                    </form>
+            </div>
         </div>
+        {{ else }}
+        <div id="loginPromptOverlay" class="create-post-overlay" style="display:none;">
+            <div class="create-post-container login-prompt">
+                <h2>Please Login</h2>
+                <p>You need to be logged in to create a post.</p>
+                <a href="/login" class="submit-post-btn">Go to Login</a>
+            </div>
+            {{ end }}
+        </div>
+        
     </main>
 
     <aside class="left-sidebar">
-        <div class="app-icon"></div>
         <div class="user-account">
           <div class="user-avatar"></div>
-          <div>
-            {{ if .UserLoggedIn }}
-            <div>@{{ .User.Username}}</div>
-            <a href="/logout" class="btn-primary">Logout</a>
-            {{else}}
-            <div>@Guest</div>
-            <a href="/login" class="btn-primary">Login</a>
-            {{end}}
-          </div>
+            <div>
+                {{ if .UserLoggedIn }}
+                <div>@{{ .User.Username}}</div>
+                <a href="/logout" class="btn-primary">Logout</a>
+                {{else}}
+                <div>@Guest</div>
+                <a href="/login" class="btn-primary">Login</a>
+                {{end}}
+            </div>
         </div>
     </aside>
 </div>
