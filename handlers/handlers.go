@@ -221,7 +221,7 @@ func Logout(db *model.Database) http.HandlerFunc {
 			Secure:   true,
 			SameSite: http.SameSiteStrictMode,
 		})
-		jsonResponse(w, http.StatusOK, "logout successful")
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 
 }
