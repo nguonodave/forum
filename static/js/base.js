@@ -44,3 +44,32 @@ function _setup() {
 }
 
 document.addEventListener('DOMContentLoaded', _setup);
+// Access the body tag where the data-is-logged-in attribute is set
+var isUserLoggedIn = document.body.getAttribute('data-is-logged-in') === 'true';
+
+function handleCreatePost() {
+  if (isUserLoggedIn) {
+    openCreatePostDiv();
+  } else {
+    document.getElementById('loginPromptOverlay').style.display = 'flex';
+  }
+}
+
+function openCreatePostDiv() {
+  document.getElementById('createPostOverlay').style.display = 'flex';
+}
+
+function closeCreatePostDiv() {
+  document.getElementById('createPostOverlay').style.display = 'none';
+}
+
+// Close login prompt overlay if the user clicks outside
+document.getElementById('loginPromptOverlay').addEventListener('click', function(event) {
+  if (event.target === this) {
+    closeLoginPromptOverlay();
+  }
+});
+
+function closeLoginPromptOverlay() {
+  document.getElementById('loginPromptOverlay').style.display = 'none';
+}
