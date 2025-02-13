@@ -45,10 +45,11 @@
             <div class="user-avatar"></div>
             <input 
                 type="text" 
-                placeholder="What's on your mind?" 
+                placeholder="What's on your mind? " 
                 class="post-input" 
                 onclick="handleCreatePost()"
                 readonly>
+                
         </div>
 
         <div class="posts-container">
@@ -72,11 +73,70 @@
                 </div>
         
                 <p class="post-content">I love Jinx</p>
-                    <div class="post-actions">
-                    <button class="like-btn"> Like (1000)</button>
-                    <button class="dislike-btn"> Dislike (2)</button>
-                    <button class="comment-btn"> Comment (2)</button>
-            </div>
+                <div class="post-actions">
+                    <button class="like-btn">
+                      <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.92 7 8.42 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/>
+                      </svg>
+                      <span id="likeCount-123">Like (1000)</span>
+                    </button>
+                    <button class="dislike-btn">
+                      <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                      </svg>
+                      <span id="dislikeCount-123">Dislike (1)</span>
+                    </button>
+                    <button class="comment-btn" data-post-id="123">
+                      <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-16z"/>
+                      </svg>
+                      Comment (2)
+                    </button>
+                  </div>
+                  <div class="comments-section" style="display: none;">
+                    <div class="comment-section">
+                        <div class="user-avatar"></div>
+                        <input type="text" id="comment-input" class="comment-input" placeholder="Write a comment...">
+                        <button id="post-comment-btn" class="post-comment-btn">Post Comment</button>
+                    </div>
+                    <div id="comments-container"></div>
+                    <div class="comment">
+                      <p>This is a great post!</p>
+                      <div class="comment-actions">
+                        <button class="comment-like-btn">
+                          <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.92 7 8.42 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/>
+                          </svg>
+                        </button>
+                        <button class="comment-dislike-btn">
+                          <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="comment">
+                      <p>I disagree with the author.</p>
+                      <div class="comment-actions">
+                        <button class="comment-like-btn">
+                          <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.92 7 8.42 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"/>
+                          </svg>
+                        </button>
+                        <button class="comment-dislike-btn">
+                          <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
         </div>
 
 
@@ -103,7 +163,7 @@
         <div id="loginPromptOverlay" class="create-post-overlay" style="display:none;">
             <div class="create-post-container login-prompt">
                 <h2>Please Login</h2>
-                <p>You need to be logged in to create a post.</p>
+                <p>You need to be logged in to perform this action.</p>
                 <a href="/login" class="submit-post-btn">Go to Login</a>
             </div>
             {{ end }}
