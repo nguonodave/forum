@@ -69,7 +69,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 
 			sessionToken, expiresAt, err := controller.HandleLogin(DBase, data.Email, data.Username, data.Password)
 			if err != nil {
-				fmt.Println("125", err)
+				log.Printf("%v", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -108,12 +108,14 @@ func Register(DBase *model.Database) http.HandlerFunc {
 
 			// Decode JSON request
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+				log.Printf("%v", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
 
 			// Register user
 			if err := controller.HandleRegister(DBase, data.Username, data.Email, data.Password); err != nil {
+				fmt.Printf("%v", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -157,6 +159,27 @@ func GetPaginatedPostsHandler(db *model.Database) http.HandlerFunc {
 	}
 }
 
+func CategoriesHandler(db *model.Database) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		categories, err := model.GetCategories(db.Db)
+		if err != nil {
+			http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
+			return
+		}
+
+		tmpl, err := template.ParseFiles(".html")
+		if err != nil {
+			http.Error(w, "Error loading template", http.StatusInternalServerError)
+			return
+		}
+
+		err = tmpl.Execute(w, categories)
+		if err != nil {
+			http.Error(w, "Template execution error", http.StatusInternalServerError)
+		}
+	}
+}
+
 func Logout(db *model.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -174,13 +197,13 @@ func Logout(db *model.Database) http.HandlerFunc {
 		query := "DELETE FROM sessions WHERE token = ?"
 		result, err := db.Db.Exec(query, sessionToken)
 		if err != nil {
-			fmt.Println("001", err)
+			fmt.Printf("%v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 		rowsAffected, err := result.RowsAffected()
 		if err != nil {
-			fmt.Println("002")
+			fmt.Printf("%v", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}

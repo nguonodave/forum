@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"forum/controller"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+
+	"forum/middlewares"
 
 	"forum/database"
 	"forum/fileio"
@@ -44,9 +45,10 @@ func main() {
 	defer db.Db.Close()
 	fmt.Println("Database initialized successfully!")
 
-	http.HandleFunc("/", controller.ValidateSession(db, handlers.Index))
-	http.HandleFunc("/login", handlers.Login(db))
-	http.HandleFunc("/register", handlers.Register(db))
+	http.HandleFunc("/", handlers.Index(db.Db))
+	http.HandleFunc("/posts/categories", handlers.CategoriesHandler(db))
+	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(db.Db, handlers.Login(db)))
+	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(db.Db, handlers.Register(db)))
 	http.HandleFunc("/api/posts", handlers.GetPaginatedPostsHandler(db))
 	http.HandleFunc("/logout", handlers.Logout(db))
 
