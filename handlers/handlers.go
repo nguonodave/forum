@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	"forum/controller"
@@ -29,7 +28,7 @@ func renderTemplate(w http.ResponseWriter, templateFile string, data interface{}
 
 	err = temp.Execute(w, data)
 	if err != nil {
-		fmt.Println("template execution error")
+		fmt.Println("rrr")
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		log.Printf("Error executing template %s: %v", templateFile, err)
 		return
@@ -62,7 +61,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 			}
 
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-				fmt.Println("126 decoding login data", err)
+				log.Printf("error decoding login data: %v", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
@@ -119,42 +118,12 @@ func Register(DBase *model.Database) http.HandlerFunc {
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
-			log.Printf("registration for %s success", data.Username)
+
+			fmt.Println("Registration successful")
 			jsonResponse(w, http.StatusOK, "Registration successful")
 
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	}
-}
-
-func GetPaginatedPostsHandler(db *model.Database) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Get `page` and `limit` from query parameters
-		page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-		limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-
-		if page < 1 {
-			page = 1
-		}
-		if limit < 1 || limit > 50 {
-			limit = 10 // Default limit
-		}
-
-		offset := (page - 1) * limit
-
-		// Pass the database instance to GetPaginatedPosts
-		posts, err := model.GetPaginatedPosts(db, limit, offset)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		err = json.NewEncoder(w).Encode(posts)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 	}
 }
@@ -223,5 +192,4 @@ func Logout(db *model.Database) http.HandlerFunc {
 		})
 		http.Redirect(w, r, "/", http.StatusFound)
 	}
-
 }

@@ -32,7 +32,7 @@ func GetCategories(db *sql.DB) ([]Category, error) {
 		if err != nil {
 			return nil, err
 		}
-		cat.ID = &id
+		cat.ID = id
 
 		categories = append(categories, cat)
 	}
