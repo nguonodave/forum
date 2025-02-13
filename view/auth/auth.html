@@ -14,7 +14,7 @@
 <div class="container">
     <h1 class="monoton-regular">FORUM</h1>
     <div class="form-container">
-        <h1 id="form-title" style="margin-bottom: 20px; color: white">Log in to forum</h1>
+        <h1 id="form-title" style="margin-bottom: 20px; color: white">log in</h1>
 
         <!-- Login Form -->
         <form id="loginForm" class="form" method="POST" action="/login">
@@ -26,6 +26,7 @@
                 <input type="password" id="loginPassword" name="password" required>
                 <label for="loginPassword">Password</label>
             </div>
+            <div  id="passwordMessage1" class="passwordMessage"></div>
             <button type="submit" class="btn-primary">Log in</button>
         </form>
 
@@ -47,6 +48,7 @@
                 <input type="password" id="signupConfirmPassword" name="confirmPassword" required>
                 <label for="signupConfirmPassword">Confirm password</label>
             </div>
+            <div  class="passwordMessage" id="passwordMessage2"></div>
             <button type="submit" class="btn-primary">Sign up</button>
         </form>
 

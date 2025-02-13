@@ -29,7 +29,7 @@ func renderTemplate(w http.ResponseWriter, templateFile string, data interface{}
 
 	err = temp.Execute(w, data)
 	if err != nil {
-		fmt.Println("rrr")
+		fmt.Println("template execution error")
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		log.Printf("Error executing template %s: %v", templateFile, err)
 		return
@@ -41,7 +41,11 @@ func jsonResponse(w http.ResponseWriter, statusCode int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	response := map[string]string{"message": message}
-	json.NewEncoder(w).Encode(response)
+	err := json.NewEncoder(w).Encode(response)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 func Login(DBase *model.Database) http.HandlerFunc {
@@ -58,7 +62,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 			}
 
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-				log.Printf("error decoding login data: %v", err)
+				fmt.Println("126 decoding login data", err)
 				jsonResponse(w, http.StatusBadRequest, "Invalid JSON")
 				return
 			}
@@ -115,8 +119,7 @@ func Register(DBase *model.Database) http.HandlerFunc {
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
-
-			fmt.Println("Registration successful")
+			log.Printf("registration for %s success", data.Username)
 			jsonResponse(w, http.StatusOK, "Registration successful")
 
 		default:
@@ -148,7 +151,11 @@ func GetPaginatedPostsHandler(db *model.Database) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(posts)
+		err = json.NewEncoder(w).Encode(posts)
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -216,4 +223,5 @@ func Logout(db *model.Database) http.HandlerFunc {
 		})
 		jsonResponse(w, http.StatusOK, "logout successful")
 	}
+
 }
