@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	"forum/controller"
@@ -122,33 +121,6 @@ func Register(DBase *model.Database) http.HandlerFunc {
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
-	}
-}
-
-func GetPaginatedPostsHandler(db *model.Database) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Get `page` and `limit` from query parameters
-		page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-		limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-
-		if page < 1 {
-			page = 1
-		}
-		if limit < 1 || limit > 50 {
-			limit = 10 // Default limit
-		}
-
-		offset := (page - 1) * limit
-
-		// Pass the database instance to GetPaginatedPosts
-		posts, err := model.GetPaginatedPosts(db, limit, offset)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(posts)
 	}
 }
 
