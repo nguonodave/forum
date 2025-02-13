@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreatePost creates a new post
+// CreatePost creates a new post with categories
 func CreatePost(db *Database, post *Post) error {
 	if err := ValidatePost(post); err != nil {
 		return err
@@ -29,12 +29,24 @@ func CreatePost(db *Database, post *Post) error {
 	post.CreatedAt = time.Now()
 	post.UpdatedAt = time.Now()
 
+	// Insert the post
 	_, err = tx.Exec(`
-	INSERT INTO posts (id, user_id, title, content, created_at, updated_at, category_id)
+	INSERT INTO posts (id, user_id, title, content, image_url, created_at, updated_at)
 	VALUES (?, ?, ?, ?, ?, ?, ?)	
-	`, post.ID, post.UserID, post.Title, post.Content, post.CreatedAt, post.UpdatedAt, post.Category.ID)
+	`, post.ID, post.UserID, post.Title, post.Content, post.ImageURL, post.CreatedAt, post.UpdatedAt)
 	if err != nil {
 		return err
+	}
+
+	// Insert post categories
+	for _, category := range post.Categories {
+		_, err = tx.Exec(`
+		INSERT INTO post_categories (post_id, category_id)
+		VALUES (?, ?)
+		`, post.ID, category.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return tx.Commit()
@@ -42,45 +54,81 @@ func CreatePost(db *Database, post *Post) error {
 
 // GetPostByID retrieves a post by its ID including relationships
 func GetPostByID(db *Database, postID uuid.UUID) (*Post, error) {
-	post := &Post{}
+	post := &Post{
+		User:       &User{},
+		Categories: make([]*Category, 0),
+		Comments:   make([]*Comment, 0),
+		Votes:      make([]*Vote, 0),
+	}
 
+	// Get post details and user info
 	err := db.Db.QueryRow(`
 		SELECT 
-			p.id, p.user_id, p.title, p.content, p.created_at, p.updated_at,
-			u.id, u.username,
-			c.id, c.name,
-			COALESCE(v.vote_count, 0) as votes
+			p.id, p.user_id, p.title, p.content, p.image_url, p.created_at, p.updated_at,
+			u.id, u.username, u.email
 		FROM posts p
 		LEFT JOIN users u ON p.user_id = u.id
-		LEFT JOIN categories c ON p.category_id = c.id
-		LEFT JOIN (
-			SELECT post_id, SUM(value) as vote_count 
-			FROM votes 
-			GROUP BY post_id
-		) v ON p.id = v.post_id
 		WHERE p.id = ?
 	`, postID).Scan(
 		&post.ID,
 		&post.UserID,
 		&post.Title,
 		&post.Content,
+		&post.ImageURL,
 		&post.CreatedAt,
 		&post.UpdatedAt,
 		&post.User.ID,
 		&post.User.Username,
-		&post.Category.ID,
-		&post.Category.Name,
-		&post.Votes,
+		&post.User.Email,
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, xerrors.ErrInvalidPost
 	}
-
 	if err != nil {
 		return nil, err
 	}
 
+	// Get categories
+	rows, err := db.Db.Query(`
+		SELECT c.id, c.name
+		FROM categories c
+		JOIN post_categories pc ON c.id = pc.category_id
+		WHERE pc.post_id = ?
+	`, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		category := &Category{}
+		if err := rows.Scan(&category.ID, &category.Name); err != nil {
+			return nil, err
+		}
+		post.Categories = append(post.Categories, category)
+	}
+
+	// Get votes
+	rows, err = db.Db.Query(`
+		SELECT id, user_id, type, created_at
+		FROM votes
+		WHERE post_id = ?
+	`, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		vote := &Vote{PostID: &postID}
+		if err := rows.Scan(&vote.ID, &vote.UserID, &vote.Type, &vote.CreatedAt); err != nil {
+			return nil, err
+		}
+		post.Votes = append(post.Votes, vote)
+	}
+
+	// Get comments with their votes
 	comments, err := GetCommentsByPostID(db, post.ID)
 	if err != nil {
 		return nil, err
@@ -92,18 +140,13 @@ func GetPostByID(db *Database, postID uuid.UUID) (*Post, error) {
 
 func GetPostsByCategory(db *Database, categoryID uuid.UUID) ([]*Post, error) {
 	rows, err := db.Db.Query(`
-		SELECT 
-			p.id, p.user_id, p.title, p.content, p.created_at, p.updated_at,
-			u.id, u.username,
-			COALESCE(v.vote_count, 0) as votes
+		SELECT DISTINCT
+			p.id, p.user_id, p.title, p.content, p.image_url, p.created_at, p.updated_at,
+			u.id, u.username, u.email
 		FROM posts p
+		JOIN post_categories pc ON p.id = pc.post_id
 		LEFT JOIN users u ON p.user_id = u.id
-		LEFT JOIN (
-			SELECT post_id, SUM(value) as vote_count 
-			FROM votes 
-			GROUP BY post_id
-		) v ON p.id = v.post_id
-		WHERE p.category_id = ?
+		WHERE pc.category_id = ?
 		ORDER BY p.created_at DESC
 	`, categoryID)
 	if err != nil {
@@ -114,23 +157,41 @@ func GetPostsByCategory(db *Database, categoryID uuid.UUID) ([]*Post, error) {
 	var posts []*Post
 	for rows.Next() {
 		post := &Post{
-			User: &User{},
-			// Category: &Category{ID: categoryID},
+			User:       &User{},
+			Categories: make([]*Category, 0),
+			Comments:   make([]*Comment, 0),
+			Votes:      make([]*Vote, 0),
 		}
+
 		err := rows.Scan(
 			&post.ID,
 			&post.UserID,
 			&post.Title,
 			&post.Content,
+			&post.ImageURL,
 			&post.CreatedAt,
 			&post.UpdatedAt,
 			&post.User.ID,
 			&post.User.Username,
-			&post.Votes,
+			&post.User.Email,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		// Get categories for each post
+		categories, err := GetPostCategories(db, post.ID)
+		if err != nil {
+			return nil, err
+		}
+		post.Categories = categories
+
+		// Get votes for each post
+		votes, err := GetPostVotes(db, post.ID)
+		if err != nil {
+			return nil, err
+		}
+		post.Votes = votes
 
 		// Get comments for each post
 		comments, err := GetCommentsByPostID(db, post.ID)
@@ -151,14 +212,20 @@ func UpdatePost(db *Database, post *Post) error {
 		return err
 	}
 
+	tx, err := db.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	post.UpdatedAt = time.Now()
 
-	result, err := db.Db.Exec(`
-	
-	UPDATE posts
-	SET title = ?, content = ?, updated_at = ?, category_id = ?
-	WHERE id = ? AND user_id = ?
-	`, post.Title, post.Content, post.UpdatedAt, post.Category.ID, post.ID, post.UserID)
+	// Update post
+	result, err := tx.Exec(`
+		UPDATE posts
+		SET title = ?, content = ?, image_url = ?, updated_at = ?
+		WHERE id = ? AND user_id = ?
+	`, post.Title, post.Content, post.ImageURL, post.UpdatedAt, post.ID, post.UserID)
 	if err != nil {
 		return err
 	}
@@ -167,15 +234,30 @@ func UpdatePost(db *Database, post *Post) error {
 	if err != nil {
 		return err
 	}
-
 	if rows == 0 {
 		return xerrors.ErrInvalidPost
 	}
 
-	return nil
+	// Update categories
+	_, err = tx.Exec("DELETE FROM post_categories WHERE post_id = ?", post.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, category := range post.Categories {
+		_, err = tx.Exec(`
+			INSERT INTO post_categories (post_id, category_id)
+			VALUES (?, ?)
+		`, post.ID, category.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
-// DeletePost deletes a post and its associated comments
+// DeletePost deletes a post and its associated data
 func DeletePost(db *Database, postID, userID uuid.UUID) error {
 	tx, err := db.Db.Begin()
 	if err != nil {
@@ -183,14 +265,25 @@ func DeletePost(db *Database, postID, userID uuid.UUID) error {
 	}
 	defer tx.Rollback()
 
-	// Delete associated comments first
+	// Delete associated votes first (for both post and its comments)
+	_, err = tx.Exec(`
+		DELETE FROM votes 
+		WHERE post_id = ? OR comment_id IN (
+			SELECT id FROM comments WHERE post_id = ?
+		)
+	`, postID, postID)
+	if err != nil {
+		return err
+	}
+
+	// Delete associated comments
 	_, err = tx.Exec("DELETE FROM comments WHERE post_id = ?", postID)
 	if err != nil {
 		return err
 	}
 
-	// Delete associated votes
-	_, err = tx.Exec("DELETE FROM votes WHERE post_id = ?", postID)
+	// Delete post categories
+	_, err = tx.Exec("DELETE FROM post_categories WHERE post_id = ?", postID)
 	if err != nil {
 		return err
 	}
@@ -205,7 +298,6 @@ func DeletePost(db *Database, postID, userID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-
 	if rows == 0 {
 		return xerrors.ErrInvalidPost
 	}
@@ -213,8 +305,54 @@ func DeletePost(db *Database, postID, userID uuid.UUID) error {
 	return tx.Commit()
 }
 
+// Helper functions
+
+func GetPostCategories(db *Database, postID uuid.UUID) ([]*Category, error) {
+	rows, err := db.Db.Query(`
+		SELECT c.id, c.name
+		FROM categories c
+		JOIN post_categories pc ON c.id = pc.category_id
+		WHERE pc.post_id = ?
+	`, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var categories []*Category
+	for rows.Next() {
+		category := &Category{}
+		if err := rows.Scan(&category.ID, &category.Name); err != nil {
+			return nil, err
+		}
+		categories = append(categories, category)
+	}
+	return categories, nil
+}
+
+func GetPostVotes(db *Database, postID uuid.UUID) ([]*Vote, error) {
+	rows, err := db.Db.Query(`
+		SELECT id, user_id, type, created_at
+		FROM votes
+		WHERE post_id = ?
+	`, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var votes []*Vote
+	for rows.Next() {
+		vote := &Vote{PostID: &postID}
+		if err := rows.Scan(&vote.ID, &vote.UserID, &vote.Type, &vote.CreatedAt); err != nil {
+			return nil, err
+		}
+		votes = append(votes, vote)
+	}
+	return votes, nil
+}
+
 // ValidatePost checks if any required section of a post is missing
-// It returns an error if any section is missing
 func ValidatePost(post *Post) error {
 	if post.Title == "" {
 		return xerrors.ErrEmptyTitle
@@ -228,103 +366,11 @@ func ValidatePost(post *Post) error {
 		return xerrors.ErrInvalidUser
 	}
 
+	if len(post.Categories) == 0 {
+		return xerrors.ErrNoCategory
+	}
+
 	return nil
-}
-
-// GetPaginatedPosts retrieves posts with pagination for lazy loading
-func GetPaginatedPosts(db *Database, limit, offset int) ([]*Post, error) {
-	rows, err := db.Db.Query(`
-		SELECT 
-			p.id, p.user_id, p.title, p.content, p.created_at, p.updated_at,
-			u.id, u.username,
-			c.id, c.name,
-			COALESCE(v.vote_count, 0) as votes
-		FROM posts p
-		LEFT JOIN users u ON p.user_id = u.id
-		LEFT JOIN post_categories pc ON p.id = pc.post_id
-		LEFT JOIN categories c ON pc.category_id = c.id
-		LEFT JOIN (
-			SELECT 
-				post_id,
-				SUM(CASE WHEN type = 'like' THEN 1 WHEN type = 'dislike' THEN -1 ELSE 0 END) as vote_count 
-			FROM votes 
-			GROUP BY post_id
-		) v ON p.id = v.post_id
-		ORDER BY p.created_at DESC
-		LIMIT ? OFFSET ?
-	`, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var posts []*Post
-	for rows.Next() {
-		post := &Post{
-			User:     &User{},
-			Category: &Category{},
-		}
-
-		var postID, userID, categoryID sql.NullString // Use sql.NullString to handle NULL values in the query
-		var username sql.NullString                   // Added for username column
-		var votes int
-
-		err := rows.Scan(
-			&postID, // Scan the post ID as string first
-			&post.UserID,
-			&post.Title,
-			&post.Content,
-			&post.CreatedAt,
-			&post.UpdatedAt,
-			&userID,     // Scan the user ID as string
-			&username,   // Scan the username as sql.NullString
-			&categoryID, // Scan the category ID as sql.NullString
-			&post.Category.Name,
-			&votes,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Parse UUIDs if they are not NULL
-		post.ID, err = uuid.Parse(postID.String)
-		if err != nil && postID.Valid {
-			return nil, fmt.Errorf("invalid UUID for post ID: %v", err)
-		}
-
-		post.User.ID, err = uuid.Parse(userID.String)
-		if err != nil && userID.Valid {
-			return nil, fmt.Errorf("invalid UUID for user ID: %v", err)
-		}
-
-		// Handle category ID parsing only if it is not NULL
-		if categoryID.Valid {
-			parsedCategoryID, err := uuid.Parse(categoryID.String)
-			if err != nil {
-				return nil, fmt.Errorf("invalid UUID for category ID: %v", err)
-			}
-			// Assign the parsed UUID's address to post.Category.ID
-			post.Category.ID = &parsedCategoryID
-		} else {
-			// If category ID is NULL, set Category to nil
-			post.Category = nil
-		}
-
-		// Handle username assignment if not NULL
-		if username.Valid {
-			post.User.Username = username.String
-		} else {
-			post.User.Username = RandomUsername()
-		}
-
-		// Assign vote count
-		post.Votes = votes
-
-		// Append the post to the list
-		posts = append(posts, post)
-	}
-
-	return posts, nil
 }
 
 // RandomUsername generates a random username using adjectives and nouns and numbers

@@ -30,17 +30,17 @@ type Post struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	// relationships
-	User     *User
-	Category *Category
-	Comments []*Comment
-	Votes    int
+	// Relationships
+	User       *User
+	Categories []*Category
+	Comments   []*Comment
+	Votes      []*Vote // Changed from int to slice to store actual votes
 }
 
 // Category struct
 type Category struct {
-	ID   *uuid.UUID
-	Name *string
+	ID   uuid.UUID
+	Name string
 }
 
 // Comment struct
@@ -51,16 +51,19 @@ type Comment struct {
 	Content   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	User      *User
+
+	// Relationships
+	User  *User
+	Votes []*Vote // Enables counting likes/dislikes dynamically
 }
 
-// Vote struct(likes and dislikes)
+// Vote struct
 type Vote struct {
 	ID        uuid.UUID
 	UserID    uuid.UUID
-	PostID    uuid.UUID
-	CommentID uuid.UUID
-	Type      string
+	PostID    *uuid.UUID // Nullable, as it may belong to a post or comment
+	CommentID *uuid.UUID // Nullable, as it may belong to a comment
+	Type      string     // "like" or "dislike"
 	CreatedAt time.Time
 }
 
