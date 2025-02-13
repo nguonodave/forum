@@ -6,7 +6,8 @@
 }
 
 body {
-    background-color: #334a62;
+    /* #334a62 */
+    background-color:#334a62;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -20,10 +21,18 @@ body {
     text-align: center;
 }
 
+.monoton-regular{
+    font-size: 4em;
+    color: #00a2ff;
+    font-weight: 400;
+    font-family: "Monoton", serif;  font-style: normal;
+  }
+
 .form-container {
     background-color: #16202b;
     padding: 40px;
     border-radius: 16px;
+    border:  1px solid #38444d;
     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
@@ -116,10 +125,6 @@ body {
     display: none;
 }
 
-/*.show-password:{*/
-/*    font-size: 34px;*/
-/*    color: white;*/
-/*}*/
 .show-password:hover{
     cursor: pointer;
 }
