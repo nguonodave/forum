@@ -12,4 +12,5 @@ var (
 	ErrEmptyContent       = errors.New("post content cannot be empty")
 	ErrInvalidUser        = errors.New("invalid user ID")
 	ErrInvalidPost        = errors.New("post not found")
+	ErrNoCategory         = errors.New("invalid category")
 )
