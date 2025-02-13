@@ -1,76 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum</title>
-    <link rel="stylesheet" href="/static/css/base.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forum</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="{{ if .UserLoggedIn }}logged-in{{ end }}" data-is-logged-in="{{ if .UserLoggedIn }}true{{ else }}false{{ end }}">
 <div class="overlay"></div>
 <div class="container">
     <aside class="right-sidebar">
         <div class="logo">
-            <div class="recommendations">
-                <div class="app-icon"></div>
-                <h2>Forum</h2>
-            </div>
+          <div class="recommendations">
+            <div class="app-icon"></div>
+            <h1 class="monoton-regular">Forum</h1>
+          </div>
         </div>
-        
+    
         <div class="about-section">
-            <h3>Filters</h3>
-           <div class="dropdown">
-            <button class="dropdown-btn">Categories ▼</button>
-            <div class="dropdown-content">
-                {{ range .Categories}}
-                <a href="/categories/{{.ID }}">{{.Name}}</a>
-                {{ end}}
-            </div>
-           </div>
-
-           {{if .UserLoggedIn}}
-           <div class="user-filters">
-            <a href="/my-posts">My Posts</a>
-            <a href="/liked-posts">Liked Posts</a>
-           </div>
-           {{end}}
-        </div>
+          <h2>Filters</h2>
+          <div class="filters">
+            <div class="category-filters">
+            <h3>Categories</h3>
+            <div class="filter-option category-filter">Technology</div>
+            <div class="filter-option category-filter">Design</div>
+            <div class="filter-option category-filter">Development</div>
+          </div>
+          </div>
+          
+    
+            {{ if .UserLoggedIn }}
+            <div class="filter-option">My Posts</div>
+            <div class="filter-option">Liked Posts</div>
+            {{end}}
+        </div> 
     </aside>
 
     <main class="content-section">
-        <header class="header">
-            <div class="app-icon mobile-only"></div>
-            <div class="search-bar">
-                <label>
-                    <input type="text" class="search-input" placeholder="Search...">
-                </label>
-            </div>
-            <div class="header-avatar"></div>
-        </header>
-        <div class="posts-container">
-            <!-- Generated posts -->
-        </div>
-    </main>
-    <aside class="left-sidebar">
-        <div class="app-icon"></div>
-        <div class="user-account">
-            <div class="user-avatar"></div>
-            <div>
-               {{ if .UserLoggedIn }}
-               <div>@{{ .User.username}}</div>
-               <a href="/logout" class="btn-primary">Logout</a>
-               {{else}}
-               <div>@Guest</div>
-               <a href="/login" class="btn-primary">Logout</a>
-            {{end}}
-            </div>
-        </div>
-        </nav>
        
-    </aside>
+        <div class="search-bar">
+            <div class="user-avatar"></div>
+            <input 
+                type="text" 
+                placeholder="What's on your mind?" 
+                class="post-input" 
+                onclick="handleCreatePost()"
+                readonly>
+        </div>
 
+        <div class="posts-container">
+            <div class="post">
+                <div class="post-header">
+                    <div class="user-info">
+                        <div class="user-avatar"></div>
+                        <div>
+                        <span class="username">Fana</span>
+                        <span class="post-time">11.30</span>
+                        </div>
+                    </div>
+                </div>
+        
+                <h2 class="post-title">Hello</h2>
+        
+                <div class="post-image">
+                    <img src="/static/images/peakpx(1).jpg" alt="Post Image">
+                </div>
+        
+                <p class="post-content">I love Jinx</p>
+                    <div class="post-actions">
+                    <button class="like-btn"> Like (1000)</button>
+                    <button class="dislike-btn"> Dislike (2)</button>
+                    <button class="comment-btn"> Comment (2)</button>
+            </div>
+        </div>
+
+
+        {{ if .UserLoggedIn }}
+        <div id="createPostOverlay" class="create-post-overlay" style="display:none;">
+            <div id="createPostDiv" class="create-post-container">
+                    <button class="close-create-post" onclick="closeCreatePostDiv()">&times;</button>
+                    <h2>Create a Post</h2>
+                    <form id="createPostForm">
+                        <input type="text" id="postTitle" placeholder="Title" required>
+                        <textarea id="postContent" placeholder="Content" required></textarea>
+                        <select id="postCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Design">Design</option>
+                            <option value="Development">Development</option>
+                        </select>
+                        <input type="file" id="postImage" accept="image/*">
+                        <button type="submit" class="submit-post-btn">Post</button>
+                    </form>
+            </div>
+        </div>
+        {{ else }}
+        <div id="loginPromptOverlay" class="create-post-overlay" style="display:none;">
+            <div class="create-post-container login-prompt">
+                <h2>Please Login</h2>
+                <p>You need to be logged in to create a post.</p>
+                <a href="/login" class="submit-post-btn">Go to Login</a>
+            </div>
+            {{ end }}
+        </div>
+        
+    </main>
+
+    <aside class="left-sidebar">
+        <div class="user-account">
+          <div class="user-avatar"></div>
+            <div>
+                {{ if .UserLoggedIn }}
+                <div>@{{ .User.Username}}</div>
+                <form action="/logout" method="POST">
+                    <button href="/logout" class="btn-primary" id="logout-btn">Logout</button>
+                </form>
+                {{else}}
+                <div>@Guest</div>
+                <a href="/login" class="btn-primary">Login</a>
+                {{end}}
+            </div>
+        </div>
+    </aside>
 </div>
-<!-- add event listeners for responsive layout -->
+
 <script src="/static/js/base.js"></script>
 </body>
 </html>
