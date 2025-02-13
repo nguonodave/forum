@@ -13,4 +13,6 @@ var (
 	ErrInvalidUser        = errors.New("invalid user ID")
 	ErrInvalidPost        = errors.New("post not found")
 	ErrNoCategory         = errors.New("invalid category")
+	ErrInvalidVoteType    = errors.New("invalid vote type")
+	ErrInvalidRequest     = errors.New("invalid vote request")
 )
