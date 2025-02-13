@@ -150,7 +150,7 @@ body {
 .search-bar{
   display: flex;
   align-items: center;
-  border: 1px solid #f0f2f5;
+  border: 1px solid #f5f5f5;
   border-radius: 30px;
   padding: 10px 15px;
   width: 70%;
@@ -174,7 +174,8 @@ body {
 }
 
 .post-input::placeholder {
-  color: #e0e3e8; /* Make placeholder text more readable */
+  color: #e0e3e8; 
+  font-weight: 500;/* Make placeholder text more readable */
 }
 
 .recommendations {
@@ -475,7 +476,7 @@ body {
   }
   
   .filter-option:hover {
-    border: 1px solid solid #f5f5f5;
+    border: 1px solid #f5f5f5;
   }
   
   .create-post-btn {
@@ -597,3 +598,185 @@ body {
     text-decoration: none;
     width: auto;
   }
+
+  /*Post Actions*/
+  .post-actions {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    color: #ddd;
+  }
+  
+  .post-actions button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border: none;
+    background-color: transparent;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: color 0.2s ease, fill 0.2s ease;
+    color: #ddd;
+
+  }
+  
+  .post-actions .like-btn:hover {
+    background-color: rgb(128, 189, 128); /* Light grey background on hover */
+  }
+
+  .post-actions .dislike-btn:hover {
+    background-color: rgb(241, 149, 149); /* Light grey background on hover */
+  }
+  .post-actions .comment-btn:hover {
+    background-color: #87cef1; /* Light grey background on hover */
+  }
+  
+  
+  .post-actions button:active {
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker grey on active */
+  }
+  
+  
+  .like-btn .icon {
+    width: 20px;
+    height: 20px;
+    fill: #ddd;
+    transition: fill 0.2s ease; /* Smooth transition for color change */
+  }
+  
+  .like-btn:hover .icon,
+  .like-btn.active .icon {
+    fill: green;
+    color: green;
+  }
+  
+  .dislike-btn .icon {
+    width: 20px;
+    height: 20px;
+    fill: #ddd;
+    transition: fill 0.2s ease; /* Smooth transition for color change */
+  }
+  
+  .dislike-btn:hover .icon,
+  .dislike-btn.active .icon {
+    fill: red;
+    color: red;
+  }
+  
+  .comment-btn .icon {
+    width: 20px;
+    height: 20px;
+    fill: #ddd;
+    transition: fill 0.2s ease; /* Smooth transition for color change */
+  }
+  
+  .comment-btn:hover .icon,
+  .comment-btn.active .icon {
+    fill: #1DA1F2;
+    color: #1DA1F2;
+  }
+  
+  .comments-section {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .comment {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .comment:last-child {
+    border-bottom: none;
+  }
+  
+  .comment-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  
+  .comment-actions button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 8px;
+    border: none;
+    background-color: transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: color 0.2s ease, fill 0.2s ease;
+  }
+  
+  .comment-actions button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .comment-actions button:active {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  .comment-actions .icon {
+    width: 16px;
+    height: 16px;
+    fill: #777;
+    transition: fill 0.2s ease;
+  }
+  
+  .comment-like-btn:hover .icon,
+  .comment-like-btn.active .icon {
+    fill: green;
+    color: green;
+  }
+  
+  .comment-dislike-btn:hover .icon,
+  .comment-dislike-btn.active .icon {
+    fill: red;
+    color: red;
+  }
+
+  /*comment section*/
+  .comment-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    border-bottom: 1px solid #ccc; /* Adds an underline effect */
+    padding-bottom: 5px;
+}
+.comment-section .user-avatar{
+  width: 40px;
+  height: 40px;
+}
+
+.comment-input {
+    border: none;
+    outline: none;
+    font-size: 18px;
+    padding: 5px;
+    width: 100%;
+    background: transparent;
+    color: #ddd;
+}
+
+.comment-input:focus {
+    border-bottom: 1px solid #007bff; /* Change underline color on focus */
+}
+
+.post-comment-btn {
+  background-color: #16202b;
+    color: white;
+    font-size: 16px;
+    font-weight: 400;
+    border: none;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.post-comment-btn:hover {
+    color: #00a2ff;
+    font-weight: 500;
+}
