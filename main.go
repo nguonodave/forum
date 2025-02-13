@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -42,14 +43,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("Database initialization failed: %v", err)
 	}
-	defer db.Db.Close()
+	defer func(Db *sql.DB) {
+		err := Db.Close()
+		if err != nil {
+
+		}
+	}(db.Db)
 	fmt.Println("Database initialized successfully!")
 
 	http.HandleFunc("/", handlers.Index(db.Db))
 	http.HandleFunc("/posts/categories", handlers.CategoriesHandler(db))
 	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(db.Db, handlers.Login(db)))
 	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(db.Db, handlers.Register(db)))
-	http.HandleFunc("/api/vote", handlers.HandleVoteRequest(db))
+	//http.HandleFunc("/api/vote", handlers.HandleVoteRequest(db))
 	http.HandleFunc("/logout", handlers.Logout(db))
 
 	// Browsers ping for the /favicon.ico icon, redirect to the respective static file
