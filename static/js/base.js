@@ -54,20 +54,6 @@ function handleCreatePost() {
     document.getElementById('loginPromptOverlay').style.display = 'flex';
   }
 }
-
-function openCreatePostDiv() {
-  document.getElementById('createPostOverlay').style.display = 'flex';
-}
-document.getElementById('createPostOverlay').addEventListener('click', function(event) {
-  if (event.target === this) {
-    closeCreatePostDiv();
-  }
-});
-
-function closeCreatePostDiv() {
-  document.getElementById('createPostOverlay').style.display = 'none';
-}
-
 // Close login prompt overlay if the user clicks outside
 document.getElementById('loginPromptOverlay').addEventListener('click', function(event) {
   if (event.target === this) {
@@ -79,45 +65,6 @@ function closeLoginPromptOverlay() {
   document.getElementById('loginPromptOverlay').style.display = 'none';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const likeBtn = document.querySelector('.like-btn');
-  const dislikeBtn = document.querySelector('.dislike-btn');
-  const commentBtn = document.querySelector('.comment-btn');
-  const commentsSection = document.querySelector('.comments-section');
-
-  // Function to handle button activation
-  function handleButtonActivation(activeButton, otherButtons) {
-    activeButton.classList.toggle('active');
-    otherButtons.forEach(button => button.classList.remove('active'));
-  }
-
-  likeBtn.addEventListener('click', () => {
-    handleButtonActivation(likeBtn, [dislikeBtn, commentBtn]);
-    commentsSection.style.display = 'none'; // Hide comments
-  });
-
-  dislikeBtn.addEventListener('click', () => {
-    handleButtonActivation(dislikeBtn, [likeBtn, commentBtn]);
-    commentsSection.style.display = 'none'; // Hide comments
-  });
-
-  commentBtn.addEventListener('click', () => {
-    handleButtonActivation(commentBtn, [likeBtn, dislikeBtn]);
-    commentsSection.style.display = commentBtn.classList.contains('active') ? 'block' : 'none'; //Show comments
-  });
-
-  // Comment like/dislike buttons
-  document.querySelectorAll('.comment-like-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('active');
-      btn.closest('.comment-actions').querySelector('.comment-dislike-btn').classList.remove('active');
-    });
-  });
-
-  document.querySelectorAll('.comment-dislike-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('active');
-      btn.closest('.comment-actions').querySelector('.comment-like-btn').classList.remove('active');
-    });
-  });
-});
+function openCreatePostDiv() {
+  document.getElementById('createPostOverlay').style.display = 'flex';
+}
