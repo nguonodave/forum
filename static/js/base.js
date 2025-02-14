@@ -46,7 +46,6 @@ function _setup() {
 document.addEventListener('DOMContentLoaded', _setup);
 // Access the body tag where the data-is-logged-in attribute is set
 var isUserLoggedIn = document.body.getAttribute('data-is-logged-in') === 'true';
-
 function handleCreatePost() {
   if (isUserLoggedIn) {
     openCreatePostDiv();
@@ -54,17 +53,31 @@ function handleCreatePost() {
     document.getElementById('loginPromptOverlay').style.display = 'flex';
   }
 }
-// Close login prompt overlay if the user clicks outside
-document.getElementById('loginPromptOverlay').addEventListener('click', function(event) {
-  if (event.target === this) {
-    closeLoginPromptOverlay();
-  }
-});
+function openCreatePostDiv() {
+  document.getElementById('createPostOverlay').style.display = 'flex';
+}
+
+function closeCreatePostOverlay() {
+  document.getElementById('createPostOverlay').style.display = 'none';
+}
 
 function closeLoginPromptOverlay() {
   document.getElementById('loginPromptOverlay').style.display = 'none';
 }
 
-function openCreatePostDiv() {
-  document.getElementById('createPostOverlay').style.display = 'flex';
+
+if (createPostOverlay) {
+  createPostOverlay.addEventListener('click', function (event) {
+    if (event.target === this) {
+      closeCreatePostOverlay();
+    }
+  });
+}
+
+if (loginPromptOverlay) {
+  loginPromptOverlay.addEventListener('click', function (event) {
+    if (event.target === this) {
+      closeLoginPromptOverlay();
+    }
+  });
 }
