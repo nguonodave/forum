@@ -34,7 +34,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			Templates.ExecuteTemplate(w, "view/auth/auth.html", nil)
+			Templates.ExecuteTemplate(w, "auth.html", nil)
 
 		case http.MethodPost:
 			var data struct {
@@ -79,7 +79,7 @@ func Register(DBase *model.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			Templates.ExecuteTemplate(w, "view/auth/auth.html", nil)
+			Templates.ExecuteTemplate(w, "auth.html", nil)
 
 		case http.MethodPost:
 			var data struct {

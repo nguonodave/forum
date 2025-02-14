@@ -20,7 +20,10 @@ func ParseTemplates() (*template.Template, error) {
             if err != nil {
                 return err
             }
-            _, err = tmpl.New(path).Parse(string(data))
+
+            templateName := filepath.Base(path)
+
+            _, err = tmpl.New(templateName).Parse(string(data))
             if err != nil {
                 return err
             }
