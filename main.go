@@ -11,7 +11,6 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
-	"html/template"
 
 	"forum/middlewares"
 
@@ -24,8 +23,6 @@ var (
 	port = flag.Int("P", 8080, "port to listen on")
 	open = flag.Bool("O", false, "open server index page in the default browser")
 )
-
-var tmpl *template.Template
 
 func main() {
 	flag.Parse()
@@ -54,13 +51,11 @@ func main() {
 	}(db.Db)
 	fmt.Println("Database initialized successfully!")
 
-	var terr error
-	tmpl, terr = tmpl.ParseGlob("view/**/*.html")
-	if terr != nil {
-		log.Println(terr)
-	}
-
-	handlers.SetTemplates(tmpl)
+	var parseTemplateErr error
+    handlers.Templates, parseTemplateErr = handlers.ParseTemplates()
+    if err != nil {
+        log.Fatalf("Failed to parse templates: %v", parseTemplateErr)
+    }
 
 	http.HandleFunc("/", handlers.Index(db.Db))
 	http.HandleFunc("/posts/categories", handlers.CategoriesHandler(db))
