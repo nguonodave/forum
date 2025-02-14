@@ -12,13 +12,13 @@ function toggleForm(isSignup) {
         signupForm.classList.remove('hidden');
         switchText.textContent = 'Already have an account?';
         switchBtn.textContent = 'Log in';
-        formTitle.textContent = 'Sign up to forum';
+        formTitle.textContent = 'Sign up';
     } else {
         loginForm.classList.remove('hidden');
         signupForm.classList.add('hidden');
         switchText.textContent = "Don't have an account?";
         switchBtn.textContent = 'Sign up';
-        formTitle.textContent = 'Log in to forum';
+        formTitle.textContent = 'Log in';
     }
 }
 
@@ -82,7 +82,7 @@ document.querySelectorAll('.form').forEach(form => {
                 showNotification('Login successful');
                 setTimeout(() => {
                     window.location.href = '/';
-                },3000)
+                },500)
             } else {
                 showNotification('Login failed: ' + response.message,'error');
             }
@@ -145,5 +145,59 @@ function showNotification(message, type = 'success') {
 
     setTimeout(() => {
         notification.classList.remove(type, 'show');
-    }, 3000);
+    }, 300);
+}
+
+const signupPassword = document.getElementById('signupPassword');
+const passwordMessage2 = document.querySelector("#passwordMessage2");
+
+if (signupPassword) signupPassword.addEventListener('input', (e) => {
+    passwordVerifier(e, passwordMessage2);
+});
+
+function passwordVerifier(event, pass) {
+    let password = event.target.value;
+    const output = [];
+    password = password.trim()
+    if (password.length > 0) {
+        pass.style.display = 'block';
+    }else{
+        pass.style.display = 'none';
+    }
+
+    if (password.length < 8) {
+        output.push("password must be at least 8 characters long");
+    }
+    if (!/[A-Z]/.test(password)) {
+        output.push("password must contain at least one UPPERCASE letter");
+    }
+    if (!/[a-z]/.test(password)) {
+        output.push("password must contain at least one lowercase letter");
+    }
+    if (!/[0-9]/.test(password)) {
+        output.push("password must contain at least one number");
+    }
+    if (!/[\W_]/.test(password)) {
+        output.push("password must contain at least one special character (!, #, $)");
+    }
+    if (output.length > 0) {
+        pass.innerHTML = output.join('<br>');
+        pass.style.color = "red";
+    } else {
+        pass.innerHTML = "strong password!";
+        pass.style.color = "green";
+    }
+}
+
+function togglePass(inputId, icon){
+    let input = document.getElementById(inputId);
+    if(input.type === "password"){
+        input.type="text";
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    }else{
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
 }

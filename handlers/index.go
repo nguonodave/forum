@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"forum/model"
 	"forum/pkg"
 )
 
@@ -39,6 +40,8 @@ func Index(db *sql.DB) http.HandlerFunc {
 			Message      string
 			Data         string
 			UserLoggedIn bool
+			Posts        []model.Post
+			User         model.User
 		}
 
 		content := Content{

@@ -62,7 +62,7 @@ func HandleRegister(DBase *model.Database, username, email, password string) err
 		return errors.New("failed to create user")
 	}
 
-	fmt.Println("Success: User created!")
+	fmt.Printf("user %s was created successfully\n", username)
 	return nil
 }
 
@@ -102,10 +102,16 @@ func HandleLogin(DBase *model.Database, email, username, password string) (strin
 		return "", time.Time{}, errors.New("invalid credentials")
 	}
 
+	// Remove any existing sessions for this user before creating a new one
+	_, err := DBase.Db.Exec("DELETE FROM sessions WHERE user_id = ?", user.ID)
+	if err != nil {
+		return "", time.Time{}, errors.New("internal server error")
+	}
+
 	sessionToken := generateSessionToken()
 
 	expiresAt := time.Now().Add(24 * 14 * time.Hour)
-	_, err := DBase.Db.Exec(
+	_, err = DBase.Db.Exec(
 		"INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
 		user.ID, sessionToken, expiresAt,
 	)
@@ -127,8 +133,9 @@ func ValidateSession(DBase *model.Database, next http.HandlerFunc) http.HandlerF
 
 		var userID string
 		var expiresAt time.Time
+		var username string
 
-		row := DBase.Db.QueryRow("SELECT user_id, expires_at FROM sessions WHERE token = ? LIMIT 1",
+		row := DBase.Db.QueryRow("SELECT user_id, username expires_at FROM sessions WHERE token = ? LIMIT 1",
 			cookie.Value,
 		)
 
@@ -150,6 +157,7 @@ func ValidateSession(DBase *model.Database, next http.HandlerFunc) http.HandlerF
 
 		// store user id in context for next handlers
 		ctx := context.WithValue(r.Context(), "userID", userID)
+		ctx = context.WithValue(ctx, "username", username)
 		// if you want to retrieve user id in the next handlers use the syntax below:
 		// userID = r.Context().Value("userID").(string)
 		next(w, r.WithContext(ctx))
