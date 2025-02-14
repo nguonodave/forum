@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -39,16 +38,11 @@ func main() {
 		defer fileio.Close(logger)
 	}
 
-	db, err := database.InitializeDB()
+	err := database.InitializeDB()
 	if err != nil {
 		log.Fatalf("Database initialization failed: %v", err)
 	}
-	defer func(Db *sql.DB) {
-		err := Db.Close()
-		if err != nil {
-
-		}
-	}(db.Db)
+	defer database.Db.Close()
 	fmt.Println("Database initialized successfully!")
 
 	var parseTemplateErr error
@@ -57,12 +51,12 @@ func main() {
         log.Fatalf("Failed to parse templates: %v", parseTemplateErr)
     }
 
-	http.HandleFunc("/", handlers.Index(db.Db))
-	http.HandleFunc("/posts/categories", handlers.CategoriesHandler(db))
-	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(db.Db, handlers.Login(db)))
-	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(db.Db, handlers.Register(db)))
+	http.HandleFunc("/", handlers.Index)
+	http.HandleFunc("/posts/categories", handlers.CategoriesHandler)
+	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(handlers.Login))
+	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(handlers.Register))
 	//http.HandleFunc("/api/vote", handlers.HandleVoteRequest(db))
-	http.HandleFunc("/logout", handlers.Logout(db))
+	http.HandleFunc("/logout", handlers.Logout)
 
 	// Browsers ping for the /favicon.ico icon, redirect to the respective static file
 	http.Handle("/favicon.ico", http.RedirectHandler("/static/svg/favicon.svg", http.StatusFound))

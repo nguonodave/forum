@@ -1,17 +1,17 @@
 package model
 
 import (
-	"database/sql"
+	"forum/database"
 
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 // GetCategories fetches categories from the database
-func GetCategories(db *sql.DB) ([]Category, error) {
+func GetCategories() ([]Category, error) {
 	query := `SELECT id, name FROM categories;`
 
-	rows, err := db.Query(query)
+	rows, err := database.Db.Query(query)
 	if err != nil {
 		return nil, err
 	}

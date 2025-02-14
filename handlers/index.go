@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 
@@ -10,8 +9,7 @@ import (
 )
 
 // Index handler designed for the application's index page
-func Index(db *sql.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Index(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
@@ -45,7 +43,7 @@ func Index(db *sql.DB) http.HandlerFunc {
 		content := Content{
 			Message:      "Some message to pass to template",
 			Data:         "Some data to pass to template",
-			UserLoggedIn: pkg.UserLoggedIn(r, db),
+			UserLoggedIn: pkg.UserLoggedIn(r),
 		}
 
 		TemplateError := func(message string, err error) {
@@ -58,5 +56,4 @@ func Index(db *sql.DB) http.HandlerFunc {
 			TemplateError("error executing template", execTemplateErr)
 			return
 		}
-	}
 }

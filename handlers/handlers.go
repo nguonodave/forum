@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"forum/controller"
+	"forum/database"
 	"forum/helperfunc"
 	"forum/model"
 
@@ -30,8 +31,7 @@ func jsonResponse(w http.ResponseWriter, statusCode int, message string) {
 	}
 }
 
-func Login(DBase *model.Database) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			Templates.ExecuteTemplate(w, "auth.html", nil)
@@ -49,7 +49,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 				return
 			}
 
-			sessionToken, expiresAt, err := controller.HandleLogin(DBase, data.Email, data.Username, data.Password)
+			sessionToken, expiresAt, err := controller.HandleLogin(data.Email, data.Username, data.Password)
 			if err != nil {
 				log.Printf("%v", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
@@ -72,11 +72,9 @@ func Login(DBase *model.Database) http.HandlerFunc {
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
-	}
 }
 
-func Register(DBase *model.Database) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Register(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			Templates.ExecuteTemplate(w, "auth.html", nil)
@@ -96,7 +94,7 @@ func Register(DBase *model.Database) http.HandlerFunc {
 			}
 
 			// Register user
-			if err := controller.HandleRegister(DBase, data.Username, data.Email, data.Password); err != nil {
+			if err := controller.HandleRegister(data.Username, data.Email, data.Password); err != nil {
 				fmt.Printf("%v", err)
 				jsonResponse(w, http.StatusInternalServerError, err.Error())
 				return
@@ -108,12 +106,10 @@ func Register(DBase *model.Database) http.HandlerFunc {
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
-	}
 }
 
-func CategoriesHandler(db *model.Database) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		categories, err := model.GetCategories(db.Db)
+func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
+		categories, err := model.GetCategories()
 		if err != nil {
 			http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
 			return
@@ -129,11 +125,9 @@ func CategoriesHandler(db *model.Database) http.HandlerFunc {
 		if err != nil {
 			http.Error(w, "Template execution error", http.StatusInternalServerError)
 		}
-	}
 }
 
-func HandleVoteRequest(db *model.Database) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
 		// Set response header
 		w.Header().Set("Content-Type", "application/json")
 
@@ -195,7 +189,7 @@ func HandleVoteRequest(db *model.Database) http.HandlerFunc {
 		}
 
 		// Process vote
-		response, err := model.HandleVote(db, voteReq)
+		response, err := model.HandleVote(voteReq)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -203,11 +197,9 @@ func HandleVoteRequest(db *model.Database) http.HandlerFunc {
 
 		// Send response
 		json.NewEncoder(w).Encode(response)
-	}
 }
 
-func Logout(db *model.Database) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Logout(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			jsonResponse(w, http.StatusMethodNotAllowed, "not allowed")
 			return
@@ -221,7 +213,7 @@ func Logout(db *model.Database) http.HandlerFunc {
 		sessionToken := cookie.Value
 
 		query := "DELETE FROM sessions WHERE token = ?"
-		result, err := db.Db.Exec(query, sessionToken)
+		result, err := database.Db.Exec(query, sessionToken)
 		if err != nil {
 			fmt.Printf("%v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -248,5 +240,4 @@ func Logout(db *model.Database) http.HandlerFunc {
 			SameSite: http.SameSiteStrictMode,
 		})
 		http.Redirect(w, r, "/", http.StatusFound)
-	}
 }
