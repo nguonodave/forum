@@ -74,6 +74,7 @@
         
                 <p class="post-content">I love Jinx</p>
                 <!--Post Actions-->
+                <div id="post-a">
                 <div class="post-actions">
                   <button class="like-btn">
                     <svg class="icon" viewBox="0 0 24 24">
@@ -100,8 +101,8 @@
                 </div>
 
                 <div class="add-comment-section">
-                  <textarea id="new-comment-text" placeholder="Add a comment"></textarea>
-                  <button id="add-comment-btn">Post Comment</button>
+                  <input type="text" id="new-comment-text" placeholder="Add a comment">
+                  <button id="add-comment-btn"> Comment</button>
                 </div>
 
 
@@ -149,7 +150,7 @@
                     </div>
                   </div>
                 </div>
-               
+               </div>
               
                 
         {{ if .UserLoggedIn }}
@@ -160,15 +161,33 @@
                     <form id="createPostForm">
                         <input type="text" id="postTitle" placeholder="Title" required>
                         <textarea id="postContent" placeholder="Content" required></textarea>
-                        <select id="postCategory" required>
-                            <option value="">Select Category</option>
-                            <option value="Technology">Technology</option>
-                            <option value="Design">Design</option>
-                            <option value="Development">Development</option>
-                        </select>
+                        <div class="categories-container">
+                          <div class="category-group">
+                              <input type="checkbox" id="categoryTechnology" name="categories" value="Technology">
+                              <label for="categoryTechnology">Technology</label>
+                          </div>
+                          <div class="category-group">
+                              <input type="checkbox" id="categoryDesign" name="categories" value="Design">
+                              <label for="categoryDesign">Design</label>
+                          </div>
+                          <div class="category-group">
+                              <input type="checkbox" id="categoryDevelopment" name="categories" value="Development">
+                              <label for="categoryDevelopment">Development</label>
+                          </div>
+                          <div class="category-group">
+                              <input type="checkbox" id="categoryArt" name="categories" value="Art">
+                              <label for="categoryArt">Art</label>
+                          </div>
+                          <div class="category-group">
+                              <input type="checkbox" id="categoryScience" name="categories" value="Science">
+                              <label for="categoryScience">Science</label>
+                          </div>
+                      </div>
+                      <div class="form-row">
                         <input type="file" id="postImage" accept="image/*">
                         <button type="submit" class="submit-post-btn">Post</button>
-                    </form>
+                    </div>
+                </form>
             </div>
         </div>
         {{ else }}
@@ -202,5 +221,6 @@
 </div>
 
 <script src="/static/js/base.js"></script>
+<script src="/static/js/post-actions.js"></script>
 </body>
 </html>
