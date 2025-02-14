@@ -158,9 +158,9 @@
             <div id="createPostDiv" class="create-post-container">
                     <button class="close-create-post" onclick="closeCreatePostDiv()">&times;</button>
                     <h2>Create a Post</h2>
-                    <form id="createPostForm">
-                        <input type="text" id="postTitle" placeholder="Title" required>
-                        <textarea id="postContent" placeholder="Content" required></textarea>
+                    <form action="/" method="POST" enctype="multipart/form-data" id="createPostForm">
+                        <input name="title" type="text" id="postTitle" placeholder="Title" required>
+                        <textarea name="content" id="postContent" placeholder="Content" required></textarea>
                         <div class="categories-container">
                           <div class="category-group">
                               <input type="checkbox" id="categoryTechnology" name="categories" value="Technology">
@@ -184,7 +184,7 @@
                           </div>
                       </div>
                       <div class="form-row">
-                        <input type="file" id="postImage" accept="image/*">
+                        <input type="file" name="image" id="postImage" accept="image/*">
                         <button type="submit" class="submit-post-btn">Post</button>
                     </div>
                 </form>
