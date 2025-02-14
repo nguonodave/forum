@@ -517,7 +517,7 @@ body {
   .create-post-container {
     background-color:#16202b;
     width: 100%;
-    max-width: 500px;
+    max-width: 700px;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -533,8 +533,7 @@ body {
   }
   
   .create-post-container input,
-  .create-post-container textarea,
-  .create-post-container select {
+  .create-post-container textarea{
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
@@ -549,9 +548,32 @@ body {
     resize: vertical;
     min-height: 100px;
   }
+
+  .categories-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.category-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    
+}
+
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
   
   .submit-post-btn {
     width: 100%;
+    max-width: 100px;
     padding: 12px;
     background-color: #1DA1F2;
     color: white;
@@ -761,22 +783,45 @@ body {
     color: #ddd;
 }
 
-.comment-input:focus {
-    border-bottom: 1px solid #007bff; /* Change underline color on focus */
+.add-comment-section {
+  margin-top: 20px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.post-comment-btn {
+.add-comment-section input {
+  font-size: 18px;
+  padding: 5px;
+  width: 100%;
+  background: transparent;
+  resize: vertical;
+  border: none;
+  border-bottom: 1px solid #9a9da0;
+}
+
+
+.add-comment-section button {
   background-color: #16202b;
-    color: white;
-    font-size: 16px;
-    font-weight: 400;
-    border: none;
-    padding: 6px 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  color: white;
+  font-size: 16px;
+  font-weight: 400;
+  border: 1px solid #9a9da0;
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.post-comment-btn:hover {
-    color: #00a2ff;
-    font-weight: 500;
+.add-comment-section button:hover{
+  border: 2px solid #00a2ff;
+  color: #00a2ff;
+ font-weight: 500;
+}
+
+.add-comment-section input:hover {
+  border-bottom: 2px solid #00a2ff;
+  color: #00a2ff;
+  
 }
