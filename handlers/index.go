@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"database/sql"
-	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
 
 	"forum/model"
 	"forum/pkg"
@@ -35,7 +33,7 @@ func Index(db *sql.DB) http.HandlerFunc {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		templateFile := "base.html"
+
 		type Content struct {
 			Message      string
 			Data         string
@@ -54,15 +52,10 @@ func Index(db *sql.DB) http.HandlerFunc {
 			http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
 			log.Printf("%s: %v", message, err)
 		}
-		temp, err := template.ParseFiles(filepath.Join(templatesDir, templateFile))
-		if err != nil {
-			TemplateError("error parsing template", err)
-			return
-		}
 
-		err = temp.Execute(w, content)
-		if err != nil {
-			TemplateError("error executing template", err)
+		execTemplateErr := Templates.ExecuteTemplate(w, "base.html", content)
+		if execTemplateErr != nil {
+			TemplateError("error executing template", execTemplateErr)
 			return
 		}
 	}
