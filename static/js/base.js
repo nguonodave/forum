@@ -54,15 +54,6 @@ function handleCreatePost() {
     document.getElementById('loginPromptOverlay').style.display = 'flex';
   }
 }
-
-function openCreatePostDiv() {
-  document.getElementById('createPostOverlay').style.display = 'flex';
-}
-
-function closeCreatePostDiv() {
-  document.getElementById('createPostOverlay').style.display = 'none';
-}
-
 // Close login prompt overlay if the user clicks outside
 document.getElementById('loginPromptOverlay').addEventListener('click', function(event) {
   if (event.target === this) {
@@ -72,4 +63,8 @@ document.getElementById('loginPromptOverlay').addEventListener('click', function
 
 function closeLoginPromptOverlay() {
   document.getElementById('loginPromptOverlay').style.display = 'none';
+}
+
+function openCreatePostDiv() {
+  document.getElementById('createPostOverlay').style.display = 'flex';
 }
