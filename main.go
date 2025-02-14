@@ -53,7 +53,7 @@ func main() {
 
 	var parseTemplateErr error
     handlers.Templates, parseTemplateErr = handlers.ParseTemplates()
-    if err != nil {
+    if parseTemplateErr != nil {
         log.Fatalf("Failed to parse templates: %v", parseTemplateErr)
     }
 
