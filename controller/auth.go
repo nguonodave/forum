@@ -133,8 +133,9 @@ func ValidateSession(DBase *model.Database, next http.HandlerFunc) http.HandlerF
 
 		var userID string
 		var expiresAt time.Time
+		var username string
 
-		row := DBase.Db.QueryRow("SELECT user_id, expires_at FROM sessions WHERE token = ? LIMIT 1",
+		row := DBase.Db.QueryRow("SELECT user_id, username expires_at FROM sessions WHERE token = ? LIMIT 1",
 			cookie.Value,
 		)
 
@@ -156,6 +157,7 @@ func ValidateSession(DBase *model.Database, next http.HandlerFunc) http.HandlerF
 
 		// store user id in context for next handlers
 		ctx := context.WithValue(r.Context(), "userID", userID)
+		ctx = context.WithValue(ctx, "username", username)
 		// if you want to retrieve user id in the next handlers use the syntax below:
 		// userID = r.Context().Value("userID").(string)
 		next(w, r.WithContext(ctx))

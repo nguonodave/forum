@@ -54,13 +54,13 @@ body {
 
 .input-group input {
     width: 100%;
-    padding: 16px;
     background-color: #1d2732;
     border: 1px solid #38444d;
     border-radius: 4px;
     color: rgb(238, 232, 232);
     font-size: 1rem;
     outline: none;
+    padding: 16px 40px 16px 16px;
 }
 
 .input-group input:focus {
@@ -173,4 +173,34 @@ body {
     background-color: #b3d1ef;
     display: none;
     text-align: left;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 1.2rem;
+}
+
+.password-toggle::after {
+    content: "show password";
+    position: absolute;
+    top: -38px;
+    right: 0;
+    background: #1d99e7;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+}
+
+.password-toggle:hover::after {
+    opacity: 0.9;
 }

@@ -148,19 +148,9 @@ function showNotification(message, type = 'success') {
     }, 300);
 }
 
-const loginPassword = document.getElementById('loginPassword');
 const signupPassword = document.getElementById('signupPassword');
-const passwordMessage1 = document.querySelector("#passwordMessage1");
 const passwordMessage2 = document.querySelector("#passwordMessage2");
 
-
-// if (loginPassword) loginPassword.addEventListener('input', passwordVerifier);
-// if (signupPassword) signupPassword.addEventListener('input', passwordVerifier);
-
-
-if (loginPassword) loginPassword.addEventListener('input', (e) => {
-    passwordVerifier(e, passwordMessage1);
-});
 if (signupPassword) signupPassword.addEventListener('input', (e) => {
     passwordVerifier(e, passwordMessage2);
 });
@@ -200,5 +190,18 @@ function passwordVerifier(event, pass) {
     } else {
         pass.innerHTML = "strong password!";
         pass.style.color = "green";
+    }
+}
+
+function togglePass(inputId, icon){
+    let input = document.getElementById(inputId);
+    if(input.type === "password"){
+        input.type="text";
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    }else{
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
     }
 }
