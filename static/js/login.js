@@ -156,7 +156,6 @@ if (signupPassword) signupPassword.addEventListener('input', (e) => {
 });
 
 function passwordVerifier(event, pass) {
-    console.log(">>>>")
     let password = event.target.value;
     const output = [];
     password = password.trim()
@@ -168,9 +167,6 @@ function passwordVerifier(event, pass) {
 
     if (password.length < 8) {
         output.push("password must be at least 8 characters long");
-    }
-    if (password.includes('@')) {
-        output.push("password cannot contain '@' symbol");
     }
     if (!/[A-Z]/.test(password)) {
         output.push("password must contain at least one UPPERCASE letter");
