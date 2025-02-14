@@ -266,7 +266,7 @@ body {
   justify-content: center;
   align-items: center;
   padding: 20px;
-  box-sizing: border-box;
+  /* box-sizing: border-box; */
 }
 
 .create-post-container {
@@ -278,6 +278,7 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 1000;
+  overflow-y: auto;
 }
 
 .create-post-container h2 {
@@ -298,6 +299,11 @@ body {
   font-size: 18px;
 }
 
+#create-post-form{
+display: flex;
+flex-direction: column;
+gap: 15px;
+}
 
 .categories-container {
   display: flex;
