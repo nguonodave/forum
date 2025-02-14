@@ -20,7 +20,7 @@ const (
 	schemaFile = "schema.sql"
 )
 
-func InitializeDB() (error) {
+func InitializeDB() error {
 	// Open database connection
 	dsn := fmt.Sprintf("file:%s?_foreign_keys=on&_journal_mode=WAL", dbName)
 	var openDbErr error

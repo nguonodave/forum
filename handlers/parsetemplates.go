@@ -9,27 +9,27 @@ import (
 var Templates *template.Template
 
 func ParseTemplates() (*template.Template, error) {
-    tmpl := template.New("")
+	tmpl := template.New("")
 
-    err := filepath.Walk("view", func(path string, info os.FileInfo, err error) error {
-        if err != nil {
-            return err
-        }
-        if !info.IsDir() && filepath.Ext(path) == ".html" {
-            data, err := os.ReadFile(path)
-            if err != nil {
-                return err
-            }
+	err := filepath.Walk("view", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && filepath.Ext(path) == ".html" {
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
 
-            templateName := filepath.Base(path)
+			templateName := filepath.Base(path)
 
-            _, err = tmpl.New(templateName).Parse(string(data))
-            if err != nil {
-                return err
-            }
-        }
-        return nil
-    })
+			_, err = tmpl.New(templateName).Parse(string(data))
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 
-    return tmpl, err
+	return tmpl, err
 }
