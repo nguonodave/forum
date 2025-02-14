@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
 	"time"
 
 	"forum/controller"
@@ -18,25 +17,6 @@ import (
 
 // templatesDir refers to the filepath of the directory containing the application's templates
 var templatesDir = "view"
-
-// renderTemplate is a helper function to render HTML templates
-func renderTemplate(w http.ResponseWriter, templateFile string, data interface{}) {
-	templatePath := filepath.Join(templatesDir, templateFile)
-	temp, err := template.ParseFiles(templatePath)
-	if err != nil {
-		http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
-		log.Printf("Error parsing template %s: %v", templateFile, err)
-		return
-	}
-
-	err = temp.Execute(w, data)
-	if err != nil {
-		fmt.Println("rrr")
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		log.Printf("Error executing template %s: %v", templateFile, err)
-		return
-	}
-}
 
 // jsonResponse is a helper function to send JSON responses
 func jsonResponse(w http.ResponseWriter, statusCode int, message string) {
@@ -54,7 +34,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			renderTemplate(w, "auth/auth.html", nil)
+			Tmpl.ExecuteTemplate(w, "auth.html", nil)
 
 		case http.MethodPost:
 			var data struct {
@@ -99,7 +79,7 @@ func Register(DBase *model.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			renderTemplate(w, "auth/auth.html", nil)
+			Tmpl.ExecuteTemplate(w, "auth.html", nil)
 
 		case http.MethodPost:
 			var data struct {
