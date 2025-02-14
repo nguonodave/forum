@@ -52,7 +52,6 @@ func main() {
     }
 
 	http.HandleFunc("/", handlers.Index)
-	http.HandleFunc("/posts/categories", handlers.CategoriesHandler)
 	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(handlers.Login))
 	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(handlers.Register))
 	//http.HandleFunc("/api/vote", handlers.HandleVoteRequest(db))

@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"time"
@@ -105,25 +104,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-}
-
-func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
-		categories, err := model.GetCategories()
-		if err != nil {
-			http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
-			return
-		}
-
-		tmpl, err := template.ParseFiles(".html")
-		if err != nil {
-			http.Error(w, "Error loading template", http.StatusInternalServerError)
-			return
-		}
-
-		err = tmpl.Execute(w, categories)
-		if err != nil {
-			http.Error(w, "Template execution error", http.StatusInternalServerError)
 		}
 }
 
