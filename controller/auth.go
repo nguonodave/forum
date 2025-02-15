@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"forum/database"
 	"forum/model"
 
 	"github.com/google/uuid"
@@ -20,11 +21,7 @@ func generateSessionToken() string {
 	return uuid.New().String()
 }
 
-func HandleRegister(DBase *model.Database, username, email, password string) error {
-	if DBase == nil || DBase.Db == nil {
-		return errors.New("database connection is missing")
-	}
-
+func HandleRegister(username, email, password string) error {
 	if err := model.ValidateEmail(email); err != nil {
 		return err
 	}
@@ -33,11 +30,11 @@ func HandleRegister(DBase *model.Database, username, email, password string) err
 		return err
 	}
 
-	if model.IsEmailTaken(DBase, email) {
+	if model.IsEmailTaken(email) {
 		return errors.New("email is already taken")
 	}
 
-	if model.IsUserNameTaken(DBase, username) {
+	if model.IsUserNameTaken(username) {
 		return errors.New("username is already taken")
 	}
 
@@ -48,7 +45,7 @@ func HandleRegister(DBase *model.Database, username, email, password string) err
 
 	userID := uuid.New().String()
 
-	_, DBErr := DBase.Db.Exec(
+	_, DBErr := database.Db.Exec(
 		"INSERT INTO users (id, email, password, username) VALUES (?, ?, ?, ?);",
 		userID,
 		email,
@@ -66,7 +63,7 @@ func HandleRegister(DBase *model.Database, username, email, password string) err
 	return nil
 }
 
-func HandleLogin(DBase *model.Database, email, username, password string) (string, time.Time, error) {
+func HandleLogin(email, username, password string) (string, time.Time, error) {
 	var user model.User
 	if email == "" && username == "" {
 		return "", time.Time{}, errors.New("email and username is missing")
@@ -75,7 +72,7 @@ func HandleLogin(DBase *model.Database, email, username, password string) (strin
 	switch {
 	case email != "":
 
-		err := DBase.Db.QueryRow(
+		err := database.Db.QueryRow(
 			"SELECT id, email, password FROM users WHERE email = ?",
 			email,
 		).Scan(&user.ID, &user.Email, &user.Password)
@@ -88,7 +85,7 @@ func HandleLogin(DBase *model.Database, email, username, password string) (strin
 			return "", time.Time{}, errors.New("internal server error")
 		}
 	case username != "":
-		row := DBase.Db.QueryRow("SELECT id, username, password FROM users WHERE username = ?", username)
+		row := database.Db.QueryRow("SELECT id, username, password FROM users WHERE username = ?", username)
 		err := row.Scan(&user.ID, &user.Username, &user.Password)
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", time.Time{}, errors.New("invalid credentials")
@@ -103,7 +100,7 @@ func HandleLogin(DBase *model.Database, email, username, password string) (strin
 	}
 
 	// Remove any existing sessions for this user before creating a new one
-	_, err := DBase.Db.Exec("DELETE FROM sessions WHERE user_id = ?", user.ID)
+	_, err := database.Db.Exec("DELETE FROM sessions WHERE user_id = ?", user.ID)
 	if err != nil {
 		return "", time.Time{}, errors.New("internal server error")
 	}
@@ -111,7 +108,7 @@ func HandleLogin(DBase *model.Database, email, username, password string) (strin
 	sessionToken := generateSessionToken()
 
 	expiresAt := time.Now().Add(24 * 14 * time.Hour)
-	_, err = DBase.Db.Exec(
+	_, err = database.Db.Exec(
 		"INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
 		user.ID, sessionToken, expiresAt,
 	)
@@ -123,7 +120,7 @@ func HandleLogin(DBase *model.Database, email, username, password string) (strin
 }
 
 // ValidateSession applies for routes that require authentication
-func ValidateSession(DBase *model.Database, next http.HandlerFunc) http.HandlerFunc {
+func ValidateSession(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session")
 		if err != nil {
@@ -135,7 +132,7 @@ func ValidateSession(DBase *model.Database, next http.HandlerFunc) http.HandlerF
 		var expiresAt time.Time
 		var username string
 
-		row := DBase.Db.QueryRow("SELECT user_id, username expires_at FROM sessions WHERE token = ? LIMIT 1",
+		row := database.Db.QueryRow("SELECT user_id, username expires_at FROM sessions WHERE token = ? LIMIT 1",
 			cookie.Value,
 		)
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"forum/database"
 	"forum/xerrors"
 
 	"github.com/google/uuid"
@@ -28,7 +29,7 @@ type VoteResponse struct {
 }
 
 // HandleVote processes a vote action
-func HandleVote(db *Database, req *VoteRequest) (*VoteResponse, error) {
+func HandleVote(req *VoteRequest) (*VoteResponse, error) {
 	// Validate request
 	if req.UserID == uuid.Nil {
 		return nil, xerrors.ErrInvalidUser
@@ -41,7 +42,7 @@ func HandleVote(db *Database, req *VoteRequest) (*VoteResponse, error) {
 	}
 
 	// Start transaction
-	tx, err := db.Db.Begin()
+	tx, err := database.Db.Begin()
 	if err != nil {
 		return nil, fmt.Errorf("failed to begin transaction: %v", err)
 	}

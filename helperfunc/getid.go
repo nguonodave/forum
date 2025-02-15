@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"forum/model"
+	"forum/database"
 
 	"github.com/google/uuid"
 )
@@ -33,17 +33,11 @@ func GetUserIDFromSession(r *http.Request) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
-	// Get database connection from context
-	db := r.Context().Value("db").(*model.Database)
-	if db == nil {
-		return uuid.Nil, errors.New("database connection not found in context")
-	}
-
 	// Query the database for session info
 	var userID uuid.UUID
 	var expiresAt time.Time
 
-	err = db.Db.QueryRow(`
+	err = database.Db.QueryRow(`
 		SELECT user_id, expires_at 
 		FROM sessions 
 		WHERE token = ?
@@ -59,7 +53,7 @@ func GetUserIDFromSession(r *http.Request) (uuid.UUID, error) {
 	// Check if session has expired
 	if time.Now().After(expiresAt) {
 		// Delete expired session
-		_, _ = db.Db.Exec("DELETE FROM sessions WHERE token = ?", token)
+		_, _ = database.Db.Exec("DELETE FROM sessions WHERE token = ?", token)
 		return uuid.Nil, errors.New("session expired")
 	}
 
