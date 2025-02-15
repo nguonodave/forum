@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"unicode"
 
+	"forum/database"
 	"forum/xerrors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -93,14 +94,9 @@ func ValidateEmail(email string) error {
 }
 
 // IsEmailTaken queries the database to check if the email provided exists returns true if found else false
-func IsEmailTaken(DBase *Database, email string) bool {
-	if DBase == nil || DBase.Db == nil {
-		log.Println("[ERROR] IsEmailTaken(): Database connection is nil")
-		return false
-	}
-
+func IsEmailTaken(email string) bool {
 	var emailExists bool
-	err := DBase.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
+	err := database.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", email).Scan(&emailExists)
 	if err != nil {
 		log.Printf("[ERROR] IsEmailTaken(): Error checking email existence: %v\n", err)
 		return false
@@ -109,13 +105,9 @@ func IsEmailTaken(DBase *Database, email string) bool {
 	return emailExists
 }
 
-func IsUserNameTaken(DBase *Database, username string) bool {
-	if DBase == nil || DBase.Db == nil {
-		fmt.Println("[ERROR] IsUserNameTaken(): Database connection is nil")
-		return false
-	}
+func IsUserNameTaken(username string) bool {
 	var userExists bool
-	err := DBase.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&userExists)
+	err := database.Db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&userExists)
 	if err != nil {
 		log.Printf("[ERROR] IsUserNameTaken(): Error checking user existence: %v\n", err)
 		return false

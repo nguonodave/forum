@@ -1,16 +1,10 @@
 package model
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
-
-// Database struct
-type Database struct {
-	Db *sql.DB
-}
 
 // User struct
 type User struct {

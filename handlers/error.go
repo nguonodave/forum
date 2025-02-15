@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
 	"strconv"
 )
 
@@ -39,15 +37,9 @@ func ErrorPage(w http.ResponseWriter, errorText string, statusCode int) {
 		log.Printf("%s: %v", message, err)
 	}
 
-	temp, err := template.ParseFiles(filepath.Join(templatesDir, "error.html"))
-	if err != nil {
-		TemplateError("error parsing template", err)
-		return
-	}
-
-	err = temp.Execute(w, content)
-	if err != nil {
-		TemplateError("error executing template", err)
+	execTemplateErr := Templates.ExecuteTemplate(w, "error.html", content)
+	if execTemplateErr != nil {
+		TemplateError("error executing template", execTemplateErr)
 		return
 	}
 }
