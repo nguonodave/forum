@@ -138,6 +138,34 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		posts = append(posts, post)
 	}
 
+	// fetch all categories for the create post form
+    categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
+    if categQueryErr != nil {
+        log.Printf("Error fetching categories: %v\n", categQueryErr)
+        http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
+        return
+    }
+    defer categRows.Close()
+
+    var categories []struct {
+        Id   string
+        Name string
+    }
+    for categRows.Next() {
+        var category struct {
+            Id   string
+            Name string
+        }
+        err := categRows.Scan(&category.Id, &category.Name)
+        if err != nil {
+            log.Printf("Error scanning category: %v\n", err)
+            continue
+        }
+        categories = append(categories, category)
+    }
+
+	fmt.Println(categories)
+
 	TemplateError := func(message string, err error) {
 		http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
 		log.Printf("%s: %v", message, err)
@@ -146,6 +174,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
 		"Posts": posts,
 		"UserLoggedIn": pkg.UserLoggedIn(r),
+		"Categories": categories,
 	})
 	if execTemplateErr != nil {
 		TemplateError("error executing template", execTemplateErr)
