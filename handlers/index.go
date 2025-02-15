@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"fmt"
 	"io"
 	"log"
@@ -10,7 +11,6 @@ import (
 	"time"
 
 	"forum/database"
-	"forum/model"
 	"forum/pkg"
 
 	"github.com/google/uuid"
@@ -21,20 +21,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
-	}
-
-	type Content struct {
-		Message      string
-		Data         string
-		UserLoggedIn bool
-		Posts        []model.Post
-		User         model.User
-	}
-
-	content := Content{
-		Message:      "Some message to pass to template",
-		Data:         "Some data to pass to template",
-		UserLoggedIn: pkg.UserLoggedIn(r),
 	}
 
 	if r.Method == http.MethodPost {
@@ -113,12 +99,54 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	type Post struct {
+		AuthorId    string
+		Title       string
+		Content     string
+		ImagePath   string
+		CreatedTime time.Time
+	}
+
+	var posts []Post
+
+	rows, err := database.Db.Query(`
+		SELECT user_id, title, content, image_path, created_at
+		FROM posts
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		log.Printf("Error fetching posts: %v\n", err)
+		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post Post
+		var imagePath sql.NullString // Use sql.NullString to handle NULL values
+		err := rows.Scan(&post.AuthorId, &post.Title, &post.Content, &imagePath, &post.CreatedTime)
+		if err != nil {
+			log.Printf("Error scanning post: %v\n", err)
+			continue
+		}
+
+		// If imagePath is valid, assign it to the post
+		if imagePath.Valid {
+			post.ImagePath = imagePath.String
+		}
+		
+		posts = append(posts, post)
+	}
+
 	TemplateError := func(message string, err error) {
 		http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
 		log.Printf("%s: %v", message, err)
 	}
 
-	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", content)
+	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
+		"Posts": posts,
+		"UserLoggedIn": pkg.UserLoggedIn(r),
+	})
 	if execTemplateErr != nil {
 		TemplateError("error executing template", execTemplateErr)
 		return
