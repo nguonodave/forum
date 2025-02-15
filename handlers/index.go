@@ -110,7 +110,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	var posts []Post
 
 	rows, err := database.Db.Query(`
-		SELECT user_id, title, content, image_path, created_at
+		SELECT user_id, title, content, image_url, created_at
 		FROM posts
 		ORDER BY created_at DESC
 	`)
