@@ -46,13 +46,12 @@ func main() {
 	fmt.Println("Database initialized successfully!")
 
 	var parseTemplateErr error
-    handlers.Templates, parseTemplateErr = handlers.ParseTemplates()
-    if parseTemplateErr != nil {
-        log.Fatalf("Failed to parse templates: %v", parseTemplateErr)
-    }
+	handlers.Templates, parseTemplateErr = handlers.ParseTemplates()
+	if parseTemplateErr != nil {
+		log.Fatalf("Failed to parse templates: %v", parseTemplateErr)
+	}
 
 	http.HandleFunc("/", handlers.Index)
-	http.HandleFunc("/posts/categories", handlers.CategoriesHandler)
 	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(handlers.Login))
 	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(handlers.Register))
 	//http.HandleFunc("/api/vote", handlers.HandleVoteRequest(db))
