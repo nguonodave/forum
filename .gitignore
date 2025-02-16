@@ -21,3 +21,11 @@ template_tests
 
 # Ignore Jetbrains IDE settings
 .idea
+
+# Ignore image files
+*.jpeg
+*.JPEG
+*.png
+*.PNG
+*.jpg
+*.JPG
