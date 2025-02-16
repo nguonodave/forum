@@ -50,6 +50,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		// get the submitted form content details
 		title := r.FormValue("title")
 		content := r.FormValue("content")
+		categories := r.Form["categories"]
 		image, header, formFileErr := r.FormFile("image")
 
 		var imagePath string
@@ -97,8 +98,22 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to add post", http.StatusInternalServerError)
 			return
 		}
+
+		for _, categoryId := range categories {
+			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`, postId, categoryId)
+			if insertCategoriesErr != nil {
+				log.Printf("Error inserting selected categories to database: %v\n", insertCategoriesErr)
+				http.Error(w, "Failed to add categories", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		// Redirect to the home page
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+        return
 	}
 
+	// rendering posts to template
 	type Post struct {
 		AuthorId    string
 		Title       string
@@ -121,6 +136,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
+	// populate the post struct
 	for rows.Next() {
 		var post Post
 		var imagePath sql.NullString // Use sql.NullString to handle NULL values
@@ -138,7 +154,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		posts = append(posts, post)
 	}
 
-	// fetch all categories for the create post form
+	// fetch all categories to render to the create post form
     categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
     if categQueryErr != nil {
         log.Printf("Error fetching categories: %v\n", categQueryErr)
