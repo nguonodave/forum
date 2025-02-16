@@ -109,8 +109,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Redirect to the home page
-        http.Redirect(w, r, "/", http.StatusSeeOther)
-        return
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 
 	// rendering posts to template
@@ -150,35 +150,35 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		if imagePath.Valid {
 			post.ImagePath = imagePath.String
 		}
-		
+
 		posts = append(posts, post)
 	}
 
 	// fetch all categories to render to the create post form
-    categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
-    if categQueryErr != nil {
-        log.Printf("Error fetching categories: %v\n", categQueryErr)
-        http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
-        return
-    }
-    defer categRows.Close()
+	categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
+	if categQueryErr != nil {
+		log.Printf("Error fetching categories: %v\n", categQueryErr)
+		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
+		return
+	}
+	defer categRows.Close()
 
-    var categories []struct {
-        Id   string
-        Name string
-    }
-    for categRows.Next() {
-        var category struct {
-            Id   string
-            Name string
-        }
-        err := categRows.Scan(&category.Id, &category.Name)
-        if err != nil {
-            log.Printf("Error scanning category: %v\n", err)
-            continue
-        }
-        categories = append(categories, category)
-    }
+	var categories []struct {
+		Id   string
+		Name string
+	}
+	for categRows.Next() {
+		var category struct {
+			Id   string
+			Name string
+		}
+		err := categRows.Scan(&category.Id, &category.Name)
+		if err != nil {
+			log.Printf("Error scanning category: %v\n", err)
+			continue
+		}
+		categories = append(categories, category)
+	}
 
 	fmt.Println(categories)
 
@@ -188,9 +188,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
-		"Posts": posts,
+		"Posts":        posts,
 		"UserLoggedIn": pkg.UserLoggedIn(r),
-		"Categories": categories,
+		"Categories":   categories,
 	})
 	if execTemplateErr != nil {
 		TemplateError("error executing template", execTemplateErr)
