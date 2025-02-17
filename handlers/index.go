@@ -19,9 +19,11 @@ import (
 // Index handler designed for the application's index page
 func Index(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		ErrorPage(w, "Page not found", http.StatusNotFound)
 		return
 	}
+
+	queriedCategoryId := r.URL.Query().Get("category")
 
 	if r.Method == http.MethodPost {
 		cookie, cookieErr := r.Cookie("session")
@@ -50,6 +52,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		// get the submitted form content details
 		title := r.FormValue("title")
 		content := r.FormValue("content")
+		categories := r.Form["categories"]
 		image, header, formFileErr := r.FormFile("image")
 
 		var imagePath string
@@ -97,10 +100,24 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to add post", http.StatusInternalServerError)
 			return
 		}
+
+		for _, categoryId := range categories {
+			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`, postId, categoryId)
+			if insertCategoriesErr != nil {
+				log.Printf("Error inserting selected categories to database: %v\n", insertCategoriesErr)
+				http.Error(w, "Failed to add categories", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		// redirect to the home page after creating post
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 
+	// rendering posts to template
 	type Post struct {
-		AuthorId    string
+		Id          string
 		Title       string
 		Content     string
 		ImagePath   string
@@ -109,11 +126,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	var posts []Post
 
-	rows, err := database.Db.Query(`
-		SELECT user_id, title, content, image_url, created_at
-		FROM posts
-		ORDER BY created_at DESC
-	`)
+	postsQuery := `
+	SELECT p.id, p.title, p.content, p.image_url, p.created_at
+	FROM posts p
+	LEFT JOIN post_categories pc ON p.id = pc.post_id
+	WHERE ? = '' OR pc.category_id = ?
+	ORDER BY p.created_at DESC
+	`
+
+	rows, err := database.Db.Query(postsQuery, queriedCategoryId, queriedCategoryId)
 	if err != nil {
 		log.Printf("Error fetching posts: %v\n", err)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
@@ -121,21 +142,48 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
+	// populate the post struct
 	for rows.Next() {
 		var post Post
-		var imagePath sql.NullString // Use sql.NullString to handle NULL values
-		err := rows.Scan(&post.AuthorId, &post.Title, &post.Content, &imagePath, &post.CreatedTime)
+		var imagePath sql.NullString // use sql.NullString to handle NULL values
+		err := rows.Scan(&post.Id, &post.Title, &post.Content, &imagePath, &post.CreatedTime)
 		if err != nil {
 			log.Printf("Error scanning post: %v\n", err)
 			continue
 		}
 
-		// If imagePath is valid, assign it to the post
+		// if imagePath is valid, assign it to the post
 		if imagePath.Valid {
 			post.ImagePath = imagePath.String
 		}
-		
+
 		posts = append(posts, post)
+	}
+
+	// fetch all categories to render to the create post form
+	categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
+	if categQueryErr != nil {
+		log.Printf("Error fetching categories: %v\n", categQueryErr)
+		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
+		return
+	}
+	defer categRows.Close()
+
+	var categories []struct {
+		Id   string
+		Name string
+	}
+	for categRows.Next() {
+		var category struct {
+			Id   string
+			Name string
+		}
+		err := categRows.Scan(&category.Id, &category.Name)
+		if err != nil {
+			log.Printf("Error scanning category: %v\n", err)
+			continue
+		}
+		categories = append(categories, category)
 	}
 
 	TemplateError := func(message string, err error) {
@@ -144,8 +192,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
-		"Posts": posts,
+		"Posts":        posts,
 		"UserLoggedIn": pkg.UserLoggedIn(r),
+		"Categories":   categories,
 	})
 	if execTemplateErr != nil {
 		TemplateError("error executing template", execTemplateErr)
