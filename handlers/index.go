@@ -127,7 +127,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	var posts []Post
 
 	postsQuery := `
-	SELECT p.id, p.title, p.content, p.image_url, p.created_at
+	SELECT DISTINCT p.id, p.title, p.content, p.image_url, p.created_at
 	FROM posts p
 	LEFT JOIN post_categories pc ON p.id = pc.post_id
 	WHERE ? = '' OR pc.category_id = ?
