@@ -218,5 +218,5 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 	})
-	http.Redirect(w, r, "/", http.StatusFound)
+	jsonResponse(w, http.StatusOK, "Logout successful")
 }

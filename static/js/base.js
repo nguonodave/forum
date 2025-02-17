@@ -98,4 +98,24 @@ if (loginPromptOverlay) {
   });
 }
 
+async function logout() {
+    // e.preventDefault();
+    console.log(BASE_URL);
+    const response = await fetch('/logout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+    });
+    console.log(response);
+    const data = await response.json().then(response => {
+        // showNotification(response);
+        setTimeout(()=>{
+            window.location.href = "/";
+        }, 200);
+    }).catch(error => {
+        showNotification(error);
+    })
+    console.log(data)
+
+}
+
 

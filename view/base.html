@@ -155,11 +155,9 @@
         <div>
           {{ if .UserLoggedIn }}
           <div>@{{ .User.Username}}</div>
-          <form action="/logout" method="POST">
-            <button href="/logout" class="btn-primary" id="logout-btn">
+            <button class="btn-primary" id="logout-btn" onclick="logout()">
               Logout
             </button>
-          </form>
           {{else}}
           <div>@Guest</div>
           <a href="/login" class="btn-primary">Login</a>
