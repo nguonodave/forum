@@ -23,8 +23,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queriedCategoryId := r.URL.Query().Get("category")
-
 	if r.Method == http.MethodPost {
 		cookie, cookieErr := r.Cookie("session")
 		if cookieErr != nil {
@@ -130,11 +128,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	SELECT p.id, p.title, p.content, p.image_url, p.created_at
 	FROM posts p
 	LEFT JOIN post_categories pc ON p.id = pc.post_id
-	WHERE ? = '' OR pc.category_id = ?
 	ORDER BY p.created_at DESC
 	`
 
-	rows, err := database.Db.Query(postsQuery, queriedCategoryId, queriedCategoryId)
+	rows, err := database.Db.Query(postsQuery)
 	if err != nil {
 		log.Printf("Error fetching posts: %v\n", err)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
