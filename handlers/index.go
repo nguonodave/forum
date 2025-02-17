@@ -99,8 +99,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for _, categoryId := range categories {
-			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`, postId, categoryId)
+		for _, category := range categories {
+			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category) VALUES (?, ?)`, postId, category)
 			if insertCategoriesErr != nil {
 				log.Printf("Error inserting selected categories to database: %v\n", insertCategoriesErr)
 				http.Error(w, "Failed to add categories", http.StatusInternalServerError)

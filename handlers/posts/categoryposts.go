@@ -17,7 +17,7 @@ func CategoryPosts(w http.ResponseWriter, r *http.Request) {
 		handlers.ErrorPage(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 
-	queriedCategoryId := strings.TrimPrefix(r.URL.Path, "/posts/")
+	queriedCategory := strings.TrimPrefix(r.URL.Path, "/posts/")
 
 	// rendering posts to template
 	type Post struct {
@@ -34,11 +34,11 @@ func CategoryPosts(w http.ResponseWriter, r *http.Request) {
 	SELECT DISTINCT p.id, p.title, p.content, p.image_url, p.created_at
 	FROM posts p
 	LEFT JOIN post_categories pc ON p.id = pc.post_id
-	WHERE ? = '' OR pc.category_id = ?
+	WHERE ? = '' OR pc.category = ?
 	ORDER BY p.created_at DESC
 	`
 
-	rows, err := database.Db.Query(postsQuery, queriedCategoryId, queriedCategoryId)
+	rows, err := database.Db.Query(postsQuery, queriedCategory, queriedCategory)
 	if err != nil {
 		log.Printf("Error fetching posts: %v\n", err)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)

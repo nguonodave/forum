@@ -5,7 +5,6 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -72,12 +71,7 @@ func insertDefaultCategories() error {
 	categories := []string{"General", "Technology", "Sports", "Entertainment", "Health"}
 
 	for _, name := range categories {
-		id := uuid.New() // Generate a new UUID
-
-		_, err := Db.Exec(
-			"INSERT INTO categories (id, name) VALUES (?, ?) ON CONFLICT(name) DO NOTHING;",
-			id.String(), name,
-		)
+		_, err := Db.Exec(`INSERT INTO categories (name) VALUES (?) ON CONFLICT(name) DO NOTHING;`, name)
 		if err != nil {
 			return fmt.Errorf("failed to insert category %s: %w", name, err)
 		}
