@@ -66,7 +66,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		})
 
 		jsonResponse(w, http.StatusOK, "Login successful")
-		http.Redirect(w, r, "/", http.StatusFound)
+		return
 
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
