@@ -90,7 +90,7 @@ func Login(DBase *model.Database) http.HandlerFunc {
 			http.Redirect(w, r, "/", http.StatusFound)
 
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		}
 	}
 }
