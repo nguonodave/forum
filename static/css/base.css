@@ -338,16 +338,7 @@ gap: 15px;
    padding: 20px;
   gap: 10px;
   max-width: 100%;
-}
-
-.category-group {
-  display: flex;
-  gap: 5px;
-}
-
-.category-group span {
-  cursor: pointer;
-  user-select: none;
+  color: white;
 }
 
 .form-row {

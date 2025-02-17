@@ -31,7 +31,7 @@
           <div class="category-filters">
             <h3>Categories</h3>
             {{range .Categories}}
-            <a href="#" class="filter-option category-filter">{{.}}</a>
+            <a href="#" class="filter-option category-filter">{{.Name}}</a>
             {{end}}
           </div>
         </div>
@@ -54,6 +54,7 @@
       <!--Posts Feed-->
       <section class="posts-container" aria-label="Posts feed">
         <!--sample post-->
+        {{ range .Posts }}
         <article class="post" aria-labelledby="post-title-1">
           <header class="post-header">
             <div class="user-info">
@@ -61,18 +62,18 @@
                 <div class="user-avatar"></div>
                 <span class="username">username</span>
               </div>
-              <time class="post-time" datetime="2023-11-30T11:30">11.30</time>
+              <time class="post-time" datetime="2023-11-30T11:30">{{ .CreatedTime }}</time>
             </div>
           </header>
 
-          <h2 class="post-title">Post Title</h2>
+          <h2 class="post-title">{{ .Title }}</h2>
 
           <figure class="post-image">
-            <img src="/static/images/peakpx(1).jpg" alt="Post Image" />
+            <img src="{{ .ImagePath }}" alt="Post Image" />
           </figure>
 
           <div class="post-content">
-            <p class="post-content">Post content goes here</p>
+            <p class="post-content">{{ .Content }}</p>
           </div>
 
           <!--Post Actions-->
@@ -143,6 +144,7 @@
             </section>
           </section>
         </article>
+        {{ end }}
       </section>
     </main>
 
@@ -179,19 +181,10 @@
           <input name="title" type="text" id="postTitle" placeholder="Title" required />
           <textarea name="content" id="postContent" placeholder="Content" required></textarea>
           <div class="categories-container">
-            <input type="checkbox" id="categoryTechnology" name="categories" value="Technology" />
-            Technology
-
-            <input type="checkbox" id="categoryDesign" name="categories" value="Design" />
-            Design
-
-            <input type="checkbox" id="categoryDevelopment" name="categories" value="Development" />
-            Development
-
-            <input type="checkbox" id="categoryArt" name="categories" value="Art" />Art
-
-            <input type="checkbox" id="categoryScience" name="categories" value="Science" />
-            Science
+            {{ range .Categories }}
+            <input type="checkbox" id="category{{.Name}}" name="categories" value="{{ .Id }}" />
+            {{.Name}}
+            {{ end }}
           </div>
           <div class="form-row">
             <input type="file" name="image" id="postImage" accept="image/*" />

@@ -42,20 +42,32 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 CREATE TABLE IF NOT EXISTS votes (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    post_id TEXT,
-    comment_id TEXT,
-    type TEXT CHECK(type IN ('like', 'dislike')),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id TEXT PRIMARY KEY, -- Unique ID for the vote
+    user_id TEXT NOT NULL, -- ID of the user who voted
+    post_id TEXT, -- If vote is for a post
+    comment_id TEXT, -- If vote is for a comment
+    type TEXT CHECK(type IN ('like', 'dislike')), -- Only allows 'like' or 'dislike'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp when vote was made
+
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+
+    -- Ensures that a vote is either for a post OR a comment, never both
     CHECK (
         (post_id IS NOT NULL AND comment_id IS NULL) OR 
         (comment_id IS NOT NULL AND post_id IS NULL)
-    ) -- Ensures a vote is for either a post or a comment, never both.
+    )
 );
+
+-- Ensure a user can only vote once per post
+CREATE UNIQUE INDEX IF NOT EXISTS unique_user_vote_post 
+ON votes(user_id, post_id) WHERE post_id IS NOT NULL;
+
+-- Ensure a user can only vote once per comment
+CREATE UNIQUE INDEX IF NOT EXISTS unique_user_vote_comment 
+ON votes(user_id, comment_id) WHERE comment_id IS NOT NULL;
+
 
 CREATE TABLE IF NOT EXISTS sessions (
     token TEXT PRIMARY KEY,
