@@ -47,6 +47,8 @@ document.addEventListener('DOMContentLoaded', _setup);
 // Access the body tag where the data-is-logged-in attribute is set
 var isUserLoggedIn = document.body.getAttribute('data-is-logged-in') === 'true';
 
+
+//Prevent user from performing post actions if not logged in
 const actionButtons = document.querySelectorAll(".like-btn, .dislike-btn, #new-comment-text, #add-comment-btn, .comment-like-btn, .comment-dislike-btn");
 
 actionButtons.forEach((button) => {
