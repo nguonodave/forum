@@ -19,7 +19,7 @@ import (
 // Index handler designed for the application's index page
 func Index(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		ErrorPage(w, "Page not found", http.StatusNotFound)
 		return
 	}
 
