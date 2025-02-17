@@ -157,30 +157,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		posts = append(posts, post)
 	}
 
-	// fetch all categories to render to the create post form
-	categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
-	if categQueryErr != nil {
-		log.Printf("Error fetching categories: %v\n", categQueryErr)
-		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
+	categories, getCategoriesErr := pkg.GetCategories(w)
+	if getCategoriesErr != nil {
 		return
-	}
-	defer categRows.Close()
-
-	var categories []struct {
-		Id   string
-		Name string
-	}
-	for categRows.Next() {
-		var category struct {
-			Id   string
-			Name string
-		}
-		err := categRows.Scan(&category.Id, &category.Name)
-		if err != nil {
-			log.Printf("Error scanning category: %v\n", err)
-			continue
-		}
-		categories = append(categories, category)
 	}
 
 	TemplateError := func(message string, err error) {
