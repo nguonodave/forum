@@ -85,7 +85,6 @@ func ValidateEmail(email string) error {
 	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	re := regexp.MustCompile(emailPattern)
 	match := re.MatchString(email)
-	fmt.Println("email matches regex pattern", match, email)
 	if !match {
 		return fmt.Errorf("invalid email format")
 	}
@@ -111,7 +110,7 @@ func IsEmailTaken(DBase *Database, email string) bool {
 
 func IsUserNameTaken(DBase *Database, username string) bool {
 	if DBase == nil || DBase.Db == nil {
-		fmt.Println("[ERROR] IsUserNameTaken(): Database connection is nil")
+		log.Println("ERROR: IsUserNameTaken(): Database connection is nil")
 		return false
 	}
 	var userExists bool
