@@ -48,12 +48,6 @@ body {
     font-size: 2rem;
 }
 
-.error-message {
-    color: #8899a6;
-    margin-bottom: 30px;
-    text-align: center;
-    line-height: 1.6;
-}
 
 .forum-title {
     color: #00a2ff;
@@ -98,10 +92,6 @@ body {
         font-size: 1.5rem;
     }
 
-    .error-message {
-        font-size: 0.9rem;
-    }
-
     .forum-title {
         font-size: 2rem;
     }
@@ -125,9 +115,6 @@ body {
         font-size: 1.3rem;
     }
 
-    .error-message {
-        font-size: 0.8rem;
-    }
 
     .forum-title {
         font-size: 1.8rem;
