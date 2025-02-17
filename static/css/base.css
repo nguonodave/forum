@@ -269,7 +269,7 @@ align-items: center;
   font-weight: 300;
 }
 
-.category-filters{
+.category-filters, .filter-option{
   display: flex;
   flex-direction: column;
 }
@@ -292,7 +292,8 @@ align-items: center;
   justify-content: center;
   align-items: center;
   padding: 20px;
-  /* box-sizing: border-box; */
+  border: none;
+  box-sizing: border-box;
 }
 
 .create-post-container {
