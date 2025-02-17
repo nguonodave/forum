@@ -108,10 +108,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
-	// Set response header
 	w.Header().Set("Content-Type", "application/json")
 
-	// Only allow POST method
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -175,7 +173,8 @@ func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Send response
+	// Send JSON response
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
 
