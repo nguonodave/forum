@@ -54,7 +54,7 @@ func main() {
 	http.HandleFunc("/", handlers.Index)
 	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(handlers.Login))
 	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(handlers.Register))
-	//http.HandleFunc("/api/vote", handlers.HandleVoteRequest(db))
+	http.HandleFunc("/api/vote", handlers.HandleVoteRequest)
 	http.HandleFunc("/logout", handlers.Logout)
 
 	// Browsers ping for the /favicon.ico icon, redirect to the respective static file
