@@ -9,211 +9,160 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
 </head>
-<body class="{{ if .UserLoggedIn }}logged-in{{ end }}" data-is-logged-in="{{ if .UserLoggedIn }}true{{ else }}false{{ end }}">
-<div class="overlay"></div>
-<div class="container">
-    <aside class="right-sidebar">
-        <div class="logo">
-          <div class="recommendations">
-            <div class="app-icon"></div>
-            <h1 class="monoton-regular">Forum</h1>
-          </div>
+<body class="{{ if .UserLoggedIn }}logged-in{{ end }}" data-is-logged-in="{{ .UserLoggedIn }}">
+  <div class="overlay" aria-hidden="true"></div>
+
+  <div class="container">
+    <!-- Left Sidebar - User Account -->
+    <aside class="left-sidebar" aria-label="User account">
+      <section class="user-account">
+        <div class="user-avatar" role="img" aria-label="User avatar"></div>
+        <div>
+          {{ if .UserLoggedIn }}
+            <div class="username">@{{ .User.Username }}</div>
+            <form action="/logout" method="POST">
+              <button type="submit" class="btn-primary" id="logout-btn">Logout</button>
+            </form>
+          {{ else }}
+            <div class="username">@Guest</div>
+            <a href="/login" class="btn-primary">Login</a>
+          {{ end }}
         </div>
-    
-        <div class="about-section">
-          <h2>Filters</h2>
-          <div class="filters">
-            <div class="category-filters">
-            <h3>Categories</h3>
-            <a class="filter-option category-filter" href="#">Technology</a>
-            <a class="filter-option category-filter" href="#">Design</a>
-            <a class="filter-option category-filter" href="#">Development</a>
-            <a class="filter-option category-filter" href="#">Business</a>
-            <a class="filter-option category-filter" href="#">Marketing</a>
-          </div>
-          </div>
-          
-    
-            {{ if .UserLoggedIn }}
-            <div class="filter-option">My Posts</div>
-            <div class="filter-option">Liked Posts</div>
-            {{end}}
-        </div> 
+      </section>
     </aside>
 
-    <main class="content-section">
-       
-        <div class="search-bar">
-            <div class="user-avatar"></div>
-            <input 
-                type="text" 
-                placeholder="What's on your mind? " 
-                class="post-input" 
-                onclick="handleCreatePost()"
-                readonly>
-                
-        </div>
+    <!-- Main Content -->
+    <main class="content-section" aria-label="Main content">
+      <!-- Create Post Trigger -->
+      <section class="create-post-trigger" aria-label="Create new post">
+        <div class="user-avatar" role="img" aria-label="User avatar"></div>
+        <input type="text" 
+               placeholder="What's on your mind?"
+               class="post-input"
+               onclick="handleCreatePost()"
+               readonly
+               aria-label="Click to create new post">
+      </section>
 
-        <div class="posts-container">
-            <div class="post">
-                <div class="post-header">
-                    <div class="user-info">
-                        <div class="header">
-                        <div class="user-avatar"></div>
-                        <span class="username">Fana</span>
-                        </div>
-                        <div>
-                        <span class="post-time">11.30</span>
-                        </div>
-                    </div>
-                </div>
-        
-                <h2 class="post-title">Hello</h2>
-        
-                <div class="post-image">
-                    <img src="/static/images/peakpx(1).jpg" alt="Post Image">
-                </div>
-        
-                <p class="post-content">I love Jinx</p>
-                <!--Post Actions-->
-                <div id="post-a">
-                <div class="post-actions">
-                  <button class="like-btn">
-                    <svg class="icon" viewBox="0 0 24 24">
-                      <path d="M0 0h24v24H0z" fill="none" />
-                      <path
-                        d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.92 7 8.42 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z" />
-                    </svg>
-                    Like (<span class="like-count"></span>)
-                  </button>
-                  <button class="dislike-btn">
-                    <svg class="icon" viewBox="0 0 24 24">
-                      <path d="M0 0h24v24H0z" fill="none" />
-                      <path
-                        d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
-                    </svg>
-                    Dislike (<span class="dislike-count"></span>)
-                  </button>
-                  <button class="comment-btn">
-                    <svg class="icon" viewBox="0 0 24 24">
-                      <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-16z" />
-                    </svg>
-                    Comment (<span class="comment-count">2</span>)
-                  </button>
-                </div>
+      <!-- Posts Feed -->
+      <section class="posts-container" aria-label="Posts feed">
+        <!-- Sample Post (would be repeated in a loop) -->
+        <article class="post" aria-labelledby="post-title-1">
+          <header class="post-header">
+            <div class="user-info">
+              <div class="header">
+                <div class="user-avatar" role="img" aria-label="User avatar"></div>
+                <span class="username">Fana</span>
+              </div>
+              <time class="post-time" datetime="2023-11-30T11:30">11.30</time>
+            </div>
+          </header>
 
-                <div class="add-comment-section">
-                  <input type="text" id="new-comment-text" placeholder="Add a comment">
-                  <button id="add-comment-btn"> Comment</button>
-                </div>
+          <h2 id="post-title-1" class="post-title">Hello</h2>
 
+          <figure class="post-image">
+            <img src="/static/images/peakpx(1).jpg" alt="Jinx character artwork">
+          </figure>
 
-                <div class="comments-section" style="display: none;">
-                  <div class="comment">
-                    <p>This is a great post!</p>
-                    <div class="comment-actions">
-                      <button class="comment-like-btn">
-                        <svg class="icon" viewBox="0 0 24 24">
-                          <path d="M0 0h24v24H0z" fill="none" />
-                          <path
-                            d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.92 7 8.42 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z" />
-                        </svg>
-                        (<span class="comment-like-count">0</span>)
-                      </button>
-                      <button class="comment-dislike-btn">
-                        <svg class="icon" viewBox="0 0 24 24">
-                          <path d="M0 0h24v24H0z" fill="none" />
-                          <path
-                            d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
-                        </svg>
-                        (<span class="comment-dislike-count">0</span>)
-                      </button>
-                    </div>
-                  </div>
-                  <div class="comment">
-                    <p>I disagree with the author.</p>
-                    <div class="comment-actions">
-                      <button class="comment-like-btn">
-                        <svg class="icon" viewBox="0 0 24 24">
-                          <path d="M0 0h24v24H0z" fill="none" />
-                          <path
-                            d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.92 7 8.42 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z" />
-                        </svg>
-                        (<span class="comment-like-count">0</span>)
-                      </button>
-                      <button class="comment-dislike-btn">
-                        <svg class="icon" viewBox="0 0 24 24">
-                          <path d="M0 0h24v24H0z" fill="none" />
-                          <path
-                            d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
-                        </svg>
-                        (<span class="comment-dislike-count">0</span>)
-                      </button>
-                    </div>
-                  </div>
-                </div>
-               </div>
+          <div class="post-content">
+            <p>I love Jinx</p>
+          </div>
+
+          <!-- Post Interactions -->
+          <section class="post-actions" aria-label="Post interactions">
+            <div class="reaction-buttons">
+              <button class="like-btn" aria-label="Like post">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.92 7 8.42 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z" />
+                </svg>
+                <span class="like-count">0</span>
+              </button>
               
-                
-        {{ if .UserLoggedIn }}
-        <div id="createPostOverlay" class="create-post-overlay" style="display:none;">
-            <div id="createPostDiv" class="create-post-container">
-                    <button class="close-create-post" onclick="closeCreatePostOverlay()">&times;</button>
-                    <h2>Create a Post</h2>
-                    <form action="/" method="POST" enctype="multipart/form-data" id="createPostForm">
-                        <input name="title" type="text" id="postTitle" placeholder="Title" required>
-                        <textarea name="content" id="postContent" placeholder="Content" required></textarea>
-                        <div class="categories-container">
-                            <input type="checkbox" id="categoryTechnology" name="categories" value="Technology"> Technology
-                        
-                            <input type="checkbox" id="categoryDesign" name="categories" value="Design"> Design 
-                          
-                            <input type="checkbox" id="categoryDevelopment" name="categories" value="Development"> Development
-                          
-                            <input type="checkbox" id="categoryArt" name="categories" value="Art">Art
-                    
-                            <input type="checkbox" id="categoryScience" name="categories" value="Science"> Science
-                      </div>
-                      <div class="form-row">
-                        <input type="file" name="image" id="postImage" accept="image/*">
-                        <button type="submit" class="submit-post-btn">Post</button>
-                    </div>
-                </form>
+              <button class="dislike-btn" aria-label="Dislike post">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
+                </svg>
+                <span class="dislike-count">0</span>
+              </button>
             </div>
-        </div>
-        {{ else }}
-        <div id="loginPromptOverlay" class="create-post-overlay" style="display:none;">
-            <div class="create-post-container login-prompt">
-                <h2>Please Login</h2>
-                <button class="close-create-post" onclick="closeLoginPromptOverlay()">&times;</button>
-                <p>You need to be logged in to perform this action.</p>
-                <a href="/login" class="btn-primary">Go to Login</a>
+
+            <button class="comment-btn" aria-expanded="false" aria-controls="comments-1">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-16z" />
+              </svg>
+              <span class="comment-count">2</span>
+            </button>
+          </section>
+
+          <!-- Comments Section -->
+          <section class="comments-section" id="comments-1" hidden>
+            <div class="comment-form">
+              <label for="comment-input-1" class="sr-only">Add a comment</label>
+              <input type="text" id="comment-input-1" placeholder="Add a comment">
+              <button class="comment-submit">Comment</button>
             </div>
-             </div>
-            {{ end }}
-       
-        
+
+            <div class="comment-list">
+              <!-- Sample Comments -->
+              <article class="comment" aria-label="Comment by user">
+                <p>This is a great post!</p>
+                <div class="comment-actions">
+                  <!-- Comment reaction buttons -->
+                </div>
+              </article>
+            </div>
+          </section>
+        </article>
+      </section>
     </main>
 
-    <aside class="left-sidebar">
-        <div class="user-account">
-          <div class="user-avatar"></div>
-            <div>
-                {{ if .UserLoggedIn }}
-                <div>@{{ .User.Username}}</div>
-                <form action="/logout" method="POST">
-                    <button href="/logout" class="btn-primary" id="logout-btn">Logout</button>
-                </form>
-                {{else}}
-                <div>@Guest</div>
-                <a href="/login" class="btn-primary">Login</a>
-                {{end}}
-            </div>
-        </div>
-    </aside>
-</div>
+    <!-- Right Sidebar - Filters -->
+    <aside class="right-sidebar" aria-label="Filters and categories">
+      <section class="logo-section">
+        <h1 class="monoton-regular">Forum</h1>
+        <div class="app-icon" role="img" aria-label="Forum logo"></div>
+      </section>
 
-<script src="/static/js/base.js"></script>
-<script src="/static/js/post-actions.js"></script>
+      <nav class="filters-section" aria-label="Post filters">
+        <h2>Filters</h2>
+        <div class="category-filters">
+          <h3>Categories</h3>
+          {{ range .Categories }}
+            <a href="#" class="category-filter">{{ . }}</a>
+          {{ end }}
+        </div>
+
+        {{ if .UserLoggedIn }}
+          <div class="user-filters">
+            <button class="filter-option">My Posts</button>
+            <button class="filter-option">Liked Posts</button>
+          </div>
+        {{ end }}
+      </nav>
+    </aside>
+  </div>
+
+  <!-- Modals -->
+  {{ if .UserLoggedIn }}
+    <dialog id="createPostModal" class="create-post-overlay">
+      <form action="/" method="POST" enctype="multipart/form-data">
+        <button type="button" class="close-btn" onclick="closeCreatePostModal()" aria-label="Close">
+          &times;
+        </button>
+        <h2>Create Post</h2>
+        <!-- Form fields -->
+      </form>
+    </dialog>
+  {{ else }}
+    <dialog id="loginPromptModal" class="login-overlay">
+      <div class="login-prompt">
+        <h2>Login Required</h2>
+        <a href="/login" class="btn-primary">Go to Login</a>
+      </div>
+    </dialog>
+  {{ end }}
+
+  <script src="/static/js/base.js"></script>
+  <script src="/static/js/post-actions.js"></script>
 </body>
 </html>
