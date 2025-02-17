@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -34,7 +35,8 @@ func main() {
 		} else {
 			log.Printf("saving logs to: %s\n", logFilePath)
 		}
-		log.SetOutput(logger)
+		w := io.MultiWriter(os.Stdout, logger)
+		log.SetOutput(w)
 		defer fileio.Close(logger)
 	}
 
