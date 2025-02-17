@@ -23,6 +23,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	queriedCategoryId := r.URL.Query().Get("category")
+
 	if r.Method == http.MethodPost {
 		cookie, cookieErr := r.Cookie("session")
 		if cookieErr != nil {
@@ -108,14 +110,14 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// Redirect to the home page
+		// redirect to the home page after creating post
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
 	// rendering posts to template
 	type Post struct {
-		AuthorId    string
+		Id          string
 		Title       string
 		Content     string
 		ImagePath   string
@@ -124,11 +126,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	var posts []Post
 
-	rows, err := database.Db.Query(`
-		SELECT user_id, title, content, image_url, created_at
-		FROM posts
-		ORDER BY created_at DESC
-	`)
+	postsQuery := `
+	SELECT p.id, p.title, p.content, p.image_url, p.created_at
+	FROM posts p
+	LEFT JOIN post_categories pc ON p.id = pc.post_id
+	WHERE ? = '' OR pc.category_id = ?
+	ORDER BY p.created_at DESC
+	`
+
+	rows, err := database.Db.Query(postsQuery, queriedCategoryId, queriedCategoryId)
 	if err != nil {
 		log.Printf("Error fetching posts: %v\n", err)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
@@ -139,14 +145,14 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	// populate the post struct
 	for rows.Next() {
 		var post Post
-		var imagePath sql.NullString // Use sql.NullString to handle NULL values
-		err := rows.Scan(&post.AuthorId, &post.Title, &post.Content, &imagePath, &post.CreatedTime)
+		var imagePath sql.NullString // use sql.NullString to handle NULL values
+		err := rows.Scan(&post.Id, &post.Title, &post.Content, &imagePath, &post.CreatedTime)
 		if err != nil {
 			log.Printf("Error scanning post: %v\n", err)
 			continue
 		}
 
-		// If imagePath is valid, assign it to the post
+		// if imagePath is valid, assign it to the post
 		if imagePath.Valid {
 			post.ImagePath = imagePath.String
 		}
@@ -179,8 +185,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 		categories = append(categories, category)
 	}
-
-	fmt.Println(categories)
 
 	TemplateError := func(message string, err error) {
 		http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
