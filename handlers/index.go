@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
+	"forum/controller"
 	"io"
 	"log"
 	"net/http"
@@ -38,9 +39,18 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		sessionQueryErr := database.Db.QueryRow("SELECT user_id FROM sessions WHERE token = ?", cookie.Value).Scan(&userId)
 		if sessionQueryErr != nil {
 			log.Printf("Error fetching session's user id from database: %v\n", sessionQueryErr)
-			http.Error(w, "An unexpected error occured. Please try again later", http.StatusInternalServerError)
+			http.Error(w, "An unexpected error occurred. Please try again later", http.StatusInternalServerError)
 			return
 		}
+		// get the username from users table
+		var username string
+		usernameGetError := database.Db.QueryRow("SELECT username FROM users WHERE id = ?", userId).Scan(&username)
+		if usernameGetError != nil {
+			log.Printf("Error fetching username from database: %v\n", usernameGetError)
+			http.Error(w, "An unexpected error occurred. Please try again later", http.StatusInternalServerError)
+			return
+		}
+		fmt.Println("user id", userId)
 
 		// 20 MB limit
 		maxSizeErr := r.ParseMultipartForm(20 << 20)
@@ -94,7 +104,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		postId := uuid.New().String()
 		createdTime := time.Now()
 
-		_, insertPostErr := database.Db.Exec(`INSERT INTO posts (id, user_id, title, content, image_url, created_at) VALUES (?, ?, ?, ?, ?, ?)`, postId, userId, title, content, imagePath, createdTime)
+		_, insertPostErr := database.Db.Exec(`INSERT INTO posts (username , id, user_id, title, content, image_url, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, username, postId, userId, title, content, imagePath, createdTime)
 		if insertPostErr != nil {
 			log.Printf("Error inserting post to database: %v\n", insertPostErr)
 			http.Error(w, "Failed to add post", http.StatusInternalServerError)
@@ -117,17 +127,20 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	// rendering posts to template
 	type Post struct {
+		Username    string
 		Id          string
 		Title       string
 		Content     string
 		ImagePath   string
-		CreatedTime time.Time
+		CreatedTime string
+		Likes       int
+		Dislikes    int
 	}
 
 	var posts []Post
 
 	postsQuery := `
-	SELECT p.id, p.title, p.content, p.image_url, p.created_at
+	SELECT DISTINCT p.username , p.id, p.title, p.content, p.image_url, p.created_at
 	FROM posts p
 	LEFT JOIN post_categories pc ON p.id = pc.post_id
 	WHERE ? = '' OR pc.category_id = ?
@@ -141,16 +154,20 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-
+	var post Post
 	// populate the post struct
 	for rows.Next() {
-		var post Post
+
 		var imagePath sql.NullString // use sql.NullString to handle NULL values
-		err := rows.Scan(&post.Id, &post.Title, &post.Content, &imagePath, &post.CreatedTime)
+		var formatTime time.Time
+
+		err := rows.Scan(&post.Username, &post.Id, &post.Title, &post.Content, &imagePath, &formatTime)
 		if err != nil {
 			log.Printf("Error scanning post: %v\n", err)
 			continue
 		}
+
+		post.CreatedTime = formatTime.Format(time.ANSIC)
 
 		// if imagePath is valid, assign it to the post
 		if imagePath.Valid {
@@ -158,6 +175,13 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 
 		posts = append(posts, post)
+	}
+
+	for _, p := range posts {
+		p.Likes, p.Dislikes, err = controller.GetLikesDislikesForPost(database.Db, p.Username, p.Id)
+		if err != nil {
+			log.Printf("Error fetching post likes: %v\n", err)
+		}
 	}
 
 	// fetch all categories to render to the create post form
@@ -191,10 +215,13 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s: %v", message, err)
 	}
 
+	isLoggedIn, username := pkg.UserLoggedIn(r)
+	fmt.Println(isLoggedIn, username)
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
 		"Posts":        posts,
-		"UserLoggedIn": pkg.UserLoggedIn(r),
+		"UserLoggedIn": isLoggedIn,
 		"Categories":   categories,
+		"Username":     username,
 	})
 	if execTemplateErr != nil {
 		TemplateError("error executing template", execTemplateErr)

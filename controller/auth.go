@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -102,6 +103,7 @@ func HandleLogin(email, username, password string) (string, time.Time, error) {
 	// Remove any existing sessions for this user before creating a new one
 	_, err := database.Db.Exec("DELETE FROM sessions WHERE user_id = ?", user.ID)
 	if err != nil {
+		log.Println("ERROR:", err)
 		return "", time.Time{}, errors.New("internal server error")
 	}
 
@@ -132,7 +134,7 @@ func ValidateSession(next http.HandlerFunc) http.HandlerFunc {
 		var expiresAt time.Time
 		var username string
 
-		row := database.Db.QueryRow("SELECT user_id, username expires_at FROM sessions WHERE token = ? LIMIT 1",
+		row := database.Db.QueryRow("SELECT user_id, expires_at expires_at FROM sessions WHERE token = ? LIMIT 1",
 			cookie.Value,
 		)
 
@@ -151,12 +153,56 @@ func ValidateSession(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "session expired", http.StatusUnauthorized)
 			return
 		}
-
-		// store user id in context for next handlers
-		ctx := context.WithValue(r.Context(), "userID", userID)
+		fmt.Println("user id", userID)
+		err = database.Db.QueryRow("SELECT username FROM users WHERE id = ?", userID).Scan(&username)
+		if err != nil {
+			log.Println("ERROR: failed to get username")
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "userId", userID)
 		ctx = context.WithValue(ctx, "username", username)
-		// if you want to retrieve user id in the next handlers use the syntax below:
-		// userID = r.Context().Value("userID").(string)
 		next(w, r.WithContext(ctx))
 	}
+}
+
+func GetLikesDislikesForPost(db *sql.DB, userId, postId string) (int, int, error) {
+	query := `
+        SELECT 
+            SUM(CASE WHEN type = 'like' THEN 1 ELSE 0 END) AS likes,
+            SUM(CASE WHEN type = 'dislike' THEN 1 ELSE 0 END) AS dislikes
+        FROM votes
+        WHERE user_id = ? AND post_id = ?
+    `
+
+	var likes, dislikes sql.NullInt64
+	row := db.QueryRow(query, userId, postId)
+	err := row.Scan(&likes, &dislikes)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	// Handle NULL values by converting them to 0
+	return int(likes.Int64), int(dislikes.Int64), nil
+}
+
+// Get likes and dislikes for a certain comment and also return an error
+func GetLikesDislikesForComment(db *sql.DB, userId, commentId string) (int, int, error) {
+	query := `
+        SELECT 
+            SUM(CASE WHEN type = 'like' THEN 1 ELSE 0 END) AS likes,
+            SUM(CASE WHEN type = 'dislike' THEN 1 ELSE 0 END) AS dislikes
+        FROM votes
+        WHERE user_id = ? AND  = ?
+    `
+
+	var likes, dislikes sql.NullInt64
+	row := db.QueryRow(query, userId, commentId)
+	err := row.Scan(&likes, &dislikes)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	// Handle NULL values by converting them to 0
+	return int(likes.Int64), int(dislikes.Int64), nil
 }
