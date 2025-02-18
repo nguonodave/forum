@@ -174,14 +174,18 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			post.ImagePath = imagePath.String
 		}
 
-		posts = append(posts, post)
-	}
-
-	for _, p := range posts {
-		p.Likes, p.Dislikes, err = controller.GetLikesDislikesForPost(database.Db, p.Username, p.Id)
 		if err != nil {
 			log.Printf("Error fetching post likes: %v\n", err)
 		}
+		posts = append(posts, post)
+	}
+	for i := range posts { // Use index-based iteration to modify slice elements
+		fmt.Println("before", posts[i].Dislikes, posts[i].Likes)
+		err := controller.GetLikesDislikesForPost(database.Db, posts[i].Id, &posts[i].Likes, &posts[i].Dislikes)
+		if err != nil {
+			log.Printf("Error fetching post likes: %v\n", err)
+		}
+		fmt.Println("AFTER", posts[i].Dislikes, posts[i].Likes)
 	}
 
 	// fetch all categories to render to the create post form
@@ -215,6 +219,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s: %v", message, err)
 	}
 
+	fmt.Printf("????%+v\n", posts)
 	isLoggedIn, username := pkg.UserLoggedIn(r)
 	fmt.Println(isLoggedIn, username)
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{

@@ -166,24 +166,23 @@ func ValidateSession(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func GetLikesDislikesForPost(db *sql.DB, userId, postId string) (int, int, error) {
+func GetLikesDislikesForPost(db *sql.DB, postId string, Likes *int, Dislikes *int) error {
 	query := `
         SELECT 
-            SUM(CASE WHEN type = 'like' THEN 1 ELSE 0 END) AS likes,
-            SUM(CASE WHEN type = 'dislike' THEN 1 ELSE 0 END) AS dislikes
+            COALESCE(SUM(CASE WHEN type = 'like' THEN 1 ELSE 0 END), 0) AS likes,
+            COALESCE(SUM(CASE WHEN type = 'dislike' THEN 1 ELSE 0 END), 0) AS dislikes
         FROM votes
-        WHERE user_id = ? AND post_id = ?
+        WHERE post_id = ?
     `
 
-	var likes, dislikes sql.NullInt64
-	row := db.QueryRow(query, userId, postId)
-	err := row.Scan(&likes, &dislikes)
+	// Scan directly into the provided pointers
+	err := db.QueryRow(query, postId).Scan(Likes, Dislikes)
 	if err != nil {
-		return 0, 0, err
+		return err
 	}
+	fmt.Println(">>>>>", *Likes, *Dislikes) // Debugging output
 
-	// Handle NULL values by converting them to 0
-	return int(likes.Int64), int(dislikes.Int64), nil
+	return nil
 }
 
 // Get likes and dislikes for a certain comment and also return an error
