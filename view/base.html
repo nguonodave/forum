@@ -55,7 +55,7 @@
       <section class="posts-container" aria-label="Posts feed">
         <!--sample post-->
         {{ range .Posts }}
-        <article class="post" aria-labelledby="post-title-1">
+        <article class="post" data-post-id="{{ .Id }}" aria-labelledby="post-title-1">
           <header class="post-header">
             <div class="user-info">
               <div class="header">
