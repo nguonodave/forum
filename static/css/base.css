@@ -131,6 +131,12 @@ body {
   max-width: 500px;
   transition: background-color 0.3 ease-in-out;
   margin-left: 10px;
+  cursor: pointer;
+}
+
+.search-bar:active, .search-bar:hover{
+  color:#00a2ff;
+  border: 1px solid #00a2ff;
 }
 
 .post-input {
@@ -143,9 +149,6 @@ body {
   padding: 10px;
 }
 
-.search-bar:hover {
-  color: #e0e3e8; /* Subtle color change on hover */
-}
 
 .post-input::placeholder {
   color: #e0e3e8;
