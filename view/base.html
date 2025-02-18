@@ -183,19 +183,10 @@
           <input name="title" type="text" id="postTitle" placeholder="Title" required />
           <textarea name="content" id="postContent" placeholder="Content" required></textarea>
           <div class="categories-container">
-            <input type="checkbox" id="categoryTechnology" name="categories" value="Technology" />
-            Technology
-
-            <input type="checkbox" id="categoryDesign" name="categories" value="Design" />
-            Design
-
-            <input type="checkbox" id="categoryDevelopment" name="categories" value="Development" />
-            Development
-
-            <input type="checkbox" id="categoryArt" name="categories" value="Art" />Art
-
-            <input type="checkbox" id="categoryScience" name="categories" value="Science" />
-            Science
+            {{ range .Categories }}
+            <input type="checkbox" id="category{{.Name}}" name="categories" value="{{ .Id }}" />
+            {{.Name}}
+            {{ end }}
           </div>
           <div class="form-row">
             <input type="file" name="image" id="postImage" accept="image/*" />
