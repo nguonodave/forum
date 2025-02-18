@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"forum/controller"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +11,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"forum/handlers/posts"
 	"forum/middlewares"
 
 	"forum/database"
@@ -36,8 +35,7 @@ func main() {
 		} else {
 			log.Printf("saving logs to: %s\n", logFilePath)
 		}
-		w := io.MultiWriter(os.Stdout, logger)
-		log.SetOutput(w)
+		log.SetOutput(logger)
 		defer fileio.Close(logger)
 	}
 
@@ -57,7 +55,8 @@ func main() {
 	http.HandleFunc("/", handlers.Index)
 	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(handlers.Login))
 	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(handlers.Register))
-	http.HandleFunc("/api/vote", controller.ValidateSession(handlers.HandleVoteRequest))
+	http.HandleFunc("/posts/", posts.CategoryPosts)
+	http.HandleFunc("/api/vote", handlers.HandleVoteRequest)
 	http.HandleFunc("/logout", handlers.Logout)
 
 	// Browsers ping for the /favicon.ico icon, redirect to the respective static file

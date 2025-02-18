@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
-	"forum/controller"
 	"io"
 	"log"
 	"net/http"
@@ -24,8 +23,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queriedCategoryId := r.URL.Query().Get("category")
-
 	if r.Method == http.MethodPost {
 		cookie, cookieErr := r.Cookie("session")
 		if cookieErr != nil {
@@ -39,18 +36,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		sessionQueryErr := database.Db.QueryRow("SELECT user_id FROM sessions WHERE token = ?", cookie.Value).Scan(&userId)
 		if sessionQueryErr != nil {
 			log.Printf("Error fetching session's user id from database: %v\n", sessionQueryErr)
-			http.Error(w, "An unexpected error occurred. Please try again later", http.StatusInternalServerError)
+			http.Error(w, "An unexpected error occured. Please try again later", http.StatusInternalServerError)
 			return
 		}
-		// get the username from users table
-		var username string
-		usernameGetError := database.Db.QueryRow("SELECT username FROM users WHERE id = ?", userId).Scan(&username)
-		if usernameGetError != nil {
-			log.Printf("Error fetching username from database: %v\n", usernameGetError)
-			http.Error(w, "An unexpected error occurred. Please try again later", http.StatusInternalServerError)
-			return
-		}
-		fmt.Println("user id", userId)
 
 		// 20 MB limit
 		maxSizeErr := r.ParseMultipartForm(20 << 20)
@@ -104,15 +92,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		postId := uuid.New().String()
 		createdTime := time.Now()
 
-		_, insertPostErr := database.Db.Exec(`INSERT INTO posts (username , id, user_id, title, content, image_url, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`, username, postId, userId, title, content, imagePath, createdTime)
+		_, insertPostErr := database.Db.Exec(`INSERT INTO posts (id, user_id, title, content, image_url, created_at) VALUES (?, ?, ?, ?, ?, ?)`, postId, userId, title, content, imagePath, createdTime)
 		if insertPostErr != nil {
 			log.Printf("Error inserting post to database: %v\n", insertPostErr)
 			http.Error(w, "Failed to add post", http.StatusInternalServerError)
 			return
 		}
 
-		for _, categoryId := range categories {
-			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`, postId, categoryId)
+		for _, category := range categories {
+			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category) VALUES (?, ?)`, postId, category)
 			if insertCategoriesErr != nil {
 				log.Printf("Error inserting selected categories to database: %v\n", insertCategoriesErr)
 				http.Error(w, "Failed to add categories", http.StatusInternalServerError)
@@ -127,47 +115,39 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	// rendering posts to template
 	type Post struct {
-		Username    string
 		Id          string
 		Title       string
 		Content     string
 		ImagePath   string
-		CreatedTime string
-		Likes       int
-		Dislikes    int
+		CreatedTime time.Time
 	}
 
 	var posts []Post
 
 	postsQuery := `
-	SELECT DISTINCT p.username , p.id, p.title, p.content, p.image_url, p.created_at
+	SELECT p.id, p.title, p.content, p.image_url, p.created_at
 	FROM posts p
 	LEFT JOIN post_categories pc ON p.id = pc.post_id
-	WHERE ? = '' OR pc.category_id = ?
 	ORDER BY p.created_at DESC
 	`
 
-	rows, err := database.Db.Query(postsQuery, queriedCategoryId, queriedCategoryId)
+	rows, err := database.Db.Query(postsQuery)
 	if err != nil {
 		log.Printf("Error fetching posts: %v\n", err)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
-	var post Post
+
 	// populate the post struct
 	for rows.Next() {
-
+		var post Post
 		var imagePath sql.NullString // use sql.NullString to handle NULL values
-		var formatTime time.Time
-
-		err := rows.Scan(&post.Username, &post.Id, &post.Title, &post.Content, &imagePath, &formatTime)
+		err := rows.Scan(&post.Id, &post.Title, &post.Content, &imagePath, &post.CreatedTime)
 		if err != nil {
 			log.Printf("Error scanning post: %v\n", err)
 			continue
 		}
-
-		post.CreatedTime = formatTime.Format(time.ANSIC)
 
 		// if imagePath is valid, assign it to the post
 		if imagePath.Valid {
@@ -177,37 +157,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		posts = append(posts, post)
 	}
 
-	for _, p := range posts {
-		p.Likes, p.Dislikes, err = controller.GetLikesDislikesForPost(database.Db, p.Username, p.Id)
-		if err != nil {
-			log.Printf("Error fetching post likes: %v\n", err)
-		}
-	}
-
-	// fetch all categories to render to the create post form
-	categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
-	if categQueryErr != nil {
-		log.Printf("Error fetching categories: %v\n", categQueryErr)
-		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
+	categories, getCategoriesErr := pkg.GetCategories(w)
+	if getCategoriesErr != nil {
 		return
-	}
-	defer categRows.Close()
-
-	var categories []struct {
-		Id   string
-		Name string
-	}
-	for categRows.Next() {
-		var category struct {
-			Id   string
-			Name string
-		}
-		err := categRows.Scan(&category.Id, &category.Name)
-		if err != nil {
-			log.Printf("Error scanning category: %v\n", err)
-			continue
-		}
-		categories = append(categories, category)
 	}
 
 	TemplateError := func(message string, err error) {
@@ -215,13 +167,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s: %v", message, err)
 	}
 
-	isLoggedIn, username := pkg.UserLoggedIn(r)
-	fmt.Println(isLoggedIn, username)
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
 		"Posts":        posts,
-		"UserLoggedIn": isLoggedIn,
+		"UserLoggedIn": pkg.UserLoggedIn(r),
 		"Categories":   categories,
-		"Username":     username,
 	})
 	if execTemplateErr != nil {
 		TemplateError("error executing template", execTemplateErr)

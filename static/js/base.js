@@ -45,8 +45,7 @@ function _setup() {
 
 document.addEventListener('DOMContentLoaded', _setup);
 // Access the body tag where the data-is-logged-in attribute is set
-const isUserLoggedIn = document.body.getAttribute('data-is-logged-in') === 'true';
-console.log(">>>>",isUserLoggedIn)
+var isUserLoggedIn = document.body.getAttribute('data-is-logged-in') === 'true';
 
 
 //Prevent user from performing post actions if not logged in
@@ -78,12 +77,10 @@ function closeCreatePostOverlay() {
   document.getElementById('createPostOverlay').style.display = 'none';
 }
 
-const loginPromptOverlay = document.getElementById('loginPromptOverlay');
-const createPostOverlay = document.getElementById('createPostOverlay');
-
 function closeLoginPromptOverlay() {
   document.getElementById('loginPromptOverlay').style.display = 'none';
 }
+
 
 if (createPostOverlay) {
   createPostOverlay.addEventListener('click', function (event) {
@@ -100,72 +97,5 @@ if (loginPromptOverlay) {
     }
   });
 }
-document.getElementById('logout-btn').addEventListener('click',logout)
-async function logout() {
-    try{
-        const response = await fetch('/logout', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-        });
-        if (response.ok){
-            const data = await response.json();
-            showNotificationAfterAuthentication(data.message, 'success');
-            window.location.href = '/';//redirect to home
-        }else{
-            const errData = await response.json();
-            showNotificationAfterAuthentication(errData.message || 'logout error', 'error');
-        }
-    }catch(error){
-        console.log(error);
-        showNotificationAfterAuthentication('an error occurred during logout','error');
-    }
-}
 
-function showNotificationAfterAuthentication(message, type = 'success') {
-    const notification = document.getElementById('notify');
-    notification.textContent = message;
-    notification.classList.remove('success', 'error', 'warning', 'info', 'show'); // Remove all previous classes
-    notification.classList.add(type, 'show');
 
-    setTimeout(() => {
-        notification.classList.remove(type, 'show');
-    }, 1200);
-}
-
-const likeBtn  = document.getElementById('like-btn');
-likeBtn.addEventListener('click', async () => {
-    try {
-        const response = await fetch('/api/vote', {
-            method:'POST',
-            headers: {'Content-Type': 'application/json'},
-        });
-        if (response.ok){
-            showNotificationAfterAuthentication('liked', 'success');
-        }else{
-            const errData = await response.json();
-            showNotificationAfterAuthentication(errData.message, 'error');
-        }
-    }catch(error){
-        console.log(error);
-        showNotificationAfterAuthentication(error.message,'error');
-    }
-})
-
-const dislikeBtn = document.getElementById('dislike-btn');
-dislikeBtn.addEventListener('click', async () => {
-    try {
-        const response = await fetch('/api/vote', {
-            method:'POST',
-            headers: {'Content-Type': 'application/json'},
-        });
-        if (response.ok){
-            showNotificationAfterAuthentication('disliked', 'info');
-        }else{
-            const errData = await response.json();
-            showNotificationAfterAuthentication(errData.message, 'error');
-        }
-    }catch(error){
-        console.log(error);
-        showNotificationAfterAuthentication(error.message,'error');
-    }
-})
