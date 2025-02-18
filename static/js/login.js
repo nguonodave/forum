@@ -145,7 +145,7 @@ function showNotification(message, type = 'success') {
 
     setTimeout(() => {
         notification.classList.remove(type, 'show');
-    }, 1200);
+    }, 300);
 }
 
 const signupPassword = document.getElementById('signupPassword');

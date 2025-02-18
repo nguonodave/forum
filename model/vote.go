@@ -2,7 +2,6 @@ package model
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"time"
 
@@ -42,7 +41,6 @@ func HandleVote(req *VoteRequest) (*VoteResponse, error) {
 		return nil, xerrors.ErrInvalidVoteType
 	}
 
-	fmt.Printf("%+v,\n", req)
 	// Start transaction
 	tx, err := database.Db.Begin()
 	if err != nil {
@@ -66,19 +64,19 @@ func HandleVote(req *VoteRequest) (*VoteResponse, error) {
 
 	err = tx.QueryRow(query, args...).Scan(&existingVoteID, &existingVoteType)
 
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err != nil && err != sql.ErrNoRows {
 		return nil, fmt.Errorf("failed to check existing vote: %v", err)
 	}
 
 	// Handle vote based on existing state
-	if errors.Is(err, sql.ErrNoRows) {
+	if err == sql.ErrNoRows {
 		// Create new vote
-		newVote := uuid.New().String()
+		newVote := uuid.New()
 		query = `
 			INSERT INTO votes (id, user_id, post_id, comment_id, type, created_at)
 			VALUES (?, ?, ?, ?, ?, ?)
 		`
-		_, err = tx.Exec(query, newVote, req.UserID, req.PostID, req.CommentID, req.Type, time.Now().Format(time.ANSIC))
+		_, err = tx.Exec(query, newVote, req.UserID, req.PostID, req.CommentID, req.Type, time.Now())
 		if err != nil {
 			return nil, fmt.Errorf("failed to create vote: %v", err)
 		}
