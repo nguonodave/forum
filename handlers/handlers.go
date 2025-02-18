@@ -110,16 +110,39 @@ func Register(w http.ResponseWriter, r *http.Request) {
 func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	log.Println("/api/vote has been hit...")
 	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Get user ID from session
-	userID, err := helperfunc.GetUserIDFromSession(r)
-	if err != nil {
+	// since this handler is wrapped with the Validate Session handler, which comes with user id and username already from r.Context no need to get user id again
+	ctxUserID, ok := r.Context().Value("userId").(string)
+	fmt.Println("user id from context and ok", ctxUserID, ok)
+	if !ok || ctxUserID == "" {
+		fmt.Println(3)
 		http.Error(w, "User not authenticated", http.StatusUnauthorized)
 		return
+	}
+	fmt.Println(4)
+	// parse the user id to validate if its a valid uuid
+	userId, err := uuid.Parse(ctxUserID)
+	fmt.Println(5)
+	if err != nil {
+		fmt.Println(6)
+		http.Error(w, "Invalid user ID", http.StatusUnauthorized)
+		return
+	}
+
+	if userId.String() == "" {
+		fmt.Println(7)
+		userId, err = helperfunc.GetUserIDFromSession(r)
+		fmt.Println(8)
+		if err != nil {
+			fmt.Println(9)
+			http.Error(w, "User not authenticated", http.StatusUnauthorized)
+			return
+		}
 	}
 
 	// Parse request body
@@ -128,51 +151,61 @@ func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
 		CommentID string `json:"commentId,omitempty"`
 		Type      string `json:"type"`
 	}
+	fmt.Println(10)
 
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+		fmt.Println(11)
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	// Validate vote type
 	if requestBody.Type != "like" && requestBody.Type != "dislike" {
+		fmt.Println(12)
+		fmt.Println("CANNOT POST DUE TO DB ERROR....handlers.go line 165")
 		http.Error(w, "Invalid vote type", http.StatusBadRequest)
 		return
 	}
 
 	// Prepare vote request
 	voteReq := &model.VoteRequest{
-		UserID: userID,
+		UserID: userId,
 		Type:   requestBody.Type,
 	}
 
 	// Set PostID or CommentID based on request
 	if requestBody.PostID != "" {
 		postID, err := uuid.Parse(requestBody.PostID)
+		fmt.Println(12)
 		if err != nil {
 			http.Error(w, "Invalid post ID", http.StatusBadRequest)
 			return
 		}
 		voteReq.PostID = &postID
 	} else if requestBody.CommentID != "" {
+		fmt.Println(13)
 		commentID, err := uuid.Parse(requestBody.CommentID)
 		if err != nil {
+			fmt.Println(14)
 			http.Error(w, "Invalid comment ID", http.StatusBadRequest)
 			return
 		}
 		voteReq.CommentID = &commentID
 	} else {
+		fmt.Println(15)
 		http.Error(w, "Must provide either postId or commentId", http.StatusBadRequest)
 		return
 	}
 
 	// Process vote
 	response, err := model.HandleVote(voteReq)
+	fmt.Println(err, 16)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	fmt.Println(17)
 	// Send JSON response
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
@@ -180,7 +213,7 @@ func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
 
 func Logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		jsonResponse(w, http.StatusMethodNotAllowed, "not allowed")
+		jsonResponse(w, http.StatusMethodNotAllowed, http.StatusText(405))
 		return
 	}
 	cookie, err := r.Cookie("session")
@@ -194,13 +227,13 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	query := "DELETE FROM sessions WHERE token = ?"
 	result, err := database.Db.Exec(query, sessionToken)
 	if err != nil {
-		fmt.Printf("%v", err)
+		fmt.Printf("111%v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		fmt.Printf("%v", err)
+		fmt.Printf("112%v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"forum/controller"
 	"io"
 	"log"
 	"net/http"
@@ -56,7 +57,7 @@ func main() {
 	http.HandleFunc("/", handlers.Index)
 	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(handlers.Login))
 	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(handlers.Register))
-	http.HandleFunc("/api/vote", handlers.HandleVoteRequest)
+	http.HandleFunc("/api/vote", controller.ValidateSession(handlers.HandleVoteRequest))
 	http.HandleFunc("/logout", handlers.Logout)
 
 	// Browsers ping for the /favicon.ico icon, redirect to the respective static file
