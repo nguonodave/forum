@@ -223,6 +223,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		"Categories":   categories,
 		"Username":     username,
 	})
+
 	if execTemplateErr != nil {
 		TemplateError("error executing template", execTemplateErr)
 		return
