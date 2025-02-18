@@ -125,7 +125,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// rendering posts to template
 	type Post struct {
 		Username    string
 		Id          string
@@ -155,12 +154,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 	var post Post
-	// populate the post struct
+
 	for rows.Next() {
 
-		var imagePath sql.NullString // use sql.NullString to handle NULL values
+		var imagePath sql.NullString
 		var formatTime time.Time
-
 		err := rows.Scan(&post.Username, &post.Id, &post.Title, &post.Content, &imagePath, &formatTime)
 		if err != nil {
 			log.Printf("Error scanning post: %v\n", err)
@@ -169,14 +167,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 		post.CreatedTime = formatTime.Format(time.ANSIC)
 
-		// if imagePath is valid, assign it to the post
 		if imagePath.Valid {
 			post.ImagePath = imagePath.String
 		}
 
-		if err != nil {
-			log.Printf("Error fetching post likes: %v\n", err)
-		}
 		posts = append(posts, post)
 	}
 	for i := range posts { // Use index-based iteration to modify slice elements
