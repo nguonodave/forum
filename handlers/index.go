@@ -23,8 +23,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queriedCategoryId := r.URL.Query().Get("category")
-
 	if r.Method == http.MethodPost {
 		cookie, cookieErr := r.Cookie("session")
 		if cookieErr != nil {
@@ -101,8 +99,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for _, categoryId := range categories {
-			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`, postId, categoryId)
+		for _, category := range categories {
+			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category) VALUES (?, ?)`, postId, category)
 			if insertCategoriesErr != nil {
 				log.Printf("Error inserting selected categories to database: %v\n", insertCategoriesErr)
 				http.Error(w, "Failed to add categories", http.StatusInternalServerError)
@@ -130,11 +128,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	SELECT p.id, p.title, p.content, p.image_url, p.created_at
 	FROM posts p
 	LEFT JOIN post_categories pc ON p.id = pc.post_id
-	WHERE ? = '' OR pc.category_id = ?
 	ORDER BY p.created_at DESC
 	`
 
-	rows, err := database.Db.Query(postsQuery, queriedCategoryId, queriedCategoryId)
+	rows, err := database.Db.Query(postsQuery)
 	if err != nil {
 		log.Printf("Error fetching posts: %v\n", err)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
@@ -160,30 +157,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		posts = append(posts, post)
 	}
 
-	// fetch all categories to render to the create post form
-	categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
-	if categQueryErr != nil {
-		log.Printf("Error fetching categories: %v\n", categQueryErr)
-		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
+	categories, getCategoriesErr := pkg.GetCategories(w)
+	if getCategoriesErr != nil {
 		return
-	}
-	defer categRows.Close()
-
-	var categories []struct {
-		Id   string
-		Name string
-	}
-	for categRows.Next() {
-		var category struct {
-			Id   string
-			Name string
-		}
-		err := categRows.Scan(&category.Id, &category.Name)
-		if err != nil {
-			log.Printf("Error scanning category: %v\n", err)
-			continue
-		}
-		categories = append(categories, category)
 	}
 
 	TemplateError := func(message string, err error) {

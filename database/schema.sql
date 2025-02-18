@@ -19,16 +19,15 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 CREATE TABLE IF NOT EXISTS categories (
-    id TEXT PRIMARY KEY,
     name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS post_categories (
     post_id TEXT NOT NULL,
-    category_id TEXT NOT NULL,
-    PRIMARY KEY (post_id, category_id),
+    category TEXT NOT NULL,
+    PRIMARY KEY (post_id, category),
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(id)
+    FOREIGN KEY (category) REFERENCES categories(name)
 );
 
 CREATE TABLE IF NOT EXISTS comments (
