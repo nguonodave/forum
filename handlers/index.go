@@ -24,7 +24,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queriedCategoryId := r.URL.Query().Get("category")
+	queriedCategory := r.URL.Query().Get("category")
 
 	if r.Method == http.MethodPost {
 		cookie, cookieErr := r.Cookie("session")
@@ -111,8 +111,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for _, categoryId := range categories {
-			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`, postId, categoryId)
+		for _, category := range categories {
+			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category) VALUES (?, ?)`, postId, category)
 			if insertCategoriesErr != nil {
 				log.Printf("Error inserting selected categories to database: %v\n", insertCategoriesErr)
 				http.Error(w, "Failed to add categories", http.StatusInternalServerError)
@@ -143,11 +143,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	SELECT DISTINCT p.username , p.id, p.title, p.content, p.image_url, p.created_at
 	FROM posts p
 	LEFT JOIN post_categories pc ON p.id = pc.post_id
-	WHERE ? = '' OR pc.category_id = ?
+	WHERE ? = '' OR pc.category = ?
 	ORDER BY p.created_at DESC
 	`
 
-	rows, err := database.Db.Query(postsQuery, queriedCategoryId, queriedCategoryId)
+	rows, err := database.Db.Query(postsQuery, queriedCategory, queriedCategory)
 	if err != nil {
 		log.Printf("Error fetching posts: %v\n", err)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)

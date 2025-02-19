@@ -10,7 +10,7 @@ type category struct {
 }
 func GetCategories(w http.ResponseWriter) ([]category, error) {
 	// fetch all categories to render to the create post form
-	categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
+	categRows, categQueryErr := database.Db.Query(`SELECT name FROM categories`)
 	if categQueryErr != nil {
 		log.Printf("Error fetching categories: %v\n", categQueryErr)
 		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
@@ -23,7 +23,7 @@ func GetCategories(w http.ResponseWriter) ([]category, error) {
 			Id   string
 			Name string
 		}
-		err := categRows.Scan(&category.Id, &category.Name)
+		err := categRows.Scan(&category.Name)
 		if err != nil {
 			log.Printf("Error scanning category: %v\n", err)
 			continue

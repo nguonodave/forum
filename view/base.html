@@ -196,7 +196,7 @@
           <textarea name="content" id="postContent" placeholder="Content" required></textarea>
           <div class="categories-container">
             {{ range .Categories }}
-            <input type="checkbox" id="category{{.Name}}" name="categories" value="{{ .Id }}" />
+            <input type="checkbox" id="category{{.Name}}" name="categories" value="{{ .Name }}" />
             {{.Name}}
             {{ end }}
           </div>
