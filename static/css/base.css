@@ -70,8 +70,8 @@ body {
   border-radius: 10px;
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
   margin: 20px;
-  transition: transform 0.3 ease-out, box-shadow 0.3 ease-out;
 }
+
 .user-account div {
   display: flex;
   flex-direction: column;
@@ -82,10 +82,6 @@ body {
   margin-bottom: 10px; /* Space between name and button */
 }
 
-.user-account:hover {
-  transform: translateY(-10px);
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
-}
 .user-account .user-avatar {
   width: 80px;
   height: 80px;
