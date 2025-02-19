@@ -68,13 +68,17 @@
 
           <h2 class="post-title">{{ .Title }}</h2>
           <div class="cat">
-            {{ range .Categories}}
-            <span class="cat1">{{.Name}}</span>
-            {{end}}
+            <!-- {{ range .Categories }}
+                <span class="cat1">{{ .Name }}</span>
+            {{ end }} -->
+            <span class="cat1">Technology</span>
+
           </div>
 
           <figure class="post-image">
+            {{if .ImagePath}}
             <img src="{{ .ImagePath }}" alt="Post Image" />
+            {{end}}
           </figure>
 
           <div class="post-content">
