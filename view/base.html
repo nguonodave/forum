@@ -68,11 +68,9 @@
 
           <h2 class="post-title">{{ .Title }}</h2>
           <div class="cat">
-            {{/*<!-- {{ range .Categories }}
-                <span class="cat1">{{ .Name }}</span>
-            {{ end }} -->*/}}
-            <span class="cat1">Technology</span>
-
+            {{ range .Categories }}
+                <span class="cat1">{{ . }}</span>
+            {{ end }}
           </div>
 
           <figure class="post-image">
