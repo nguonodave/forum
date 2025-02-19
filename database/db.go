@@ -38,9 +38,9 @@ func InitializeDB() error {
 		return fmt.Errorf("failed to apply migrations: %w", err)
 	}
 
-	// Configure connection pool
-	Db.SetMaxOpenConns(1)
-	Db.SetMaxIdleConns(1)
+	// // Configure connection pool
+	// Db.SetMaxOpenConns(2)
+	// Db.SetMaxIdleConns(2)
 
 	return nil
 }
