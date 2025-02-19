@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentCountSpan = document.querySelector('.comment-count');
   
     let commentCount = document.querySelectorAll('.comment').length;
-    let likeCount = 1000;
+    let likeCount = 1000; // fetch from server
     let dislikeCount = 2;
   
     const likeCountSpan = document.querySelector('.like-count');
@@ -63,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   
     likeBtn.addEventListener('click', () => {
+        if (!isUserLoggedIn) {
+            return;
+        }
       if (liked) {
         likeBtn.classList.remove('active');
         likeCount--;
