@@ -1,5 +1,7 @@
 package controller
 
+import "testing"
+
 // import (
 // 	"database/sql"
 // 	"net/http"
@@ -321,3 +323,7 @@ package controller
 // 		})
 // 	}
 // }
+
+func TestGenerateSession(t *testing.T) {
+
+}

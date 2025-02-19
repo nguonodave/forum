@@ -34,10 +34,14 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 400px;
-  padding: 24px;
+  max-width: 350px;
+  padding: 20px;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.6);
+  border-right: 2px solid #78b4ff;
+  top: 0;
+  width: 250px;
 }
+
 .monoton-regular {
   font-size: 3em;
   color: #00a2ff;
@@ -47,8 +51,8 @@ body {
 }
 
 .app-icon {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background-image: url("/static/svg/favicon.svg");
   background-size: cover;
@@ -150,7 +154,7 @@ body {
 
 .post-input::placeholder {
   color: #e0e3e8;
-  font-weight: 500; 
+  font-weight: 500;
 }
 
 .about-section {
@@ -184,10 +188,10 @@ gap: 10px;
 align-items: center;
 }
 .user-avatar {
-  background-image: url(/static/images/peakpx\(1\).jpg);
+  background-image: url(/static/images/user_icon.png);
   width: 40px;
   height: 40px;
-  background-color: #ddd;
+  background-color: rgba(255, 255, 255, 0.65);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -792,4 +796,35 @@ gap: 15px;
   .post {
     padding: 10px;
   }
+}
+
+.notify{
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.notify.show {
+  opacity: 1;
+}
+
+.notify.success {
+  background-color: green;
+}
+
+.notify.error {
+  background-color: red;
+}
+
+.notify.warning {
+  background-color: orange;
+}
+
+.notification.info {
+  background-color: blue;
 }
