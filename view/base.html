@@ -31,7 +31,7 @@
           <div class="category-filters">
             <h3>Categories</h3>
             {{range .Categories}}
-            <a href="#" class="filter-option category-filter">{{.Name}}</a>
+            <a href="?category={{ .Name }}" class="filter-option category-filter">{{.Name}}</a>
             {{end}}
           </div>
         </div>
