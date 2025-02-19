@@ -177,12 +177,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		posts = append(posts, post)
 	}
 
-	for _, p := range posts {
-		p.Likes, p.Dislikes, err = controller.GetLikesDislikesForPost(database.Db, p.Username, p.Id)
+	for i := range posts { // Use index-based iteration to modify slice elements
+		fmt.Println("before", posts[i].Dislikes, posts[i].Likes)
+		err := controller.GetLikesDislikesForPost(database.Db, posts[i].Id, &posts[i].Likes, &posts[i].Dislikes)
 		if err != nil {
 			log.Printf("Error fetching post likes: %v\n", err)
 		}
+		fmt.Println("AFTER", posts[i].Dislikes, posts[i].Likes)
 	}
+	fmt.Printf(">>>>>>>>>>>%+v\n", posts) // Debugging output
 
 	// fetch all categories to render to the create post form
 	categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
