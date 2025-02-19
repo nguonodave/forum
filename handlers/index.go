@@ -136,6 +136,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		CreatedTime string
 		Likes       int
 		Dislikes    int
+		Categories  []string
 	}
 
 	var posts []Post
@@ -175,6 +176,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			post.ImagePath = imagePath.String
 		}
 
+		// get all the categories of the post
+		postCategories, postCategoriesErr := PostCategories(post.Id)
+		if postCategoriesErr != nil {
+			http.Error(w, "Failed to fetch post categories", http.StatusInternalServerError)
+			return
+		}
+
+		post.Categories = append(post.Categories, postCategories...)
+
 		posts = append(posts, post)
 	}
 
@@ -210,4 +220,28 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		TemplateError("error executing template", execTemplateErr)
 		return
 	}
+}
+
+func PostCategories(postId string) ([]string, error) {
+	categories := []string{}
+
+	// get all the categories of the post
+	postCategoriesRows, postCategoriesRowsErr := database.Db.Query(`SELECT category FROM post_categories WHERE post_id = ?`, postId)
+	if postCategoriesRowsErr != nil {
+		log.Printf("Error getting categories for post: %v\n", postCategoriesRowsErr)
+		return nil, postCategoriesRowsErr
+	}
+	defer postCategoriesRows.Close()
+
+	for postCategoriesRows.Next() {
+		var category string
+		postCategoriesScanErr := postCategoriesRows.Scan(&category)
+		if postCategoriesScanErr != nil {
+			log.Printf("Error scanning post categories: %v\n", postCategoriesScanErr)
+			return nil, postCategoriesScanErr
+		}
+		categories = append(categories, category)
+	}
+
+	return categories, nil
 }
