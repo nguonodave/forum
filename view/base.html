@@ -67,6 +67,11 @@
           </header>
 
           <h2 class="post-title">{{ .Title }}</h2>
+          <div class="cat">
+            {{ range .Categories}}
+            <span class="cat1">{{.Name}}</span>
+            {{end}}
+          </div>
 
           <figure class="post-image">
             <img src="{{ .ImagePath }}" alt="Post Image" />
