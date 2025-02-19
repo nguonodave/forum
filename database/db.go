@@ -68,7 +68,7 @@ func applyMigration() error {
 
 // Insert default categories into the database.
 func insertDefaultCategories() error {
-	categories := []string{"General", "Technology", "Sports", "Entertainment", "Health"}
+	categories := []string{"general", "technology", "sports", "entertainment", "health"}
 
 	for _, name := range categories {
 		_, err := Db.Exec(`INSERT INTO categories (name) VALUES (?) ON CONFLICT(name) DO NOTHING;`, name)
