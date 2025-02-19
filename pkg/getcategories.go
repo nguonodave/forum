@@ -1,13 +1,17 @@
 package pkg
+
 import (
 	"log"
 	"net/http"
+
 	"forum/database"
 )
+
 type category struct {
 	Id   string
 	Name string
 }
+
 func GetCategories(w http.ResponseWriter) ([]category, error) {
 	// fetch all categories to render to the create post form
 	categRows, categQueryErr := database.Db.Query(`SELECT name FROM categories`)

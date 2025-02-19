@@ -3,13 +3,14 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
-	"forum/controller"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
+
+	"forum/controller"
 
 	"forum/database"
 	"forum/pkg"

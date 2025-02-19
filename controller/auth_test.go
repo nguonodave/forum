@@ -325,5 +325,4 @@ import "testing"
 // }
 
 func TestGenerateSession(t *testing.T) {
-
 }
