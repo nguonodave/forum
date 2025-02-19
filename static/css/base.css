@@ -74,8 +74,8 @@ body {
   border-radius: 10px;
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
   margin: 20px;
-  transition: transform 0.3 ease-out, box-shadow 0.3 ease-out;
 }
+
 .user-account div {
   display: flex;
   flex-direction: column;
@@ -119,6 +119,7 @@ body {
 .post {
   border-radius: 10px;
   padding: 16px;
+  width: 100%;
   max-width: 800px;
   padding: 15px;
   background-color: #16202b;
@@ -212,6 +213,37 @@ align-items: center;
   margin-top: 0;
   margin-bottom: 10px;
   font-size: 20px;
+  font-size: 1.7em;
+  text-align: center;
+}
+
+/*post category cards to display post category*/
+.cat{
+  float: right;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+
+.cat1{
+  background-color: #16202b;
+  color: #00a2ff;
+  padding: 5px 10px;
+  border-radius: 30px;
+  border: 1.5px solid #00a2ff;
+}
+
+.cat1:hover {
+  background-color: #00a2ff;
+  color: black;
+}
+.cat1:active {
+  background-color: #00a2ff;
+  color: black;
 }
 
 .post-content {
@@ -635,6 +667,14 @@ gap: 15px;
   .post {
     max-width: 95%;
   }
+  .cat {
+    justify-content: flex-end; /* Aligns items to the right */
+  }
+  .cat1 {
+    font-size: 1.1em; /* Increases font size */
+    padding: 8px 14px; /* Adjusts padding */
+  
+  }
   .categories-container {
     justify-content: flex-start; /* Align left on smaller screens */
     gap: 5px;
@@ -687,6 +727,27 @@ gap: 15px;
   .categories-container {
     flex-direction: column;
     align-items: flex-start; /* Stack them for smaller screens */
+  }
+}
+
+@media (max-width: 600px) {
+  .cat {
+    float: none; 
+    justify-content: center; 
+  }
+  .cat1 {
+    font-size: 0.7em; 
+    padding: 4px 8px;
+    border: 1px solid #00a2ff;
+  }
+}
+@media (min-width: 600px) and (max-width: 1024px) {
+  .cat {
+    justify-content: flex-start; /* Aligns items to the left */
+  }
+  .cat1 {
+    font-size: 1em; /* Keeps the font size as is */
+    padding: 6px 12px; /* Adjusts padding */
   }
 }
 
