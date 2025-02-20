@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"forum/controller"
 	"io"
 	"log"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+
+	"forum/controller"
 
 	"forum/middlewares"
 

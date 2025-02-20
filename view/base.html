@@ -31,7 +31,7 @@
           <div class="category-filters">
             <h3>Categories</h3>
             {{range .Categories}}
-            <a href="#" class="filter-option category-filter">{{.Name}}</a>
+            <a href="?category={{ .Name }}" class="filter-option category-filter">{{.Name}}</a>
             {{end}}
           </div>
         </div>
@@ -68,11 +68,9 @@
 
           <h2 class="post-title">{{ .Title }}</h2>
           <div class="cat">
-            <!-- {{ range .Categories }}
-                <span class="cat1">{{ .Name }}</span>
-            {{ end }} -->
-            <span class="cat1">Technology</span>
-
+            {{ range .Categories }}
+                <span class="cat1">{{ . }}</span>
+            {{ end }}
           </div>
 
           <figure class="post-image">
@@ -196,7 +194,7 @@
           <textarea name="content" id="postContent" placeholder="Content" required></textarea>
           <div class="categories-container">
             {{ range .Categories }}
-            <input type="checkbox" id="category{{.Name}}" name="categories" value="{{ .Id }}" />
+            <input type="checkbox" id="category{{.Name}}" name="categories" value="{{ .Name }}" />
             {{.Name}}
             {{ end }}
           </div>

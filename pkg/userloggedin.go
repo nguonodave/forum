@@ -2,10 +2,11 @@ package pkg
 
 import (
 	"fmt"
-	"forum/database"
 	"log"
 	"net/http"
 	"time"
+
+	"forum/database"
 )
 
 func UserLoggedIn(r *http.Request) (bool, string) {

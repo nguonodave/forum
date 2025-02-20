@@ -299,6 +299,7 @@ align-items: center;
   color: white;
   font-size: 16px;
   font-weight: 300;
+  text-transform: capitalize;
 }
 
 .category-filters, .filter-option{
@@ -371,6 +372,7 @@ gap: 15px;
   gap: 10px;
   max-width: 100%;
   color: white;
+  text-transform: capitalize;
 }
 
 .form-row {

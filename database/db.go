@@ -5,7 +5,6 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -39,9 +38,9 @@ func InitializeDB() error {
 		return fmt.Errorf("failed to apply migrations: %w", err)
 	}
 
-	// Configure connection pool
-	Db.SetMaxOpenConns(1)
-	Db.SetMaxIdleConns(1)
+	// // Configure connection pool
+	// Db.SetMaxOpenConns(2)
+	// Db.SetMaxIdleConns(2)
 
 	return nil
 }
@@ -69,15 +68,10 @@ func applyMigration() error {
 
 // Insert default categories into the database.
 func insertDefaultCategories() error {
-	categories := []string{"General", "Technology", "Sports", "Entertainment", "Health"}
+	categories := []string{"general", "technology", "sports", "entertainment", "health"}
 
 	for _, name := range categories {
-		id := uuid.New() // Generate a new UUID
-
-		_, err := Db.Exec(
-			"INSERT INTO categories (id, name) VALUES (?, ?) ON CONFLICT(name) DO NOTHING;",
-			id.String(), name,
-		)
+		_, err := Db.Exec(`INSERT INTO categories (name) VALUES (?) ON CONFLICT(name) DO NOTHING;`, name)
 		if err != nil {
 			return fmt.Errorf("failed to insert category %s: %w", name, err)
 		}
