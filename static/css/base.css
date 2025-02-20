@@ -27,7 +27,7 @@ body {
   max-width: 400px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.6);
   transition: width 0.3s ease;
-  border-left: 1px solid #3a8bdf;
+  /* border-left: 1px solid #3a8bdf; */
 }
 
 /* Right Sidebar Styles */
@@ -38,7 +38,7 @@ body {
   max-width: 350px;
   padding: 20px;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.6);
-  border-right: 1px solid #3a8bdf;
+  /* border-right: 1px solid #3a8bdf; */
   top: 0;
   width: 250px;
 }
@@ -71,7 +71,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  border: 2px solid #35a4e8;
+  border: 2px solid #e8edf0;
   border-radius: 5px;
   margin: 20px;
 }
@@ -128,7 +128,7 @@ body {
 .search-bar {/*add post button*/
   display: flex;
   align-items: center;
-  border: 1px solid #3a8bdf;
+  border: 1px solid #ffffff;
   border-radius: 30px;
   padding: 10px 15px;
   width: 70%;
@@ -147,6 +147,9 @@ body {
   padding: 10px;
 }
 
+.search-bar:hover {
+  border: 1px solid#00a2ff;
+}
 .search-bar:hover {
   color: #e0e3e8; /* Subtle color change on hover */
 }
@@ -247,8 +250,9 @@ align-items: center;
 /*}*/
 .cat1 {
   padding: 5px 10px;
-  border-radius: 5px;
-  background-color: #0e6cd2;
+  border-radius: 30px;
+  border: 1px solid #00a2ff;
+  /* background-color: #0e6cd2; */
   color: white;
   font-size: 0.9em;
 }
@@ -344,7 +348,7 @@ align-items: center;
   box-sizing: border-box;
 }
 .create-post-overlay p {
-  text-color: white;
+  color: white;
 }
 
 .create-post-container {
