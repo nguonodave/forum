@@ -159,9 +159,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-	var post Post
 	for rows.Next() {
-
+		var post Post
 		var imagePath sql.NullString // use sql.NullString to handle NULL values
 		var formatTime time.Time
 
