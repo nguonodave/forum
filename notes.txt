@@ -1,5 +1,1 @@
-display username of user who did the post
-post time now has good format time-its more readable
-if user does not provide a post image url then it won't be displayed.
-function to fetch likes and dislike
-username will be displayed on the right sidebar above the logout button
+need to fetch 

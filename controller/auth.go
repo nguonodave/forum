@@ -184,23 +184,67 @@ func GetLikesDislikesForPost(db *sql.DB, postId string, Likes *int, Dislikes *in
 	return nil
 }
 
-// Get likes and dislikes for a certain comment and also return an error
-func GetLikesDislikesForComment(db *sql.DB, userId, commentId string) (int, int, error) {
-	query := `
-        SELECT 
-            SUM(CASE WHEN type = 'like' THEN 1 ELSE 0 END) AS likes,
-            SUM(CASE WHEN type = 'dislike' THEN 1 ELSE 0 END) AS dislikes
-        FROM votes
-        WHERE user_id = ? AND  = ?
-    `
+//// Get likes and dislikes for a certain comment and also return an error
+//func GetLikesDislikesForComment(db *sql.DB, postId, commentId string) (int, int, error) {
+//	query := `
+//        SELECT
+//            SUM(CASE WHEN type = 'like' THEN 1 ELSE 0 END) AS likes,
+//            SUM(CASE WHEN type = 'dislike' THEN 1 ELSE 0 END) AS dislikes
+//        FROM comments
+//        WHERE post_id = ? AND id = ?
+//    `
+//
+//	var likes, dislikes sql.NullInt64
+//	row := db.QueryRow(query, postId, commentId)
+//	err := row.Scan(&likes, &dislikes)
+//	if err != nil {
+//		return 0, 0, err
+//	}
+//
+//	// Handle NULL values by converting them to 0
+//	return int(likes.Int64), int(dislikes.Int64), nil
+//}
 
-	var likes, dislikes sql.NullInt64
-	row := db.QueryRow(query, userId, commentId)
-	err := row.Scan(&likes, &dislikes)
+// FetchCommentsForPost retrieves all comments for a given post, including their like/dislike counts
+func FetchCommentsForPost(db *sql.DB, postId string) ([]model.Comment, error) {
+	query := `
+	SELECT 
+		c.id, 
+		c.post_id, 
+		c.user_id, 
+		c.content, 
+		c.created_at, 
+		COALESCE(SUM(CASE WHEN v.type = 'like' THEN 1 ELSE 0 END), 0) AS likes, 
+		COALESCE(SUM(CASE WHEN v.type = 'dislike' THEN 1 ELSE 0 END), 0) AS dislikes
+	FROM comments c
+	LEFT JOIN votes v ON c.id = v.comment_id
+	WHERE c.post_id = ?
+	GROUP BY c.id;
+	`
+	rows, err := db.Query(query, postId)
 	if err != nil {
-		return 0, 0, err
+		log.Println("ERROR: fetching comments", err)
+		return nil, err
 	}
 
-	// Handle NULL values by converting them to 0
-	return int(likes.Int64), int(dislikes.Int64), nil
+	defer rows.Close()
+	var comments []model.Comment
+	for rows.Next() {
+		var comment model.Comment
+		err = rows.Scan(
+			&comment.Id,
+			&comment.PostId,
+			&comment.UserId,
+			&comment.Content,
+			&comment.CreatedAt,
+			&comment.Likes,
+			&comment.Dislikes,
+		)
+		if err != nil {
+			log.Println("ERROR: scanning comments", err)
+			return nil, err
+		}
+		comments = append(comments, comment)
+	}
+	return comments, nil
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
+	"forum/model"
 	"io"
 	"log"
 	"net/http"
@@ -128,15 +129,17 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	// rendering posts to template
 	type Post struct {
-		Username    string
-		Id          string
-		Title       string
-		Content     string
-		ImagePath   string
-		CreatedTime string
-		Likes       int
-		Dislikes    int
-		Categories  []string
+		Username     string
+		Id           string
+		Title        string
+		Content      string
+		ImagePath    string
+		CreatedTime  string
+		Likes        int
+		Dislikes     int
+		Categories   []string
+		CommentCount int
+		Comments     []model.Comment
 	}
 
 	var posts []Post
@@ -157,7 +160,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 	var post Post
-	// populate the post struct
 	for rows.Next() {
 
 		var imagePath sql.NullString // use sql.NullString to handle NULL values
@@ -189,14 +191,22 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := range posts { // Use index-based iteration to modify slice elements
-		fmt.Println("before", posts[i].Dislikes, posts[i].Likes)
 		err := controller.GetLikesDislikesForPost(database.Db, posts[i].Id, &posts[i].Likes, &posts[i].Dislikes)
 		if err != nil {
 			log.Printf("Error fetching post likes: %v\n", err)
 		}
-		fmt.Println("AFTER", posts[i].Dislikes, posts[i].Likes)
+
+		// comments is a slice of comments for a certain post with id post[i].Id
+		comments, err := controller.FetchCommentsForPost(database.Db, posts[i].Id)
+		if err != nil {
+			log.Printf("Error fetching post comments: %v\n", err)
+		}
+		posts[i].CommentCount = len(comments)
+		posts[i].Comments = comments
 	}
-	fmt.Printf(">>>>>>>>>>>%+v\n", posts) // Debugging output
+	for _, post := range posts {
+		fmt.Printf("***** %+v\n\n", post)
+	}
 
 	categories, getCategoriesErr := pkg.GetCategories(w)
 	if getCategoriesErr != nil {

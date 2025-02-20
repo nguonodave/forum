@@ -46,8 +46,8 @@
     <!--Main  content-->
     <main class="content-section" aria-label="Main Content">
       <section class="search-bar" aria-label="Create new post">
-        <div class="user-avatar"></div>
-        <input type="text" placeholder="What's on your mind? " class="post-input" onclick="handleCreatePost()" readonly
+<!--        <div class="user-avatar"></div>-->
+        <input type="text" placeholder="What's on your mind?" class="post-input" onclick="handleCreatePost()" readonly
           aria-label="Click to create new post" />
       </section>
 
@@ -80,7 +80,7 @@
           </figure>
 
           <div class="post-content">
-            <p class="post-content">{{ .Content }}</p>
+            <p class="post-text">{{ .Content }}</p>
           </div>
 
           <!--Post Actions-->
@@ -118,43 +118,46 @@
                 <svg class="icon" viewBox="0 0 24 24">
                   <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-16z" />
                 </svg>
-                Comment (<span class="comment-count">2</span>)
+                <span class="comment-count">{{ .CommentCount }}</span> comments
               </button>
             </div>
 
             <!--Add comment section-->
             <section class="add-comment-section">
-              <input type="text" id="new-comment-text" placeholder="Add a comment" />
-              <button id="add-comment-btn">Comment</button>
+              <input type="text" id="new-comment-text" placeholder="Comment on post" />
+              <button id="add-comment-btn" data-post-id="{{ .Id }}">Comment</button>
             </section>
 
             <!--Comments section-->
             <section class="comments-section" style="display: none">
-              <!--comment-->
-              <div class="comment">
-                <p>This is a comment on the post</p>
+              {{ range .Comments }}
+<!--              single comment-->
+                <div class="comment" id="comment-{{ .Id }}">
+                  <p>{{ .Content }}</p>
                 <div class="comment-actions">
+
                   <!--Like button -->
-                  <button class="comment-like-btn">
+                  <button class="like-btn" data-comment-id="{{ .Id }}">
                     <svg class="icon" viewBox="0 0 24 24">
                       <path d="M0 0h24v24H0z" fill="none" />
                       <path
                         d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.92 7 8.42 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z" />
                     </svg>
-                    (<span class="comment-like-count">0</span>)
+                    <span class="comment-like-count">{{ .Likes }}</span>
                   </button>
 
                   <!--Dislike button-->
-                  <button class="comment-dislike-btn">
+                  <button class="dislike-btn" data-comment-id="{{ .Id }}">
                     <svg class="icon" viewBox="0 0 24 24">
                       <path d="M0 0h24v24H0z" fill="none" />
                       <path
                         d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z" />
                     </svg>
-                    (<span class="comment-dislike-count">0</span>)
+                    <span class="comment-dislike-count">{{ .Dislikes }}</span>
                   </button>
                 </div>
               </div>
+              {{ end }}
             </section>
           </section>
         </article>
@@ -210,7 +213,7 @@
     <!--Display login prompt if user is not logged in-->
     <dialog id="loginPromptOverlay" class="create-post-overlay" style="display: none">
       <div class="create-post-container login-prompt">
-        <h2>please login</h2>
+        <h2>Please Log in</h2>
         <button class="close-create-post" onclick="closeLoginPromptOverlay()">
           &times;
         </button>

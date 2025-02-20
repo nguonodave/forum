@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -34,5 +35,6 @@ func GetCategories(w http.ResponseWriter) ([]category, error) {
 		}
 		categories = append(categories, category)
 	}
+	fmt.Println("categoreis", categories)
 	return categories, nil
 }
