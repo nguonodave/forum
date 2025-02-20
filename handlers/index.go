@@ -3,13 +3,14 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
-	"forum/model"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
+
+	"forum/model"
 
 	"forum/controller"
 
@@ -27,6 +28,16 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	queriedCategory := r.URL.Query().Get("category")
+
+	categories, categoriesErr := pkg.GetCategories(w)
+	if categoriesErr != nil {
+		return
+	}
+
+	if queriedCategory != "" && !pkg.ValidCategory(queriedCategory, categories) {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 
 	if r.Method == http.MethodPost {
 		userLoggedIn, username, userId := pkg.UserLoggedIn(r)
