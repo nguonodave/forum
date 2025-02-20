@@ -59,7 +59,8 @@ func main() {
 	http.HandleFunc("/login", middlewares.RedirectIfLoggedIn(handlers.Login))
 	http.HandleFunc("/register", middlewares.RedirectIfLoggedIn(handlers.Register))
 	http.HandleFunc("/api/vote", controller.ValidateSession(handlers.HandleVoteRequest))
-	http.HandleFunc("/logout", handlers.Logout)
+	http.HandleFunc("/logout", controller.ValidateSession(handlers.Logout))
+	http.HandleFunc("/api/comment", controller.ValidateSession(handlers.AddCommentHandler(database.Db)))
 
 	// Browsers ping for the /favicon.ico icon, redirect to the respective static file
 	http.Handle("/favicon.ico", http.RedirectHandler("/static/svg/favicon.svg", http.StatusFound))

@@ -37,20 +37,6 @@ type Category struct {
 	Name string
 }
 
-// Comment struct
-type Comment struct {
-	ID        uuid.UUID
-	PostID    uuid.UUID
-	UserID    uuid.UUID
-	Content   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-
-	// Relationships
-	User  *User
-	Votes []*Vote // Enables counting likes/dislikes dynamically
-}
-
 // Vote struct
 type Vote struct {
 	ID        uuid.UUID
