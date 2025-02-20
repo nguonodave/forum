@@ -29,23 +29,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	queriedCategory := r.URL.Query().Get("category")
 
 	if r.Method == http.MethodPost {
-		cookie, cookieErr := r.Cookie("session")
-		if cookieErr != nil {
-			log.Printf("Error getting session's cookie from request: %v\n", cookieErr)
-			http.Error(w, "An unexpected error occured. Please try again later", http.StatusInternalServerError)
+		userLoggedIn, username, userId := pkg.UserLoggedIn(r)
+		if !userLoggedIn {
+			http.Error(w, "session expired", http.StatusUnauthorized)
 			return
 		}
-
-		// get the user id to populate in post details
-		var userId string
-		sessionQueryErr := database.Db.QueryRow("SELECT user_id FROM sessions WHERE token = ?", cookie.Value).Scan(&userId)
-		if sessionQueryErr != nil {
-			log.Printf("Error fetching session's user id from database: %v\n", sessionQueryErr)
-			http.Error(w, "An unexpected error occurred. Please try again later", http.StatusInternalServerError)
-			return
-		}
-		
-		_, username := pkg.UserLoggedIn(r)
 
 		fmt.Println("user id", userId)
 
@@ -212,11 +200,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s: %v", message, err)
 	}
 
-	isLoggedIn, username := pkg.UserLoggedIn(r)
-	fmt.Println(isLoggedIn, username)
+	userLoggedIn, username, _ := pkg.UserLoggedIn(r)
+	fmt.Println(userLoggedIn, username)
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
 		"Posts":        posts,
-		"UserLoggedIn": isLoggedIn,
+		"UserLoggedIn": userLoggedIn,
 		"Categories":   categories,
 		"Username":     username,
 	})

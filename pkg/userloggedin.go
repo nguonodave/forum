@@ -9,11 +9,11 @@ import (
 	"forum/database"
 )
 
-func UserLoggedIn(r *http.Request) (bool, string) {
+func UserLoggedIn(r *http.Request) (bool, string, string) {
 	// get cookie from request
 	cookie, cookieErr := r.Cookie("session")
 	if cookieErr != nil {
-		return false, ""
+		return false, "", ""
 	}
 	var username string
 
@@ -26,9 +26,9 @@ func UserLoggedIn(r *http.Request) (bool, string) {
 	err := database.Db.QueryRow("SELECT username from users WHERE id = ?", userId).Scan(&username)
 	if err != nil {
 		log.Println(err)
-		return false, ""
+		return false, "", ""
 	}
 	log.Println(username, "logged in with user id ==>", userId)
 	// if no err, meaning session is available, return true
-	return sessionQueryErr == nil && time.Now().Before(expiryDate), username
+	return sessionQueryErr == nil && time.Now().Before(expiryDate), username, userId
 }
