@@ -35,8 +35,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fmt.Println("user id", userId)
-
 		// 20 MB limit
 		maxSizeErr := r.ParseMultipartForm(20 << 20)
 		if maxSizeErr != nil {
@@ -186,9 +184,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		posts[i].CommentCount = len(comments)
 		posts[i].Comments = comments
 	}
-	for _, post := range posts {
-		fmt.Printf("***** %+v\n\n", post)
-	}
 
 	categories, getCategoriesErr := pkg.GetCategories(w)
 	if getCategoriesErr != nil {
@@ -201,7 +196,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userLoggedIn, username, _ := pkg.UserLoggedIn(r)
-	fmt.Println(userLoggedIn, username)
+
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
 		"Posts":        posts,
 		"UserLoggedIn": userLoggedIn,
