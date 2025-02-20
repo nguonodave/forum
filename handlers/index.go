@@ -44,14 +44,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "An unexpected error occurred. Please try again later", http.StatusInternalServerError)
 			return
 		}
-		// get the username from users table
-		var username string
-		usernameGetError := database.Db.QueryRow("SELECT username FROM users WHERE id = ?", userId).Scan(&username)
-		if usernameGetError != nil {
-			log.Printf("Error fetching username from database: %v\n", usernameGetError)
-			http.Error(w, "An unexpected error occurred. Please try again later", http.StatusInternalServerError)
-			return
-		}
+		
+		_, username := pkg.UserLoggedIn(r)
+
 		fmt.Println("user id", userId)
 
 		// 20 MB limit
