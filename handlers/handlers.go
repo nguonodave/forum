@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"forum/controller"
@@ -250,7 +251,7 @@ func AddCommentHandler(db *sql.DB) http.HandlerFunc {
 		fmt.Println("user id from context and ok", userId)
 
 		// validate input
-		if commentReq.PostID == "" || commentReq.UserID == "" || commentReq.Content == "" {
+		if commentReq.PostID == "" || commentReq.UserID == "" || strings.TrimSpace(commentReq.Content) == "" {
 			ErrorPage(w, "missing required fields", http.StatusBadRequest)
 			return
 		}
