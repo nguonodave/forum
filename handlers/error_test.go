@@ -62,7 +62,7 @@ func TestErrorPage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				var originalTemplateDir = templatesDir
+				originalTemplateDir := templatesDir
 				if tt.noTemplate {
 					templatesDir = ""
 					defer func() {

@@ -3,13 +3,15 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
-	"forum/controller"
+	"forum/model"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
+
+	"forum/controller"
 
 	"forum/database"
 	"forum/pkg"
@@ -24,7 +26,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queriedCategoryId := r.URL.Query().Get("category")
+	queriedCategory := r.URL.Query().Get("category")
 
 	if r.Method == http.MethodPost {
 		cookie, cookieErr := r.Cookie("session")
@@ -111,8 +113,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for _, categoryId := range categories {
-			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`, postId, categoryId)
+		for _, category := range categories {
+			_, insertCategoriesErr := database.Db.Exec(`INSERT INTO post_categories (post_id, category) VALUES (?, ?)`, postId, category)
 			if insertCategoriesErr != nil {
 				log.Printf("Error inserting selected categories to database: %v\n", insertCategoriesErr)
 				http.Error(w, "Failed to add categories", http.StatusInternalServerError)
@@ -127,14 +129,17 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	// rendering posts to template
 	type Post struct {
-		Username    string
-		Id          string
-		Title       string
-		Content     string
-		ImagePath   string
-		CreatedTime string
-		Likes       int
-		Dislikes    int
+		Username     string
+		Id           string
+		Title        string
+		Content      string
+		ImagePath    string
+		CreatedTime  string
+		Likes        int
+		Dislikes     int
+		Categories   []string
+		CommentCount int
+		Comments     []model.Comment
 	}
 
 	var posts []Post
@@ -143,21 +148,19 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	SELECT DISTINCT p.username , p.id, p.title, p.content, p.image_url, p.created_at
 	FROM posts p
 	LEFT JOIN post_categories pc ON p.id = pc.post_id
-	WHERE ? = '' OR pc.category_id = ?
+	WHERE ? = '' OR pc.category = ?
 	ORDER BY p.created_at DESC
 	`
 
-	rows, err := database.Db.Query(postsQuery, queriedCategoryId, queriedCategoryId)
+	rows, err := database.Db.Query(postsQuery, queriedCategory, queriedCategory)
 	if err != nil {
 		log.Printf("Error fetching posts: %v\n", err)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
-	var post Post
-	// populate the post struct
 	for rows.Next() {
-
+		var post Post
 		var imagePath sql.NullString // use sql.NullString to handle NULL values
 		var formatTime time.Time
 
@@ -174,43 +177,39 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			post.ImagePath = imagePath.String
 		}
 
+		// get all the categories of the post
+		postCategories, postCategoriesErr := PostCategories(post.Id)
+		if postCategoriesErr != nil {
+			http.Error(w, "Failed to fetch post categories", http.StatusInternalServerError)
+			return
+		}
+
+		post.Categories = append(post.Categories, postCategories...)
+
 		posts = append(posts, post)
 	}
 
 	for i := range posts { // Use index-based iteration to modify slice elements
-		fmt.Println("before", posts[i].Dislikes, posts[i].Likes)
 		err := controller.GetLikesDislikesForPost(database.Db, posts[i].Id, &posts[i].Likes, &posts[i].Dislikes)
 		if err != nil {
 			log.Printf("Error fetching post likes: %v\n", err)
 		}
-		fmt.Println("AFTER", posts[i].Dislikes, posts[i].Likes)
-	}
-	fmt.Printf(">>>>>>>>>>>%+v\n", posts) // Debugging output
 
-	// fetch all categories to render to the create post form
-	categRows, categQueryErr := database.Db.Query(`SELECT id, name FROM categories`)
-	if categQueryErr != nil {
-		log.Printf("Error fetching categories: %v\n", categQueryErr)
-		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
-		return
-	}
-	defer categRows.Close()
-
-	var categories []struct {
-		Id   string
-		Name string
-	}
-	for categRows.Next() {
-		var category struct {
-			Id   string
-			Name string
-		}
-		err := categRows.Scan(&category.Id, &category.Name)
+		// comments is a slice of comments for a certain post with id post[i].Id
+		comments, err := controller.FetchCommentsForPost(database.Db, posts[i].Id)
 		if err != nil {
-			log.Printf("Error scanning category: %v\n", err)
-			continue
+			log.Printf("Error fetching post comments: %v\n", err)
 		}
-		categories = append(categories, category)
+		posts[i].CommentCount = len(comments)
+		posts[i].Comments = comments
+	}
+	for _, post := range posts {
+		fmt.Printf("***** %+v\n\n", post)
+	}
+
+	categories, getCategoriesErr := pkg.GetCategories(w)
+	if getCategoriesErr != nil {
+		return
 	}
 
 	TemplateError := func(message string, err error) {
@@ -230,4 +229,28 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		TemplateError("error executing template", execTemplateErr)
 		return
 	}
+}
+
+func PostCategories(postId string) ([]string, error) {
+	categories := []string{}
+
+	// get all the categories of the post
+	postCategoriesRows, postCategoriesRowsErr := database.Db.Query(`SELECT category FROM post_categories WHERE post_id = ?`, postId)
+	if postCategoriesRowsErr != nil {
+		log.Printf("Error getting categories for post: %v\n", postCategoriesRowsErr)
+		return nil, postCategoriesRowsErr
+	}
+	defer postCategoriesRows.Close()
+
+	for postCategoriesRows.Next() {
+		var category string
+		postCategoriesScanErr := postCategoriesRows.Scan(&category)
+		if postCategoriesScanErr != nil {
+			log.Printf("Error scanning post categories: %v\n", postCategoriesScanErr)
+			return nil, postCategoriesScanErr
+		}
+		categories = append(categories, category)
+	}
+
+	return categories, nil
 }

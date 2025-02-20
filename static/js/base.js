@@ -46,7 +46,7 @@ function _setup() {
 document.addEventListener('DOMContentLoaded', _setup);
 // Access the body tag where the data-is-logged-in attribute is set
 const isUserLoggedIn = document.body.getAttribute('data-is-logged-in') === 'true';
-console.log(">>>>",isUserLoggedIn)
+console.log("is user logged in ?",isUserLoggedIn)
 
 
 //Prevent user from performing post actions if not logged in
@@ -100,7 +100,11 @@ if (loginPromptOverlay) {
     }
   });
 }
-document.getElementById('logout-btn').addEventListener('click',logout)
+const logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) {
+    console.log(logoutBtn)
+    logoutBtn.addEventListener('click',logout);
+}
 async function logout() {
     try{
         const response = await fetch('/logout', {
