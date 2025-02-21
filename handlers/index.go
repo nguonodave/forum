@@ -28,6 +28,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	queriedCategory := r.URL.Query().Get("category")
+	queriedActivity := r.URL.Query().Get("activity")
 
 	categories, categoriesErr := pkg.GetCategories(w)
 	if categoriesErr != nil {
@@ -119,6 +120,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userLoggedIn, username, userId := pkg.UserLoggedIn(r)
+	if !userLoggedIn && queriedActivity != "" {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
 	// rendering posts to template
 	type Post struct {
 		Username     string
@@ -136,17 +143,41 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	var posts []Post
 
-	postsQuery := `
-	SELECT DISTINCT p.username , p.id, p.title, p.content, p.image_url, p.created_at
-	FROM posts p
-	LEFT JOIN post_categories pc ON p.id = pc.post_id
-	WHERE ? = '' OR pc.category = ?
-	ORDER BY p.created_at DESC
-	`
+	var postsQuery string
+	var rows *sql.Rows
+	var selectPostsErr error
 
-	rows, err := database.Db.Query(postsQuery, queriedCategory, queriedCategory)
-	if err != nil {
-		log.Printf("Error fetching posts: %v\n", err)
+	if queriedActivity == "posts" {
+		// select from posts where username is logged in user
+		postsQuery = `
+		SELECT username, id, title, content, image_url, created_at
+		FROM posts
+		WHERE username = ?
+		`
+		rows, selectPostsErr = database.Db.Query(postsQuery, username)
+	} else if queriedActivity == "likes" {
+		// select from posts left joined with votes on post_id is post's id
+		// where user_id is logged in user's id
+		postsQuery = `
+		SELECT p.username, p.id, p.title, p.content, p.image_url, p.created_at
+		FROM posts p
+		LEFT JOIN votes v ON p.id = v.post_id
+		WHERE v.user_id = ?
+		`
+		rows, selectPostsErr = database.Db.Query(postsQuery, userId)
+	} else {
+		postsQuery = `
+		SELECT DISTINCT p.username , p.id, p.title, p.content, p.image_url, p.created_at
+		FROM posts p
+		LEFT JOIN post_categories pc ON p.id = pc.post_id
+		WHERE ? = '' OR pc.category = ?
+		ORDER BY p.created_at DESC
+		`
+		rows, selectPostsErr = database.Db.Query(postsQuery, queriedCategory, queriedCategory)
+	}
+
+	if selectPostsErr != nil {
+		log.Printf("Error fetching posts: %v\n", selectPostsErr)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
 		return
 	}
@@ -205,8 +236,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error!", http.StatusInternalServerError)
 		log.Printf("%s: %v", message, err)
 	}
-
-	userLoggedIn, username, _ := pkg.UserLoggedIn(r)
 
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
 		"Posts":        posts,
