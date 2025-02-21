@@ -12,7 +12,7 @@ func RedirectIfLoggedIn(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// use UserLoggedIn from pkg to check if user is logged in
 		// if so redirect to home
-		isLoggedIn, username := pkg.UserLoggedIn(r)
+		isLoggedIn, username, _ := pkg.UserLoggedIn(r)
 		fmt.Println("???", isLoggedIn, username)
 		if isLoggedIn {
 			http.Redirect(w, r, "/", http.StatusSeeOther)

@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -35,6 +34,14 @@ func GetCategories(w http.ResponseWriter) ([]category, error) {
 		}
 		categories = append(categories, category)
 	}
-	fmt.Println("categoreis", categories)
 	return categories, nil
+}
+
+func ValidCategory(category string, categories []category) bool {
+	for _, v := range categories {
+		if category == v.Name {
+			return true
+		}
+	}
+	return false
 }
