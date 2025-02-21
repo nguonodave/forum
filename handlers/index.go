@@ -48,8 +48,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// 20 MB limit
-		maxSizeErr := r.ParseMultipartForm(20 << 20)
+		maxImageSize := 20 << 20
+		r.Body = http.MaxBytesReader(w, r.Body, int64(maxImageSize))
+		maxSizeErr := r.ParseMultipartForm(int64(maxImageSize))
 		if maxSizeErr != nil {
+			log.Printf("%v\n", maxSizeErr)
 			http.Error(w, "Unable to parse form. Make sure image size is not more than 20mb", http.StatusBadRequest)
 			return
 		}
