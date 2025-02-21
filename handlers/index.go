@@ -120,7 +120,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userLoggedIn, username, _ := pkg.UserLoggedIn(r)
+	userLoggedIn, username, userId := pkg.UserLoggedIn(r)
 	if !userLoggedIn && queriedActivity != "" {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -156,8 +156,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		`
 		rows, selectPostsErr = database.Db.Query(postsQuery, username)
 	} else if queriedActivity == "likes" {
-		// select from posts left joined with votes where user_id is
-		// logged in user's id and post_id is post's id
+		// select from posts left joined with votes on post_id is post's id
+		// where user_id is logged in user's id
+		postsQuery = `
+		SELECT p.username, p.id, p.title, p.content, p.image_url, p.created_at
+		FROM posts p
+		LEFT JOIN votes v ON p.id = v.post_id
+		WHERE v.user_id = ?
+		`
+		rows, selectPostsErr = database.Db.Query(postsQuery, userId)
 	} else {
 		postsQuery = `
 		SELECT DISTINCT p.username , p.id, p.title, p.content, p.image_url, p.created_at
