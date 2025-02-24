@@ -48,7 +48,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// 20 MB limit
-		maxImageSize := 20 << 20
+		maxImageSize := 20 * 1_000 * 1_000
 		r.Body = http.MaxBytesReader(w, r.Body, int64(maxImageSize))
 		maxSizeErr := r.ParseMultipartForm(int64(maxImageSize))
 		if maxSizeErr != nil {
