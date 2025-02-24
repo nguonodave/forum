@@ -35,6 +35,7 @@ COPY --from=builder /app/helperfunc /app/helperfunc
 COPY --from=builder /app/middlewares /app/middlewares
 COPY --from=builder /app/pkg /app/pkg
 COPY --from=builder /app/handlers /app/handlers
+COPY --from=builder /app/model /app/model
 
 # Set ownership and permissions for the non-root user
 RUN chown -R appuser:appuser /app && chmod +x /app/main
