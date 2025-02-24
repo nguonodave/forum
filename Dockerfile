@@ -32,7 +32,7 @@ COPY --from=builder /app/database /app/database
 COPY --from=builder /app/controller /app/controller
 COPY --from=builder /app/fileio /app/fileio
 COPY --from=builder /app/helperfunc /app/helperfunc
-
+COPY --from=builder /app/middlewares /app/middlewares
 
 # Set ownership and permissions for the non-root user
 RUN chown -R appuser:appuser /app && chmod +x /app/main
