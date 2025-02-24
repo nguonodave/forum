@@ -26,6 +26,8 @@ WORKDIR /app
 
 # Copy only the necessary binary from the builder
 COPY --from=builder /app/main .
+COPY --from=builder /app/view /app/view
+
 
 # Set ownership and permissions for the non-root user
 RUN chown -R appuser:appuser /app && chmod +x /app/main
