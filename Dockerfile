@@ -27,6 +27,7 @@ WORKDIR /app
 # Copy only the necessary binary from the builder
 COPY --from=builder /app/main .
 COPY --from=builder /app/view /app/view
+COPY --from=builder /app/static /app/static
 
 
 # Set ownership and permissions for the non-root user
