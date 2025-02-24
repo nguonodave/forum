@@ -34,7 +34,7 @@ COPY --from=builder /app/fileio /app/fileio
 COPY --from=builder /app/helperfunc /app/helperfunc
 COPY --from=builder /app/middlewares /app/middlewares
 COPY --from=builder /app/pkg /app/pkg
-
+COPY --from=builder /app/handlers /app/handlers
 
 # Set ownership and permissions for the non-root user
 RUN chown -R appuser:appuser /app && chmod +x /app/main
