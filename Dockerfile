@@ -30,6 +30,7 @@ COPY --from=builder /app/view /app/view
 COPY --from=builder /app/static /app/static
 COPY --from=builder /app/database /app/database
 COPY --from=builder /app/controller /app/controller
+COPY --from=builder /app/fileio /app/fileio
 
 
 # Set ownership and permissions for the non-root user
