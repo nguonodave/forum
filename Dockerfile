@@ -28,6 +28,7 @@ WORKDIR /app
 COPY --from=builder /app/main .
 COPY --from=builder /app/view /app/view
 COPY --from=builder /app/static /app/static
+COPY --from=builder /app/database /app/database
 
 
 # Set ownership and permissions for the non-root user
