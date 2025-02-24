@@ -3,13 +3,14 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
-	"forum/model"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
+
+	"forum/model"
 
 	"forum/controller"
 
@@ -27,36 +28,31 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	queriedCategory := r.URL.Query().Get("category")
+	queriedActivity := r.URL.Query().Get("activity")
+
+	categories, categoriesErr := pkg.GetCategories(w)
+	if categoriesErr != nil {
+		return
+	}
+
+	if queriedCategory != "" && !pkg.ValidCategory(queriedCategory, categories) {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 
 	if r.Method == http.MethodPost {
-		cookie, cookieErr := r.Cookie("session")
-		if cookieErr != nil {
-			log.Printf("Error getting session's cookie from request: %v\n", cookieErr)
-			http.Error(w, "An unexpected error occured. Please try again later", http.StatusInternalServerError)
+		userLoggedIn, username, userId := pkg.UserLoggedIn(r)
+		if !userLoggedIn {
+			http.Error(w, "session expired", http.StatusUnauthorized)
 			return
 		}
-
-		// get the user id to populate in post details
-		var userId string
-		sessionQueryErr := database.Db.QueryRow("SELECT user_id FROM sessions WHERE token = ?", cookie.Value).Scan(&userId)
-		if sessionQueryErr != nil {
-			log.Printf("Error fetching session's user id from database: %v\n", sessionQueryErr)
-			http.Error(w, "An unexpected error occurred. Please try again later", http.StatusInternalServerError)
-			return
-		}
-		// get the username from users table
-		var username string
-		usernameGetError := database.Db.QueryRow("SELECT username FROM users WHERE id = ?", userId).Scan(&username)
-		if usernameGetError != nil {
-			log.Printf("Error fetching username from database: %v\n", usernameGetError)
-			http.Error(w, "An unexpected error occurred. Please try again later", http.StatusInternalServerError)
-			return
-		}
-		fmt.Println("user id", userId)
 
 		// 20 MB limit
-		maxSizeErr := r.ParseMultipartForm(20 << 20)
+		maxImageSize := 20 * 1_000 * 1_000
+		r.Body = http.MaxBytesReader(w, r.Body, int64(maxImageSize))
+		maxSizeErr := r.ParseMultipartForm(int64(maxImageSize))
 		if maxSizeErr != nil {
+			log.Printf("%v\n", maxSizeErr)
 			http.Error(w, "Unable to parse form. Make sure image size is not more than 20mb", http.StatusBadRequest)
 			return
 		}
@@ -127,6 +123,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userLoggedIn, username, userId := pkg.UserLoggedIn(r)
+	if !userLoggedIn && queriedActivity != "" {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
 	// rendering posts to template
 	type Post struct {
 		Username     string
@@ -144,17 +146,41 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	var posts []Post
 
-	postsQuery := `
-	SELECT DISTINCT p.username , p.id, p.title, p.content, p.image_url, p.created_at
-	FROM posts p
-	LEFT JOIN post_categories pc ON p.id = pc.post_id
-	WHERE ? = '' OR pc.category = ?
-	ORDER BY p.created_at DESC
-	`
+	var postsQuery string
+	var rows *sql.Rows
+	var selectPostsErr error
 
-	rows, err := database.Db.Query(postsQuery, queriedCategory, queriedCategory)
-	if err != nil {
-		log.Printf("Error fetching posts: %v\n", err)
+	if queriedActivity == "posts" {
+		// select from posts where username is logged in user
+		postsQuery = `
+		SELECT username, id, title, content, image_url, created_at
+		FROM posts
+		WHERE username = ?
+		`
+		rows, selectPostsErr = database.Db.Query(postsQuery, username)
+	} else if queriedActivity == "likes" {
+		// select from posts left joined with votes on post_id is post's id
+		// where user_id is logged in user's id
+		postsQuery = `
+		SELECT p.username, p.id, p.title, p.content, p.image_url, p.created_at
+		FROM posts p
+		LEFT JOIN votes v ON p.id = v.post_id
+		WHERE v.user_id = ?
+		`
+		rows, selectPostsErr = database.Db.Query(postsQuery, userId)
+	} else {
+		postsQuery = `
+		SELECT DISTINCT p.username , p.id, p.title, p.content, p.image_url, p.created_at
+		FROM posts p
+		LEFT JOIN post_categories pc ON p.id = pc.post_id
+		WHERE ? = '' OR pc.category = ?
+		ORDER BY p.created_at DESC
+		`
+		rows, selectPostsErr = database.Db.Query(postsQuery, queriedCategory, queriedCategory)
+	}
+
+	if selectPostsErr != nil {
+		log.Printf("Error fetching posts: %v\n", selectPostsErr)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
 		return
 	}
@@ -203,9 +229,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		posts[i].CommentCount = len(comments)
 		posts[i].Comments = comments
 	}
-	for _, post := range posts {
-		fmt.Printf("***** %+v\n\n", post)
-	}
 
 	categories, getCategoriesErr := pkg.GetCategories(w)
 	if getCategoriesErr != nil {
@@ -217,11 +240,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s: %v", message, err)
 	}
 
-	isLoggedIn, username := pkg.UserLoggedIn(r)
-	fmt.Println(isLoggedIn, username)
 	execTemplateErr := Templates.ExecuteTemplate(w, "base.html", map[string]interface{}{
 		"Posts":        posts,
-		"UserLoggedIn": isLoggedIn,
+		"UserLoggedIn": userLoggedIn,
 		"Categories":   categories,
 		"Username":     username,
 	})

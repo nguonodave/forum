@@ -108,7 +108,7 @@ func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("/api/vote has been hit...")
 	if r.Method != http.MethodPost {
-		ErrorPage(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		ErrorPage(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -191,7 +191,7 @@ func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
 
 func Logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		ErrorPage(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		ErrorPage(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
 	cookie, err := r.Cookie("session")
