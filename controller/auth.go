@@ -60,7 +60,6 @@ func HandleRegister(username, email, password string) error {
 		return errors.New("failed to create user")
 	}
 
-	fmt.Printf("user %s was created successfully\n", username)
 	return nil
 }
 
@@ -153,7 +152,6 @@ func ValidateSession(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "session expired", http.StatusUnauthorized)
 			return
 		}
-		fmt.Println("user id", userID)
 		err = database.Db.QueryRow("SELECT username FROM users WHERE id = ?", userID).Scan(&username)
 		if err != nil {
 			log.Println("ERROR: failed to get username")
