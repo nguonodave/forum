@@ -31,8 +31,16 @@ func HandleRegister(username, email, password string) error {
 		return err
 	}
 
+	if len(email) > 320 {
+		return errors.New("email too long max 320 characters")
+	}
+
 	if model.IsEmailTaken(email) {
 		return errors.New("email is already taken")
+	}
+
+	if len(username) > 16 {
+		return errors.New("username is too long max 16 characters")
 	}
 
 	if model.IsUserNameTaken(username) {
