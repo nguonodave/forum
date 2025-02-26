@@ -553,6 +553,14 @@ gap: 15px;
 .comment {
   padding: 10px;
   border-bottom: 1px solid #eee;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+.comment p {
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .comment:last-child {
