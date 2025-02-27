@@ -88,7 +88,6 @@ func ValidateEmail(email string) error {
 	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	re := regexp.MustCompile(emailPattern)
 	match := re.MatchString(email)
-	log.Println("email matches regex pattern", match, email)
 	if !match {
 		return fmt.Errorf("%s", xerrors.ErrWrongEmailFormat)
 	}

@@ -113,27 +113,13 @@ async function logout() {
         });
         if (response.ok){
             const data = await response.json();
-            showNotificationAfterAuthentication(data.message, 'success');
             window.location.href = '/';//redirect to home
         }else{
             const errData = await response.json();
-            showNotificationAfterAuthentication(errData.message || 'logout error', 'error');
         }
     }catch(error){
         console.log(error);
-        showNotificationAfterAuthentication('an error occurred during logout','error');
     }
-}
-
-function showNotificationAfterAuthentication(message, type = 'success') {
-    const notification = document.getElementById('notify');
-    notification.textContent = message;
-    notification.classList.remove('success', 'error', 'warning', 'info', 'show'); // Remove all previous classes
-    notification.classList.add(type, 'show');
-
-    setTimeout(() => {
-        notification.classList.remove(type, 'show');
-    }, 1200);
 }
 
 const likeBtn  = document.getElementById('like-btn');
@@ -144,14 +130,11 @@ likeBtn.addEventListener('click', async () => {
             headers: {'Content-Type': 'application/json'},
         });
         if (response.ok){
-            showNotificationAfterAuthentication('liked', 'success');
         }else{
             const errData = await response.json();
-            showNotificationAfterAuthentication(errData.message, 'error');
         }
     }catch(error){
         console.log(error);
-        showNotificationAfterAuthentication(error.message,'error');
     }
 })
 
@@ -163,13 +146,10 @@ dislikeBtn.addEventListener('click', async () => {
             headers: {'Content-Type': 'application/json'},
         });
         if (response.ok){
-            showNotificationAfterAuthentication('disliked', 'info');
         }else{
             const errData = await response.json();
-            showNotificationAfterAuthentication(errData.message, 'error');
         }
     }catch(error){
         console.log(error);
-        showNotificationAfterAuthentication(error.message,'error');
     }
 })

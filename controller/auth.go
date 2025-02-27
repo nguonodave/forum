@@ -31,8 +31,16 @@ func HandleRegister(username, email, password string) error {
 		return err
 	}
 
+	if len(email) > 320 {
+		return errors.New("email too long max 320 characters")
+	}
+
 	if model.IsEmailTaken(email) {
 		return errors.New("email is already taken")
+	}
+
+	if len(username) > 16 {
+		return errors.New("username is too long max 16 characters")
 	}
 
 	if model.IsUserNameTaken(username) {
@@ -60,7 +68,6 @@ func HandleRegister(username, email, password string) error {
 		return errors.New("failed to create user")
 	}
 
-	fmt.Printf("user %s was created successfully\n", username)
 	return nil
 }
 
@@ -153,7 +160,6 @@ func ValidateSession(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "session expired", http.StatusUnauthorized)
 			return
 		}
-		fmt.Println("user id", userID)
 		err = database.Db.QueryRow("SELECT username FROM users WHERE id = ?", userID).Scan(&username)
 		if err != nil {
 			log.Println("ERROR: failed to get username")
