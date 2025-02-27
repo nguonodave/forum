@@ -3,9 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"forum/controller"
@@ -46,7 +45,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			ErrorPage(w, "Invalid JSON", http.StatusBadRequest)
 			return
 		}
-		fmt.Printf("/login %+v\n", data)
 
 		sessionToken, expiresAt, err := controller.HandleLogin(data.Email, data.Username, data.Password)
 		if err != nil {
@@ -105,15 +103,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	log.Println("/api/vote has been hit...")
 	if r.Method != http.MethodPost {
-		ErrorPage(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		ErrorPage(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
 
 	// since this handler is wrapped with the Validate Session handler, which comes with user id and username already from r.Context no need to get user id again
 	ctxUserID, ok := r.Context().Value("userId").(string)
-	fmt.Println("user id from context and ok", ctxUserID, ok)
 	if !ok || ctxUserID == "" {
 		ErrorPage(w, "User not authenticated", http.StatusUnauthorized)
 		return
@@ -190,7 +186,7 @@ func HandleVoteRequest(w http.ResponseWriter, r *http.Request) {
 
 func Logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		ErrorPage(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		ErrorPage(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
 	cookie, err := r.Cookie("session")
@@ -247,10 +243,9 @@ func AddCommentHandler(db *sql.DB) http.HandlerFunc {
 		}
 		userId := r.Context().Value("userId").(string)
 		commentReq.UserID = userId
-		fmt.Println("user id from context and ok", userId)
 
 		// validate input
-		if commentReq.PostID == "" || commentReq.UserID == "" || commentReq.Content == "" {
+		if commentReq.PostID == "" || commentReq.UserID == "" || strings.TrimSpace(commentReq.Content) == "" {
 			ErrorPage(w, "missing required fields", http.StatusBadRequest)
 			return
 		}

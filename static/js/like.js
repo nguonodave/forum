@@ -38,7 +38,7 @@ async function handleVote(type, postId = null, commentId = null,content = null) 
             changeLikeCounts('like-btn', data.likeCount,'span-x')
             changeLikeCounts('dislike-btn', data.dislikeCount,'span-x')
             changeLikeCounts('comment-btn', data.likeCount,'comment-like-count');
-            changeLikeCounts('dislike-btn', data.likeCount,'comment-dislike-count');
+            changeLikeCounts('dislike-btn', data.dislikeCount,'comment-dislike-count');
             // Toggle active class based on user's vote
             if (data.userVote === 'like') {
                 likeBtn.classList.add('active');

@@ -1,4 +1,4 @@
-// utils/session.go
+// Package helperfunc utils/session.go
 package helperfunc
 
 import (
@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// Session cookie name constant
 const SessionCookieName = "session"
 
 // GetSessionToken retrieves the session token from the request cookie
