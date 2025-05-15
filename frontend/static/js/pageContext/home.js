@@ -13,7 +13,7 @@ export const homePageContext = `
                 <!-- Create Post -->
             <div class="create-post">
                 <form id="createPostForm">
-                    <label id="title"><h4>Add a title</h4></label>
+                    <label id="title"><h4>Create a Post</h4></label>
                     <input type="hidden" name="identity" value="post">
                     <input type="text" name="title" id="title" placeholder="Add a title" required style="width: 40%; padding: 6px; border-radius: 4px; outline: none; font-size: medium;">
                     <textarea id="textarea" placeholder="What's on your mind?" name="content" required></textarea>

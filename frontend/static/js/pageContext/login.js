@@ -1,7 +1,8 @@
 export const signinContext = `
     <div class="Form-div">
         <form class="loggin siggnup" id="loginForm">
-            <label>Login</label><br>
+        <img src="/static/assets/favicon.svg" alt="PingMe logo" style="height: 40px; margin-right: 8px;">
+            <label class="monoton-regular">Login</label><br>
             <input type="text" class="input" placeholder="email/username" name="email" required><br>
             <input type="password" class="input" placeholder="password" name="password" required><br>
             <input type="submit" value="Login" id="form-loginBtn">

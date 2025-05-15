@@ -8,7 +8,7 @@ export const welcomePage = `
     </div>
     <div class="buttons" role="group">
         <button id="loginBtn">Login</button>
-        <button id="signUpBtn">Register</button>
+        <button id="signUpBtn">Sign Up</button>
     </div>
 </div>
 </div>

@@ -40,6 +40,7 @@
 .welcome-container .right .welcome-message {
     margin: 30px;
     text-align: center;
+    color:azure;
 }
 .welcome-message h3 {
     font-size: 2em;

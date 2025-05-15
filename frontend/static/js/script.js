@@ -379,7 +379,7 @@ const loadHomePage = (ws, data) => {
 
     const body = document.body
     const footer = document.createElement("footer");
-    footer.innerHTML = `
+    footer.innerHTML = `All rights reserved PingMe
     &copy 2025
     `
     body.appendChild(footer);

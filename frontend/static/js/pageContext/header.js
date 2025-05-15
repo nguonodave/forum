@@ -2,9 +2,10 @@ export const headerContext = `
    <div class="search-bar">
         <div class="search-container">
             <div class="search-body">
-        <div class="logo">
-            <h1>FORUM<span class="big-x">X</span></h1>
-        </div>
+            <div class="logo">
+            <img src="/static/assets/favicon.svg" alt="PingMe logo" style="height: 40px; margin-right: 8px;">
+                <h1 class="monoton-regular">PingMe</h1>
+            </div>
                 <div class="search-wrapper">
                 </div>
                 <div class="nav-links">
