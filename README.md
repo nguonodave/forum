@@ -1,83 +1,123 @@
-# Real Time Forum
-Real time forum is a project based on the Forum project which we did previously. 
+# PingMe — Real-Time Forum
 
+**PingMe** is a real-time social platform based on our previous forum project — now with WebSocket-powered live messaging. Users can create posts, comment, and chat privately in real time.
 
+---
 
-Its a social platform where people can be able to post there findings, comment on the posts and send private messages.
+## 🚀 Features
 
-## Features
 ### 1. User Authentication
 
-Users must register before using the forum.
+* Users must register before accessing the forum.
+* **Registration fields include:**
 
-Required registration fields:
+  * Nickname
+  * Age
+  * Gender
+  * First Name
+  * Last Name
+  * Email
+  * Password
+* Users can log in using either **nickname** or **email**.
+* Logout is accessible from any page.
 
-Nickname
+---
 
-Age
+### 2. Posts & Comments
 
-Gender
+* Create posts categorized by topic.
+* View posts in a feed layout.
+* Comment on posts (visible only upon post click).
 
-First Name
+---
 
-Last Name
+### 3. Private Messaging System (WebSocket-Based)
 
-Email
+* **User list** shows online/offline users:
 
-Password
+  * Sorted by most recent conversation or alphabetically if no messages exist.
+* **Real-time messaging** with:
 
-Users can log in using either their nickname or email with their password.
+  * Username and timestamp per message.
+  * Automatic loading of 10 past messages on chat open.
+  * Infinite scroll up loads 10 more messages (optimized with Throttle/Debounce).
+* **Live updates** without page refresh.
 
-Users can log out from any page.
+---
 
-### 2. Posts and Comments
+## 🛠️ Tech Stack
 
-Users can create posts, which will be categorized.
+| Layer     | Tech Used                             |
+| --------- | ------------------------------------- |
+| Front-End | HTML, CSS, JavaScript                 |
+| Back-End  | Go (Golang), SQLite                   |
+| Real-Time | WebSockets (Gorilla WebSocket for Go) |
 
-Users can comment on posts.
+---
 
-Posts are displayed in a feed format.
+## 📦 Usage
 
-Comments are only visible when clicking on a post.
-
-### 3. Private Messaging System
-
-Users can send real-time private messages using WebSockets.
-
-The chat system includes:
-
-A user list showing online/offline users, sorted by last message sent (or alphabetically if no messages exist).
-
-A chat window that loads past messages when selecting a user.
-
-Messages formatted with:
-
-Timestamp
-
-Sender's username
-
-Automatic loading of the last 10 messages with more messages loaded when scrolling up (optimized with Throttle/Debounce).
-
-Real-time updates ensure messages are received instantly without refreshing the page.
-
-## Usage
 ### 1. Installation
-You need to install both golang and javascript in your local machine and this is how you do it.
-For the go installation `sudo apt install go` and for javascript `npm install`
 
-After this you need to clone the project
+Ensure **Go** and **Node.js (for npm)** are installed:
+
+```bash
+sudo apt install golang
+npm install
 ```
-git clone https://learn.zone01kisumu.ke/git/wnjuguna/real-time-forum
+
+Then clone the repository:
+
+```bash
+git clone https://learn.zone01kisumu.ke/git/ramuiruri/realtime-forum
 ```
 
-### 2. Running
-Change directory to the repository with the project.
-`cd real-time-forum`
+### 2. Running the Project
 
-Then run `make` on the command line. This should run the server and make it visible.
+```bash
+cd pingme
+make
+```
 
-## Authors
-This program was built and maintained by
-* [wnjuguna](https://learn.zone01kisumu.ke/git/wnjuguna)
+This runs the Go server and launches the real-time forum.
 
-* [abrakingoo](https://learn.zone01kisumu.ke/git/abrakingoo)
+---
+
+## 👥 Authors
+
+* [shfana](https://learn.zone01kisumu.ke/git/shfana)
+* [ramuiruri](https://learn.zone01kisumu.ke/git/ramuiruri)
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions!
+
+To contribute:
+
+1. Fork the repo
+2. Create your feature branch (`git checkout -b feature/chat-enhancements`)
+3. Commit your changes (`git commit -m 'Add typing indicator'`)
+4. Push to the branch (`git push origin feature/chat-enhancements`)
+5. Open a Pull Request
+
+---
+
+## 🧠 What You'll Learn
+
+* Frontend & backend integration
+* Working with WebSockets in Go & JavaScript
+* SPA (Single Page Application) architecture using vanilla JS
+* Building real-time UIs
+* Using SQLite with Go
+
+---
+
+## ❓ Something’s Wrong?
+
+Submit an [issue here](https://learn.zone01kisumu.ke/git/ramuiruri/realtime-forum/issues) and we’ll check it out.
+
+---
+
+Let me know if you’d like badges, screenshots, or GitHub Actions setup for CI/CD added too.
