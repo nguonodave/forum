@@ -263,3 +263,21 @@ body {
     padding: 10px;
   }
 }
+/*Separator line*/
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: #00a2ff;
+    font-size: 14px;
+  }
+  
+  .separator::before,
+  .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #1d99e7;
+    margin: 0 10px;
+  }
+  
