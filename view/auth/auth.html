@@ -31,7 +31,20 @@
                     <i class="fa-solid fa-eye password-toggle" onclick="togglePass('loginPassword',this)"></i>
                 </div>
                 <button type="submit" class="btn-primary">Log in</button>
+                <!--oauth-->
+                <div class="passwordMessage" id="passwordMessage2"></div>
+                <div class="oauth-buttons">
+                    <p>Or continue with</p>
+                    <div class="oauth-btn-group">
+                        <a href="/auth/google" class="oauth-btn google">
+                            <i class="fa-brands fa-google"></i> Google
+                        </a>
+                        <a href="/auth/github" class="oauth-btn github">
+                            <i class="fa-brands fa-github"></i> GitHub
+                        </a>
+                    </div>
             </form>
+
 
             <!-- Signup Form -->
             <form id="signupForm" class="form hidden" method="POST" action="/register">
