@@ -10,16 +10,17 @@ import (
 
 	"time"
 
-	"real_time_forum/backend/db/controllers"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
+	"real_time_forum/backend/db/controllers"
 )
 
+var sessionName = "session_token"
+
 type Credential struct {
-	Name string `json:"name"`
+	Name     string `json:"name"`
 	Password string `json:"password"`
 }
-
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	var creds Credential
@@ -38,36 +39,42 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-	
+
 	email := creds.Name
 	password := creds.Password
-	
+
 	if email == "" || password == "" {
 		http.Error(w, "Email and password are required", http.StatusBadRequest)
 		return
 	}
-	
-	// Verify user credentials
-	storedPassword, userID, useremail, username, firstname, lastname, gender, age, err := controllers.VerifyUser(email, password)
+
+	storedPassword,
+		userID,
+		usernameORemail,
+		username,
+		firstname,
+		lastname,
+		gender,
+		age,
+		err := controllers.VerifyUser(email, password)
 
 	if err != nil {
 		w.WriteHeader(http.StatusForbidden)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"message" : "User Not Found. Please Create Account To Continue"})
-		return		
+		json.NewEncoder(w).Encode(map[string]string{"message": "User Not Found. Please Create Account To Continue"})
+		return
 	}
 	if !checkPasswordHash(password, storedPassword) {
 		w.WriteHeader(http.StatusForbidden)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"message" : "Inavalid UserName/password"})
+		json.NewEncoder(w).Encode(map[string]string{"message": "Inavalid UserName/password"})
 		return
 	}
-	
+
 	if controllers.CheckExistingSessions(userID) {
 		controllers.DeleteExistingSession(userID)
 	}
 
-	// log.Println(email, userID, password)
 	sessionToken := generateToken(32)
 
 	err = controllers.StoreSession(sessionToken, userID, time.Now().Add(24*time.Hour).String())
@@ -78,29 +85,27 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set cookies
 	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
+		Name:     sessionName,
 		Value:    sessionToken,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
 		Secure:   true,
-		Path: "/",
+		Path:     "/",
 	})
-
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message" : "logged In",
-		"session_token" : sessionToken,
-		"id" : userID, 
-		"email" : useremail, 
-		"username" : username, 
-		"firstname" : firstname, 
-		"lastname" : lastname, 
-		"gender" : gender, 
-		"age" : age,
+		"message":       "logged In",
+		"session_token": sessionToken,
+		"id":            userID,
+		"email":         usernameORemail,
+		"username":      username,
+		"firstname":     firstname,
+		"lastname":      lastname,
+		"gender":        gender,
+		"age":           age,
 	})
 }
 

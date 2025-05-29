@@ -17,7 +17,7 @@ const handleRoutes = () => {
     // console.log("route", window.location.pathname);
 
     switch (window.location.pathname) {
-        case "/signin":
+        case "/login":
             loadSignIn(false);
             break;
         case "/":
@@ -42,7 +42,7 @@ const handleRoutes = () => {
                 loadWelcomePage(false);
             }
             break;
-        case "/signups":
+        case "/signup":
             loadSignUp(false);
             break;
         default:
@@ -59,7 +59,7 @@ const loadWelcomePage = (pushState = true) => {
 };
 
 const loadSignIn = (pushState = true) => {
-    if (pushState) history.pushState({}, "", "/signin");
+    if (pushState) history.pushState({}, "", "/login");
     header.innerHTML = headerContext;
     container.innerHTML = signinContext;
     attachListeners();
@@ -67,7 +67,7 @@ const loadSignIn = (pushState = true) => {
 
 const loadSignUp = (pushState = true) => {
     console.log("Lod sjajs")
-    if (pushState) history.pushState({}, "", "/signups");
+    if (pushState) history.pushState({}, "", "/signup");
     header.innerHTML = headerContext;
     container.innerHTML = signupContext;
     attachListeners();
@@ -829,7 +829,7 @@ const loadMessages = (parsed, userid) => {
         appendMessages(count);
 
         chatContainer.addEventListener("scroll", throttle(() => {
-            if (chatContainer.scrollTop == 0) {
+            if (chatContainer.scrollTop === 0) {
                 count++;
                 if (count >= chunkedMessages.length) {
                     console.log("No more messages to load.");
@@ -858,34 +858,28 @@ const handleSignup = async (e) => {
     const username = document.querySelector("input[name='username']").value;
     const firstName = document.querySelector("input[name='firstName']").value;
     const lastName = document.querySelector("input[name='lastName']").value;
-    const gender = document.querySelector("input[name='gender']").value;
+
+    // gender resolves to male or female depending on what the user selects
+    const gender = document.querySelector('select.input').value.trim().toLowerCase();
+
     const age = parseInt(document.querySelector("input[name='age']").value);
     const email = document.querySelector("input[name='email']").value;
     const password = document.querySelector("input[name='password']").value;
 
     function validatePassword(password) {
         const lengthCheck = password.length > 8;
-        // const specialCharCheck = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-        // const lowercaseCheck = /[a-z]/.test(password);
-        // const uppercaseCheck = /[A-Z]/.test(password);
-        // const numberCheck = /\d/.test(password);
-    
-        if (!lengthCheck) return "Password must be at least 9 characters long.";
-        // if (!specialCharCheck) return "Password must contain at least one special character.";
-        // if (!lowercaseCheck) return "Password must contain at least one lowercase letter.";
-        // if (!uppercaseCheck) return "Password must contain at least one uppercase letter.";
-        // if (!numberCheck) return "Password must contain at least one number.";
-        
-        return true; // Password is valid
+        if (!lengthCheck) return "Password must be at least 8 characters long.";
+        return true;
     }
 
     const passwordValidation = validatePassword(password);
     if (passwordValidation !== true) {
         alert(passwordValidation); // Show error as a popup
-        return; // Stop execution if password is invalid
+        return;
     }
 
-    let intAge = parseInt(age);
+
+    console.log(`--- signup payload ${username} ${firstName} ${lastName} ${age} ${email} ${password}----`);
 
     try {
         const res = await fetch("/signup", {
@@ -894,7 +888,7 @@ const handleSignup = async (e) => {
                 Username: username, 
                 FirstName: firstName, 
                 LastName: lastName, 
-                Age: intAge, 
+                Age: age,
                 Gender: gender, 
                 Email: email, 
                 Password: password

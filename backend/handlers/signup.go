@@ -25,7 +25,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid request payload", http.StatusInternalServerError)
 			return
 		}
-		
+
 		var username = user.Username
 		var email = user.Email
 		var password = user.Password
@@ -57,7 +57,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "internal sever error", http.StatusInternalServerError)
 			return
 		}
-		err = controllers.AddNewUsersToDB(userID,  firstName, lastName, username, gender, email, string(passwordHash), age)
+		err = controllers.AddNewUsersToDB(userID, firstName, lastName, username, gender, email, string(passwordHash), age)
 		if err != nil {
 			log.Println(err)
 			w.Header().Set("Content-Type", "application/json")
