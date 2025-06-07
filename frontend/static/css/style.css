@@ -8,6 +8,7 @@
     font-weight:  400;
     font-style: normal;
 
+
 }
 
 :root {
@@ -317,15 +318,21 @@ li i {
 .posts-section {
     width: 80%;
     height: 80vh;
-    margin-top: 3rem;
+    margin-top: 1rem;
     background-color: transparent;
     padding: 5px;
-    align-self: flex-start;
+
+    /* Flexbox centering */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
     overflow-y: scroll;
     overflow-x: hidden;
+
     margin-right: auto;
     margin-left: 10px;
-    align-items: center;
 }
 
 /* For WebKit browsers (Chrome, Edge, Safari) */
@@ -348,18 +355,23 @@ li i {
 .create-post {
     width: 65%;
     position: absolute;
-    background: rgba(31, 41, 55, 0.1);
+    top: 32%;
+    left: 57%;
+    transform: translate(-50%, -50%); /* perfect centering */
+
+    background-color: #21518e; /* solid blue background */
+    color: white; /* white text by default */
+
     border-radius: 16px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
-    margin-bottom: 2rem;
-    margin-top: 3rem;
     display: none;
     z-index: 999;
-    left: 15%;
-    top: 25px;
-    backdrop-filter: blur(10px);
+
+    /* Removed blurry background */
+    backdrop-filter: none;
 }
+
 .create-post form {
     display: flex;
     flex-direction: column;
@@ -375,24 +387,20 @@ li i {
 }
 
 .create-post textarea {
-    width: 93.5%;
-    min-height: 120px;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border-color);
-    background-color: rgba(31, 41, 55, 0.4);
-    border-radius: 8px;
-    resize: vertical;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-}
-
-
-.create-post textarea:focus, input:focus {
-    outline: none;
-    border-color: var(--blue);
-    background: #1f2937;
+    background-color: #001e5e; /* slightly lighter blue */
     color: white;
+    border: 1px solid white;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
 }
+
+.create-post textarea:focus {
+    outline: none;
+    border-color: #93c5fd; /* light blue border on focus */
+    background-color: #173187; /* darker blue on focus */
+    box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.4);
+}
+
 .create-post input[type="text"]:focus,
 .create-post textarea:focus {
     outline: none;
@@ -877,18 +885,6 @@ li i {
 }
 
 
-
-footer {
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    background-color:#1f2937;
-    text-align: center;
-    color: white;
-    padding: 0.5rem;
-    z-index: 1000;
-}
 /* Responsive Styles */
 @media screen and (max-width: 980px) {
     .content-container {

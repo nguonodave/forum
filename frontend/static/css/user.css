@@ -16,7 +16,9 @@
 }
 
 .main-left-div {
-    width: 13%;
+    flex: 0 0 17%;
+    min-width: 100px;
+    max-width: 200px;
     align-self: flex-start;
     margin-left: 20px;
     position: sticky;
@@ -25,8 +27,8 @@
     background-color: #1f2937;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 5px;
-    padding: 5px;
-    color: #5B5B58;
+    padding: 10px;
+    color: #ffffff;
     display: flex;
     flex-direction: column;
 }

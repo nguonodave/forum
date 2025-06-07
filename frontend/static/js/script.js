@@ -108,7 +108,6 @@ const handleLogin = async (e) => {
     const name = document.querySelector("input[name='email']").value;
     const password = document.querySelector("input[name='password']").value;
 
-    console.log("Logging in with:", name, password);
 
     try {
         const response = await fetch("/login", {
@@ -118,7 +117,6 @@ const handleLogin = async (e) => {
         });
 
         const data = await response.json();
-        // console.log("Response:", data);
         if (response.status != 200) {
 
             notify(data.message, "var(--danger-color)");
@@ -127,7 +125,6 @@ const handleLogin = async (e) => {
             history.pushState({}, "", "/");
             ws = new WebSocket(`ws://localhost:8080/ws`)
             ws.onopen = () => {
-                console.log("ws connected");
                 const user = { type: "user", name: data.username, id: data.id };
                 ws.send(JSON.stringify(user));
             };
@@ -230,13 +227,9 @@ const handleWS = (ws, data) => {
     ws.onmessage = (event) => {
         try {
             const msg = JSON.parse(event.data);
-            console.log("BROADCASTED MSG", msg);
-            // console.log("WebSocket message:", msg);
             const user = JSON.parse(localStorage.getItem("user"));
-
             if (msg.type === "new_post") {
-                appendNewPost(msg.data); 
-                // console.log("New Post : ", msg.data);
+                appendNewPost(msg.data);
                 notify("New Post", "var(--success-color)");
             }
 
@@ -246,7 +239,6 @@ const handleWS = (ws, data) => {
 
             if (msg.type === "reaction") {
                 const postId = msg.data.data.id;
-                console.log("POST ID: ", msg.data.data.reaction);
 
                 if (msg.data.data.reaction === "like") {
                     const form = document.querySelector(`#postLikesForm input[name='postid'][value='${postId}']`)?.closest("#postLikesForm");
@@ -287,7 +279,6 @@ const handleWS = (ws, data) => {
             }
 
             if (msg.type === "message") {
-                console.log("PRIVATE MESSAGE RECEIVED:", msg.data);
                 const chatContainer = document.getElementById("chat");
                 const newMessage = document.createElement("div");
                 const messageClass = msg.data.receiver === user.id ? "receiver" : "sender";
@@ -318,12 +309,10 @@ const handleWS = (ws, data) => {
             }
 
             if (msg.type === "typing") {
-                // const userElement = document.querySelector(`[data-userid="${msg.senderid}"]`)
                 const users = document.querySelectorAll("[data-userid]");
                 let found = false;
                 
-                users.forEach((user) => { 
-                    // console.log(`Checking: ${user.dataset.userid} === ${msg.senderid}`);
+                users.forEach((user) => {
                 
                     if (user.dataset.userid === msg.senderid) {
                         user.textContent = `${msg.sendername} is typing...`;
@@ -371,18 +360,11 @@ const loadHomePage = (ws, data) => {
     document.getElementById("user-email").textContent = email;
     document.getElementById("user-age").textContent = age;
     handleWS(ws, data);           
-    loadPosts(ws);
+    loadPosts(ws).then(() => {console.log(`posts have been loaded`)});
     createPost(ws);
     loadHomePageListeners(ws);
     handleMessages(ws);
-    fetchUserMessages(data.id);
-
-    const body = document.body
-    const footer = document.createElement("footer");
-    footer.innerHTML = `All rights reserved PingMe
-    &copy 2025
-    `
-    body.appendChild(footer);
+    fetchUserMessages(data.id).then(() => {console.log("messages have been fetched")});
 
 };
 
@@ -405,9 +387,6 @@ const loadHomePageListeners = (ws) => {
                     if(ws && ws.readyState === WebSocket.OPEN) {
                         ws.send(JSON.stringify(data));
                     }
-                    // console.log(`${username.value} is typing...`);
-                    // console.log("receiver: ", receiver.value);
-                    // console.log(`${username.value} id: ${userid.value}`)
                 } else {
                     console.log("Username not found.");
                 }
@@ -420,7 +399,9 @@ const loadHomePageListeners = (ws) => {
     if (logoutBtn) {
         logoutBtn.addEventListener("click", async () => {
             try {
-                const res = await fetch("/logout");
+                const res = await fetch("/logout", {
+                    credentials: "include",
+                });
                 
                 if (!res.ok) {
                     localStorage.clear();
@@ -429,7 +410,7 @@ const loadHomePageListeners = (ws) => {
                 }
                 
                 const data = await res.json();
-                console.log(data.message);
+                console.log("/logout",data.message);
     
                 localStorage.clear();
                 window.location.href = "/welcome";
@@ -484,7 +465,6 @@ const loadHomePageListeners = (ws) => {
 
             displayProfile.addEventListener("click", (e) => {
                 e.stopPropagation();
-                // console.log("clicked inside nav-link");
                 userPanel.style.display = (userPanel.style.display === "none") ? "block" : "none";
             });
             
@@ -562,7 +542,6 @@ const handleMessages = (ws) => {
 
 
                     if (msg && receiver) {
-                        // console.log("MESSAGE SENT BY: " + user.username + "\nTO: " + receiver + "\nMessage: " + msg);
                         const response = await fetch("/privateMessage", {
                             method: "POST",
                             headers: {"Content-Type" : "application/json"},
@@ -579,7 +558,6 @@ const handleMessages = (ws) => {
                         const resBody = await response.json();
 
                         if (response.status == 200) {
-                            // console.log(resBody);
                             ws.send(JSON.stringify({"type" : "message", "data" : resBody.data}))
                             form.querySelector("input[name='message']").value = "";
                             form.style.display = "none" 
@@ -603,7 +581,6 @@ const handleMessages = (ws) => {
     if (inbox) {
         inbox.addEventListener('click', (e) => {
             e.stopPropagation()
-            // console.log(e.target)
             if (hideMessageThread.style.display === "none") {
                 hideMessageThread.style.display = "flex";
             } else {
@@ -674,8 +651,7 @@ const handleMessages = (ws) => {
     
             if (!messageInput) return;
     
-            // console.log("Chat receiver id:", chatReceiverId);
-    
+
             const response = await fetch("/privateMessage", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -697,7 +673,6 @@ const handleMessages = (ws) => {
                 fetchUserMessages(user.id);
             }
     
-            // console.log("RESPONSE BODY:", resBody);
         };
 
         sendBtn.addEventListener("click", sendMessage);
@@ -743,9 +718,12 @@ const fetchUserMessages = async (userid) => {
         messageThreadDiv.replaceChildren();
 
         messages.data.forEach((message) => {
+
+            console.log("msg",message);
             let parsed;
             try {
                 parsed = JSON.parse(message);
+                console.log("parsed->", parsed);
                 if (!Array.isArray(parsed) || parsed.length === 0) return;
             } catch (error) {
                 console.error("Error parsing message JSON:", error);
@@ -756,7 +734,7 @@ const fetchUserMessages = async (userid) => {
             console.log("Latest Message: ", latestMessage);
             const thread = document.createElement("div");
             thread.classList.add("thread");
-
+            console.log("lastmsg by jones",latestMessage);
             const senderName = latestMessage.sender === userid ? "You" : latestMessage.name || "Unknown User";
             thread.textContent = `${senderName}: ${latestMessage.message}`;
 
@@ -787,7 +765,6 @@ const loadMessages = (parsed, userid) => {
         const fragment = document.createDocumentFragment();
         const reversedParsed = parsed.reduce((acc, obj) => [obj, ...acc], []);
         const chunkedMessages = chunkArray(reversedParsed);
-        // console.log(chunkedMessages);
         let count = 0;
 
         const appendMessages = (index) => {
@@ -795,11 +772,11 @@ const loadMessages = (parsed, userid) => {
 
             const messageFragment = document.createDocumentFragment();
             chunkedMessages[index].reduce((acc, obj) => [obj, ...acc], []).forEach((msg) => {
-                // console.log("LOADING MESAGE: ", msg);
+                console.log("message now>>", msg)
                 const newMessage = document.createElement("div");
                 newMessage.classList.add("message", msg.sender === userid ? "sender" : "receiver");
 
-                const displayName = msg.sender === userid ? "You" : msg.name || "Unknown User";
+                const displayName = msg.sender === userid ? "You" : msg.sendername || "Unknown User";
                 chatboxid.value = msg.sender === userid ? msg.receiver : msg.sender;
 
                 const metaDiv = document.createElement("div");
