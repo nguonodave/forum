@@ -341,15 +341,15 @@ li i {
 }
 
 .posts-section::-webkit-scrollbar-thumb {
-    background-color: #430260;
+    background-color: #001e5e;
     border-radius: 0.2px;
 }
 .posts-section::-webkit-scrollbar-thumb:hover {
-    background-color: #430260;
+    background-color: #001e5e;
 }
 
 .posts-section::-webkit-scrollbar-track {
-    background-color: #430260;
+    background-color: #001e5e;
 }
 
 .create-post {
@@ -358,11 +358,10 @@ li i {
     top: 32%;
     left: 57%;
     transform: translate(-50%, -50%); /* perfect centering */
-
-    background-color: #21518e; /* solid blue background */
+    background-color: #1f2937;; /* solid blue background */
     color: white; /* white text by default */
-
     border-radius: 16px;
+    border: 0.2px solid white;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
     display: none;
@@ -383,23 +382,24 @@ li i {
 }
 
 .create-post input{
-    background-color: rgba(31, 41, 55, 0.4);
+    background-color:#1f2937;
+    color:white;
 }
 
 .create-post textarea {
-    background-color: #001e5e; /* slightly lighter blue */
+    background-color: #1f2937;; /* slightly lighter blue */
     color: white;
     border: 1px solid white;
     border-radius: 8px;
     padding: 0.75rem 1rem;
 }
 
-.create-post textarea:focus {
+/* .create-post textarea:focus {
     outline: none;
-    border-color: #93c5fd; /* light blue border on focus */
-    background-color: #173187; /* darker blue on focus */
+    border-color: #93c5fd; 
+    background-color: #173187;
     box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.4);
-}
+} */
 
 .create-post input[type="text"]:focus,
 .create-post textarea:focus {
