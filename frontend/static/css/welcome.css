@@ -21,10 +21,11 @@
 .welcome-container .left {
     flex: 1;
     max-width: 50%;
-    min-width: 300px;
-    min-height: 300px;
-    background:url('/static/assets/background.png');
+    min-width: 50%;
+    min-height: 50%;
+    background:url('/static/assets/favicon.svg');
     background-repeat: no-repeat;
+    background-size: contain;
     margin-right: 20px;
     margin-left: 20px;
 }
@@ -83,55 +84,116 @@
       color: white;
       border: none;
 }
+
   
 @media (max-width: 768px) {
     .welcome-container {
-      flex-direction: column;
-      align-items: center;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
     }
+
     .welcome-container .right .welcome-message {
         margin: 30px;
         text-align: center;
     }
+
     .welcome-message h3 {
         font-size: 1em;
     }
+
     .monoton-regular {
         font-family: "Monoton", sans-serif;
         font-weight: 400;
         font-style: normal;
-        font-size: 3em
-}
-  
+        font-size: 3em;
+    }
+
     .welcome-container .left {
-      margin-right: 0;
-      margin-bottom: 20px;
-      width: 100%;
+        margin-top: 10%;
+        width: 100%;
+        background-position: center center;
+        background-size: contain;
     }
-  
+
     .welcome-container .right {
-      align-items: center;
-      margin: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 50px 20px; /* reduced side margins for smaller screens */
     }
-  
+
     .welcome-container .right .buttons {
-      flex-direction: column;
-      align-items: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px; /* space between buttons */
+        width: 100%;
     }
-      .welcome-container .right .buttons button{
-          width: 100%;
-      }
+
+    .welcome-container .right .buttons button {
+        width: 90%; /* leave a little padding on sides */
+        max-width: 300px; /* don't make buttons too wide on large phones */
+    }
 }
+
+/* Extra Small Devices: Phones under 480px */
+@media (max-width: 480px) {
+    .welcome-container .left {
+        margin-top: 5%;
+    }
+
+    .monoton-regular {
+        font-size: 2.5em; /* slightly smaller heading for tiny screens */
+    }
+
+    .welcome-container .right {
+        margin: 30px 10px; /* tighter margins */
+    }
+
+    .welcome-container .right .buttons button {
+        width: 100%; /* full width on very small screens */
+    }
+}
+
 
 /* Make left and right equal width on larger screens */
 @media (min-width: 769px) {
   .welcome-container .left,
   .welcome-container .right {
     flex: 0.5; /* Distribute equal flex space */
-    max-width: 50%; /* Ensure they don't exceed 50% of the container */
+    max-width: 45%; /* Ensure they don't exceed 50% of the container */
+    margin:20px;
   }
   .welcome-container .left {
       margin-right: 20px; /* add the margin back  */
   }
 }
 
+@media (min-width: 481px) and (max-width: 767px) {
+    .welcome-container {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .welcome-container .left {
+        width: 50%;
+        margin-top: 0;
+    }
+
+    .welcome-container .right {
+        width: 50%;
+        margin: 30px;
+    }
+
+    .welcome-container .right .buttons {
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .welcome-container .right .buttons button {
+        width: auto;
+        max-width: 200px;
+    }
+}
