@@ -1,10 +1,9 @@
-
 /*Welcome page*/
 @import url('https://fonts.googleapis.com/css2?family=Monoton&display=swap');
 
 .welcome-container {
     width: 100%;
-    height: 100%;
+    height: 100vh; /* Use 100vh for full viewport height */
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -12,24 +11,25 @@
 }
 
 .monoton-regular {
-        font-family: "Monoton", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        font-size: 4em
+    font-family: "Monoton", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 4em; /* Default desktop font size */
 }
-    
+
 .welcome-container .left {
     flex: 1;
     max-width: 50%;
     min-width: 50%;
-    min-height: 50%;
-    background:url('/static/assets/favicon.svg');
+    min-height: 50%; /* This might need adjustment if you want it to fill vertical space */
+    background: url('/static/assets/favicon.svg');
     background-repeat: no-repeat;
     background-size: contain;
+    background-position: center; /* Center the background image */
     margin-right: 20px;
     margin-left: 20px;
 }
-  
+
 .welcome-container .right {
     flex: 1;
     display: flex;
@@ -37,163 +37,187 @@
     align-items: center;
     min-width: 300px;
 }
-  
+
 .welcome-container .right .welcome-message {
     margin: 30px;
     text-align: center;
-    color:azure;
+    color: azure;
 }
+
 .welcome-message h3 {
-    font-size: 2em;
+    font-size: 2em; /* Default desktop font size for h3 */
 }
-  
+
 .welcome-container .right .buttons {
     display: flex;
     gap: 10px;
 }
-  
+
 .welcome-container .right .buttons button {
-    width: 200px;
-    padding: 10px 20px;
-    border-radius: 20px;
+    width: 200px; /* Default button width */
+    padding: 8px 16px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 1.5em;
     transition: all 0.3s ease;
 }
-  
+
 .welcome-container .right .buttons #loginBtn {
     background-color: #007bff;
     color: white;
     border: none;
 }
-  
+
 .welcome-container .right .buttons #loginBtn:hover {
-      background-color: transparent;
-      color: #007bff;
-      border: 2px solid #007bff;
+    background-color: transparent;
+    color: #007bff;
+    border: 2px solid #007bff;
 }
-  
+
 .welcome-container .right .buttons #signUpBtn {
     background-color: transparent;
     color: #007bff;
     border: 2px solid #007bff;
 }
-  
+
 .welcome-container .right .buttons #signUpBtn:hover {
-      background-color: #007bff;
-      color: white;
-      border: none;
+    background-color: #007bff;
+    color: white;
+    border: none;
 }
 
-  
+/* Make left and right equal width on larger screens (min-width: 890px) */
+@media (min-width: 890px) {
+    .welcome-container .left,
+    .welcome-container .right {
+        flex: 0.5; /* Distribute equal flex space */
+        max-width: 45%; /* Ensure they don't exceed 50% of the container */
+        margin: 20px; /* Re-apply margin for clarity */
+    }
+    .welcome-container .left {
+        margin-right: 20px; /* ensure margin back */
+    }
+}
+
+
+/* General Mobile/Tablet Styles: screens up to 768px */
 @media (max-width: 768px) {
     .welcome-container {
-        flex-direction: column;
+        flex-direction: column; /* Stack vertically */
         align-items: center;
         text-align: center;
+        height: auto; /* Allow height to adjust to content when stacking */
+        min-height: 100vh; /* Ensure it still covers the viewport initially */
     }
 
-    .welcome-container .right .welcome-message {
-        margin: 30px;
-        text-align: center;
+    .welcome-container .left {
+        order: 1; /* Place image first */
+        width: 80%; /* Adjust width for stacked layout */
+        max-width: 300px; /* Prevent image from getting too large */
+        min-height: 200px; /* Give it a minimum height */
+        margin: 5% auto 0; /* Center and add top margin */
+        flex: none; /* Remove flex sizing to use explicit width/max-width */
+    }
+
+    .welcome-container .right {
+        order: 2; /* Place content second */
+        flex-direction: column;
+        align-items: center;
+        margin: 30px 20px; /* Reduced side margins for smaller screens */
+        width: 100%; /* Take full available width */
+        min-width: unset; /* Remove min-width restriction */
+        flex: none; /* Remove flex sizing */
+    }
+
+    .monoton-regular {
+        font-size: 3em; /* Smaller heading for tablet/mobile */
     }
 
     .welcome-message h3 {
-        font-size: 1em;
+        font-size: 1.5em; /* Smaller h3 for tablet/mobile */
     }
 
-    .monoton-regular {
-        font-family: "Monoton", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        font-size: 3em;
-    }
-
-    .welcome-container .left {
-        margin-top: 10%;
-        width: 100%;
-        background-position: center center;
-        background-size: contain;
-    }
-
-    .welcome-container .right {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin: 50px 20px; /* reduced side margins for smaller screens */
+    .welcome-container .right .welcome-message {
+        margin: 20px; /* Adjust message margin */
     }
 
     .welcome-container .right .buttons {
-        display: flex;
-        flex-direction: column;
+        flex-direction: column; /* Stack buttons vertically */
         align-items: center;
-        gap: 10px; /* space between buttons */
+        gap: 10px;
         width: 100%;
     }
 
     .welcome-container .right .buttons button {
-        width: 90%; /* leave a little padding on sides */
-        max-width: 300px; /* don't make buttons too wide on large phones */
-    }
-}
-
-/* Extra Small Devices: Phones under 480px */
-@media (max-width: 480px) {
-    .welcome-container .left {
-        margin-top: 5%;
-    }
-
-    .monoton-regular {
-        font-size: 2.5em; /* slightly smaller heading for tiny screens */
-    }
-
-    .welcome-container .right {
-        margin: 30px 10px; /* tighter margins */
-    }
-
-    .welcome-container .right .buttons button {
-        width: 100%; /* full width on very small screens */
+        width: 80%; /* Buttons take up more width */
+        max-width: 300px; /* Don't let buttons get too wide */
+        font-size: 1.2em; /* Slightly smaller button text */
     }
 }
 
 
-/* Make left and right equal width on larger screens */
-@media (min-width: 769px) {
-  .welcome-container .left,
-  .welcome-container .right {
-    flex: 0.5; /* Distribute equal flex space */
-    max-width: 45%; /* Ensure they don't exceed 50% of the container */
-    margin:20px;
-  }
-  .welcome-container .left {
-      margin-right: 20px; /* add the margin back  */
-  }
-}
-
+/* Tablet Landscape/Portrait (481px to 767px) - This section ensures a 2-column layout */
 @media (min-width: 481px) and (max-width: 767px) {
     .welcome-container {
-        flex-direction: row;
+        flex-direction: row; /* Back to row layout */
+        justify-content: center;
+        height: 100vh; /* Keep full height */
+        min-height: unset; /* Remove min-height from general mobile */
+    }
+
+    .welcome-container .left {
+        order: unset; /* Reset order */
+        width: 50%;
+        max-width: unset; /* Remove max-width from general mobile */
+        margin: 0; /* Reset margins */
+        min-height: 100%; /* Fill vertical space */
+        display: flex; /* Use flex to center the background */
+        align-items: center;
         justify-content: center;
     }
 
-    .welcome-container .left {
-        width: 50%;
-        margin-top: 0;
-    }
-
     .welcome-container .right {
+        order: unset; /* Reset order */
         width: 50%;
-        margin: 30px;
+        margin: 30px 10px; /* Adjust margin for horizontal layout */
     }
 
     .welcome-container .right .buttons {
-        flex-direction: row;
+        flex-direction: row; /* Buttons back to horizontal */
         justify-content: center;
         gap: 20px;
     }
 
     .welcome-container .right .buttons button {
-        width: auto;
-        max-width: 200px;
+        width: auto; /* Let buttons size by content */
+        min-width: 120px; /* Ensure they have a minimum width */
+        max-width: 180px; /* Don't let them get too wide */
+        font-size: 1em; /* Adjust font size for compact buttons */
+    }
+}
+
+/* Extra Small Devices: Phones under 480px (e.g., 411px and smaller) */
+@media (max-width: 480px) {
+    .monoton-regular {
+        font-size: 2.5em; /* slightly smaller heading for tiny screens */
+    }
+
+    .welcome-message h3 {
+        font-size: 1.2em; /* Smaller h3 */
+    }
+   
+    .welcome-container .left {
+        margin-top: 50%; /* Adjust top margin for very small screens */
+        min-height: 150px; /* Smaller min height for very small screens */
+    }
+
+    .welcome-container .right {
+        margin: 20px 10px; /* Tighter margins for very small screens */
+    }
+
+    .welcome-container .right .buttons button {
+        width: 95%; /* Make buttons nearly full width on very small screens */
+        padding: 6px 12px;
+        font-size: 1.1em; /* Keep font size reasonable */
     }
 }

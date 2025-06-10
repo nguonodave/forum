@@ -120,6 +120,8 @@ input[type="submit"]:hover {
 @media (max-width: 768px) {
     .Form-div {
       padding: 1.5rem 1rem;
+      max-width: 95%;
+      margin-top: 50px;
     }
   
     label {
@@ -145,3 +147,19 @@ input[type="submit"]:hover {
     }
   }
   
+@media (max-width: 480px) {
+    .Form-div {
+        padding: 1rem 0.75rem; 
+        width: 95%; 
+    }
+
+    .Form-div label {
+        font-size: 1.2rem; 
+    }
+
+    .input,
+    select {
+        font-size: 0.9rem;
+        padding: 0.4rem;
+    }
+}

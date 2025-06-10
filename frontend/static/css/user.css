@@ -1,36 +1,48 @@
+/* Existing CSS - No changes needed here, just for context */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ... (rest of your existing CSS up to .userPanel) ... */
+
 .userPanel {
-    width: 300px;
-    align-self: flex-start;
-    position: absolute;
-    background-color: #1f2937;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    padding: 23px;
-    z-index: 1000;
-    border-radius: 0 0 5px 5px;
-    border-radius: 5px;
-    left: 70%;
-    top: 0;
-    margin-top: 33px;
-    margin-left: 30px;
+  width: 300px; /* Desktop fixed width */
+  align-self: flex-start;
+  position: absolute; /* Kept for desktop pop-up behavior */
+  background-color: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 23px;
+  z-index: 1000;
+  border-radius: 5px; /* Duplicate, but harmless */
+  left: 70%; /* Desktop positioning */
+  top: 0;
+  margin-top: 33px;
+  margin-left: 30px;
+  /* Adding transform for initial state in case it becomes centered */
+  transform: translateX(0); /* Default to no transform on desktop */
 }
 
 .main-left-div {
-    flex: 0 0 17%;
-    min-width: 100px;
-    max-width: 200px;
-    align-self: flex-start;
-    margin-left: 20px;
-    position: sticky;
-    top: 100px;
-    height: 78vh;
-    background-color: #1f2937;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 5px;
-    padding: 10px;
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
+  flex: 0 0 17%;
+  min-width: 100px;
+  max-width: 200px;
+  align-self: flex-start;
+  margin-left: 20px;
+  position: sticky; /* Keep sticky for desktop */
+  top: 100px;
+  height: 78vh;
+  background-color: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  padding: 10px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-left-div #friendsList {
@@ -43,172 +55,258 @@
   text-align: center;
 }
 
-
 #userList {
-    width: 100%;
-    align-self: flex-start;
-    position: sticky;
-    top: 100px;
-    height: 50%;
-    border-radius: 5px;
-    padding: 5px;
-    color: #5B5B58;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
+  width: 100%;
+  align-self: flex-start;
+  position: sticky; /* Keep sticky for desktop if it's a sub-element of a sticky parent */
+  top: 100px; /* If sticky, specify top */
+  height: 50%; /* Adjust as needed */
+  border-radius: 5px;
+  padding: 5px;
+  color: #5B5B58; /* This color might be hard to read on dark backgrounds */
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  overflow-y: auto; /* Add scroll for long lists on desktop */
 }
 
 #userList li {
-    width: 100%;
-    height: 2rem;
-    list-style-type: none;
-    background-color: gray;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    align-self: flex-start;
-    margin-bottom: 2px;
-    text-align: center;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+  width: 100%;
+  height: 2rem;
+  list-style-type: none;
+  background-color: gray; /* This might be hard to read on dark backgrounds, reconsider color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  align-self: flex-start;
+  margin-bottom: 2px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #userList li button {
-    width: 100%;
-    border: none;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    padding: 5px 10px;
-    background-color: #3b82f6;
-    color: white;
-    text-align: center;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-
+  width: 100%;
+  border: none;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px 10px;
+  background-color: #3b82f6;
+  color: white;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-#userList li button  .user-name {
-    margin-right: auto;
+#userList li button .user-name {
+  margin-right: auto;
 }
 
 .status-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: gray;
-    display: inline-block;
-    background-color: green;
-    margin: 0 10px 0 0;
-  }
-  
-  .create-new-post-div {
-    width: 100%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: green; /* Changed from gray, assuming green means online */
+  display: inline-block;
+  margin: 0 10px 0 0;
+}
+
+.create-new-post-div {
+  width: 100%;
 }
 
 .create-new-post-div button {
-    width: 100%;
-    background-color: #3b82f6;
-    color: white;
-    cursor: pointer;
-    border: none;
-    padding: 0.5rem;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    font-weight: bold;
-    font-size: large;
-  }
+  width: 100%;
+  background-color: #3b82f6;
+  color: white;
+  cursor: pointer;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: large;
+}
 
-  .create-new-post-div button:hover {
-    background-color: beige;
-    color: black;
-  }
+.create-new-post-div button:hover {
+  background-color: beige;
+  color: black;
+}
 
-    /* Styling for the create post floating button */
+/* Styling for the create post floating button */
 .createPost {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 1000;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+}
+
+#showPostDiv {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+#showPostDiv i {
+  font-size: 24px;
+  pointer-events: none;
+}
+
+#showPostDiv:hover {
+  transform: scale(1.05);
+  background-color: transparent;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Responsive Adjustments --- */
+
+@media (max-width: 992px) {
+ 
+  .main-left-div {
+      position: fixed; /* Override sticky for off-canvas */
+      top: 0;
+      left: -200px; /* Hidden off-screen */
+      width: 200px; /* Fixed width for off-canvas */
+      height: 100vh; /* Full viewport height */
+      margin-left: 0; /* Remove specific margin */
+      padding-top: 5rem; /* Space for a top bar */
+      z-index: 1000; /* Ensure it's above other content */
+      transition: left 0.3s ease;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
   }
-  
-  #showPostDiv {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
+  /* You'll need JavaScript to toggle an "active" class on .main-left-div */
+  /* .main-left-div.active { left: 0; } */
+
+  /* UserList within main-left-div: Adjust for the new parent */
+  #userList {
+      position: static; /* No longer sticky within the off-canvas */
+      height: auto; /* Adjust height based on content */
+      max-height: calc(100% - 100px); /* Adjust based on padding/header in main-left-div */
+      overflow-y: auto; /* Allow scrolling */
+      width: 100%; /* Fill its parent */
+      color: var(--text-light); /* Ensure visibility */
   }
-  
-  #showPostDiv i {
-    font-size: 24px;
-    pointer-events: none;
+  #userList li {
+      width: 100%; /* Ensure list items fill the new width */
+      background-color: rgba(255, 255, 255, 0.1); /* Make it glassy */
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 5px; /* More space between items */
   }
-  
-  #showPostDiv:hover {
-    transform: scale(1.05);
-    background-color: transparent;
-    color: #3b82f6;
-    border: 1px solid #3b82f6;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  #userList li button {
+      background-color: transparent; /* Make button transparent inside glassy li */
+      justify-content: flex-start; /* Align text to start */
+      padding: 8px 12px; /* More padding */
+  }
+  #userList li button:hover {
+      background-color: rgba(255, 255, 255, 0.15); /* Hover effect */
+  }
+}
+
+
+@media (max-width: 768px) {
+  /* User Panel: Center it on smaller screens */
+  .userPanel {
+      width: 90%; /* Take up more width */
+      left: 50%; /* Center horizontally */
+      transform: translateX(-50%); /* Adjust for true centering */
+      top: 60px; /* Position below navbar */
+      margin-left: 0; /* Remove extra margin */
+      padding: 1.25rem; /* Adjust padding */
+      border-radius: 8px; /* Consistent rounded corners */
+      max-width: 400px; /* Prevent it from getting too wide on tablets */
+      box-sizing: border-box; /* Ensure padding/border are included in width */
   }
 
-  @media (max-width: 992px) {
-    #userList {
-      width: 120px;
-    }
-  }
-  
-  
-  /* For mobile responsiveness */
-  @media (max-width: 768px) {
-    .createPost {
+  /* Floating Create Post Button */
+  .createPost {
       bottom: 20px;
       right: 20px;
-    }
-    
-    #showPostDiv {
-      width: 50px;
-      height: 50px;
-    }
-    
-    #showPostDiv i {
-      font-size: 20px;
-    }
   }
 
-  @media (max-width: 576px) {
-    #userList {
+  #showPostDiv {
+      width: 50px;
+      height: 50px;
+  }
+
+  #showPostDiv i {
+      font-size: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  /* User Panel: Even wider on very small screens */
+  .userPanel {
+      width: 95%; /* Wider on small phones */
+      top: 55px; /* Slightly higher for more space */
+      max-width: none; /* Allow it to be full width */
+  }
+
+  /* main-left-div - assuming this is completely hidden or repurposed on small mobile */
+  .main-left-div {
+      display: none; /* Hide the entire left sidebar on very small screens if not needed */
+      /* If you want it as a slide-out, keep its position:fixed and use JS to toggle */
+  }
+
+  /* UserList: As a horizontal scrolling bar at the bottom for friends/users */
+  #userList {
       position: fixed;
-      bottom: 80px;
+      bottom: 80px; /* Above the floating create post button */
       left: 0;
       top: auto;
       width: 100%;
       margin: 0;
       border-radius: 0;
       z-index: 990;
-      flex-direction: row;
-      overflow-x: auto;
-      padding: var(--spacing-sm);
-    }
-    
-    #userList li {
-      width: auto;
-      min-width: 100px;
-      margin-right: var(--spacing-sm);
-      margin-bottom: 0;
-      flex-shrink: 0;
-    }
+      flex-direction: row; /* Horizontal scroll */
+      overflow-x: auto; /* Enable horizontal scrolling */
+      overflow-y: hidden; /* No vertical scroll */
+      padding: 0.5rem; /* Using rem for consistency */
+      background-color: #1f2937; /* Ensure background */
+      border-top: 1px solid rgba(255, 255, 255, 0.2); /* Top border */
+  }
+
+  #userList li {
+      width: auto; /* Let content define width */
+      min-width: 100px; /* Minimum width for each user item */
+      margin-right: 0.5rem; /* Space between horizontal items */
+      margin-bottom: 0; /* No bottom margin in horizontal layout */
+      flex-shrink: 0; /* Prevent items from shrinking below min-width */
+      background-color: rgba(255, 255, 255, 0.1); /* Keep glassy look */
+      padding: 0.3rem 0.5rem; /* Adjust padding for compact look */
+      height: auto; /* Allow height to adjust */
+  }
+
+  #userList li button {
+      padding: 0.3rem 0.5rem; /* Adjust button padding */
+      font-size: 0.8em; /* Smaller font for compact view */
+  }
+
+  /* Floating Create Post Button */
+  .createPost {
+      bottom: 10px; /* Move slightly higher to not clash with #userList */
+      right: 10px;
+  }
+
+  #showPostDiv {
+      width: 45px;
+      height: 45px;
+      font-size: 18px;
+  }
 }

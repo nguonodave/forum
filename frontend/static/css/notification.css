@@ -1,4 +1,4 @@
-/* General Glass Effect Utility */
+/* General Glass Effect Utility (No changes needed here) */
 .glass {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
@@ -8,16 +8,17 @@
 }
 
 .notification {
-  width: 50%;
+  width: 50%; /* Keeps it at 50% width on larger screens */
   position: absolute;
   top: 55px;
-  left: 30%;
+  left: 30%; /* Original desktop positioning */
   padding: 5px;
   color: white;
   border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000; /* Ensure it's above other content if necessary */
 }
 
 .fa-envelope {
@@ -42,8 +43,8 @@
 }
 
 .chat-wrapper {
-  width: 350px;
-  height: 500px;
+  width: 350px; /* Original desktop width */
+  height: 500px; /* Original desktop height */
   background-color: rgba(31, 41, 55, 0.3);
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -53,7 +54,7 @@
   flex-direction: column;
   position: absolute;
   top: 65px;
-  left: calc(100% - 600px);
+  left: calc(100% - 600px); /* Original desktop positioning */
   z-index: 999;
   display: none;
 }
@@ -160,12 +161,12 @@
   background-color: rgba(31, 41, 55, 0.2);
   position: absolute;
   flex-direction: column;
-  width: 250px;
+  width: 250px; /* Original desktop width */
   gap: 2px;
-  max-height: 400px;
+  max-height: 400px; /* Original desktop max-height */
   overflow-y: scroll;
   padding: 10px;
-  left: calc(100% - 255px);
+  left: calc(100% - 255px); /* Original desktop positioning */
   top: 65px;
   z-index: 999;
   display: none;
@@ -202,4 +203,86 @@
   background-color: rgba(31, 41, 55, 0.2);
   backdrop-filter: blur(10px);
   color: #fff;
+}
+
+
+/* --- Responsive Adjustments --- */
+
+@media (max-width: 768px) {
+    /* Notification */
+    .notification {
+        width: 90%; /* Take up more width on smaller screens */
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Adjust for true centering */
+        top: 60px; /* Adjust top position if needed */
+        padding: 8px; /* Slightly more padding for touch */
+    }
+
+    /* Chat Wrapper */
+    .chat-wrapper {
+        width: 90%; /* Make it fill most of the screen width */
+        height: 70vh; /* Allow it to take up more vertical space */
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Adjust for true centering */
+        top: 70px; /* Adjust top position to avoid navbar */
+        max-width: 450px; /* Prevents it from becoming too wide on slightly larger tablets */
+        box-sizing: border-box; /* Ensures padding/border are included in width */
+    }
+
+    /* Message Thread (if it's a separate panel that appears) */
+    .messageThread {
+        width: 90%; /* Make it fill most of the screen width */
+        max-height: 60vh; /* Adjust max height for smaller screens */
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Adjust for true centering */
+        top: 70px; /* Adjust top position to avoid navbar */
+        max-width: 300px; /* Keep it narrower than main chat if intended as a sidebar */
+        border-radius: 8px; /* Apply same border-radius on all sides for centered look */
+        box-sizing: border-box; /* Ensures padding/border are included in width */
+    }
+
+    /* Chat Box (if this is a separate, larger chat window) */
+    .chat-box {
+        width: 90%; /* Adjust width for mobile */
+        margin: 20px auto; /* Center horizontally with auto margins */
+        max-width: 450px; /* Prevents it from becoming too wide */
+    }
+
+    /* Input container for chat */
+    .input-container {
+        padding: 8px; /* Slightly more padding */
+    }
+
+    .input-container input {
+        padding: 8px; /* Adjust input padding */
+        font-size: 0.9em; /* Slightly smaller font */
+    }
+
+    .input-container button {
+        padding: 8px 12px; /* Adjust button padding */
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Notification */
+    .notification {
+        width: 95%; /* Almost full width on very small screens */
+        font-size: 0.9em; /* Slightly smaller text */
+        top: 55px; /* Adjust top position */
+    }
+
+    /* Chat Wrapper */
+    .chat-wrapper {
+        width: 95%; /* Almost full width */
+        height: 80vh; /* More vertical space on very small screens */
+        top: 60px; /* Adjust top position */
+    }
+
+    /* Message Thread */
+    .messageThread {
+        width: 95%; 
+        max-height: 70vh; 
+        top: 60px;
+    }
 }
