@@ -735,7 +735,8 @@ const fetchUserMessages = async (userid) => {
             const thread = document.createElement("div");
             thread.classList.add("thread");
             console.log("lastmsg by jones",latestMessage);
-            const senderName = latestMessage.sender === userid ? "You" : latestMessage.name || "Unknown User";
+            console.log("name is ", latestMessage.sendername)
+            const senderName = latestMessage.sender === userid ? "You" : latestMessage.sendername|| "Unknown User";
             thread.textContent = `${senderName}: ${latestMessage.message}`;
 
             if (latestMessage.receiver !== userid) {
@@ -776,7 +777,8 @@ const loadMessages = (parsed, userid) => {
                 const newMessage = document.createElement("div");
                 newMessage.classList.add("message", msg.sender === userid ? "sender" : "receiver");
 
-                const displayName = msg.sender === userid ? "You" : msg.sendername || "Unknown User";
+                const displayName = (msg.sender === userid) ? "You" : (msg.sendername ?? "Unknown User");
+
                 chatboxid.value = msg.sender === userid ? msg.receiver : msg.sender;
 
                 const metaDiv = document.createElement("div");
