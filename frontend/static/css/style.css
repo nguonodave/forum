@@ -318,7 +318,7 @@ li i {
 .posts-section {
     width: 80%;
     height: 80vh;
-    margin-top: 1rem;
+    margin-top: 3rem;
     background-color: transparent;
     padding: 5px;
 
@@ -355,7 +355,7 @@ li i {
 .create-post {
     width: 65%;
     position: absolute;
-    top: 32%;
+    top: 50%;
     left: 57%;
     transform: translate(-50%, -50%); /* perfect centering */
     background-color: #1f2937;; /* solid blue background */
@@ -454,6 +454,7 @@ li i {
 .create-post button[type="submit"]:hover {
     background-color: #357abd;
 }
+/*POST CSS START*/
 .post {
     border-radius: 16px;
     margin-top: 2rem;
@@ -468,6 +469,8 @@ li i {
     border: 1px solid rgba(255, 255, 255, 0.2); /* frosted border */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
+
+/*POST CSS END*/
 
 .post-header {
     display: flex;

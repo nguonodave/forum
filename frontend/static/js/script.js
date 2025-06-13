@@ -322,7 +322,7 @@ const handleWS = (ws, data) => {
                 });
                 
                 if (!found) {
-                    console.warn("User not found for typing alert:", msg.senderid);
+                    console.warn("User not found for typing:", msg.senderid);
                 }
                 
             }
@@ -451,7 +451,6 @@ const loadHomePageListeners = (ws) => {
                 const comment = form.querySelector("input[name='comment']").value.trim()
                 const identity = "comment";
                 const postId = form.querySelector("input[name='postId']").value.trim();
-                // alert(comment + ", " + identity + ", " + postId);
                 form.querySelector("input[name='comment']").value = "";
                 createComment(ws, comment, identity, postId);
                 
@@ -565,7 +564,7 @@ const handleMessages = (ws) => {
                         }
 
                     } else {
-                        alert("Please fill out both the message and receiver fields.");
+                        notify("Please fill out both the message and receiver fields.");
                     }
                 }
         });
@@ -846,14 +845,14 @@ const handleSignup = async (e) => {
     const password = document.querySelector("input[name='password']").value;
 
     function validatePassword(password) {
-        const lengthCheck = password.length > 8;
+        const lengthCheck = password.length >= 8;
         if (!lengthCheck) return "Password must be at least 8 characters long.";
         return true;
     }
 
     const passwordValidation = validatePassword(password);
     if (passwordValidation !== true) {
-        alert(passwordValidation); // Show error as a popup
+        notify(passwordValidation); // Show error as a popup
         return;
     }
 
