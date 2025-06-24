@@ -1,0 +1,137 @@
+
+/*Welcome page*/
+@import url('https://fonts.googleapis.com/css2?family=Monoton&display=swap');
+
+.welcome-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.monoton-regular {
+        font-family: "Monoton", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 4em
+}
+    
+.welcome-container .left {
+    flex: 1;
+    max-width: 50%;
+    min-width: 300px;
+    min-height: 300px;
+    background:url('/static/assets/background.png');
+    background-repeat: no-repeat;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+  
+.welcome-container .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 300px;
+}
+  
+.welcome-container .right .welcome-message {
+    margin: 30px;
+    text-align: center;
+    color:azure;
+}
+.welcome-message h3 {
+    font-size: 2em;
+}
+  
+.welcome-container .right .buttons {
+    display: flex;
+    gap: 10px;
+}
+  
+.welcome-container .right .buttons button {
+    width: 200px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1.5em;
+    transition: all 0.3s ease;
+}
+  
+.welcome-container .right .buttons #loginBtn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+  
+.welcome-container .right .buttons #loginBtn:hover {
+      background-color: transparent;
+      color: #007bff;
+      border: 2px solid #007bff;
+}
+  
+.welcome-container .right .buttons #signUpBtn {
+    background-color: transparent;
+    color: #007bff;
+    border: 2px solid #007bff;
+}
+  
+.welcome-container .right .buttons #signUpBtn:hover {
+      background-color: #007bff;
+      color: white;
+      border: none;
+}
+  
+@media (max-width: 768px) {
+    .welcome-container {
+      flex-direction: column;
+      align-items: center;
+    }
+    .welcome-container .right .welcome-message {
+        margin: 30px;
+        text-align: center;
+    }
+    .welcome-message h3 {
+        font-size: 1em;
+    }
+    .monoton-regular {
+        font-family: "Monoton", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 3em
+}
+  
+    .welcome-container .left {
+      margin-right: 0;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+  
+    .welcome-container .right {
+      align-items: center;
+      margin: 50px;
+    }
+  
+    .welcome-container .right .buttons {
+      flex-direction: column;
+      align-items: stretch;
+    }
+      .welcome-container .right .buttons button{
+          width: 100%;
+      }
+}
+
+/* Make left and right equal width on larger screens */
+@media (min-width: 769px) {
+  .welcome-container .left,
+  .welcome-container .right {
+    flex: 0.5; /* Distribute equal flex space */
+    max-width: 50%; /* Ensure they don't exceed 50% of the container */
+  }
+  .welcome-container .left {
+      margin-right: 20px; /* add the margin back  */
+  }
+}
+

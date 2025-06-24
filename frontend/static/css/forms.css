@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Monoton&display=swap');
+:root {
+    --primary-color: #60a5fa;
+    --secondary-color: #ffffff;
+    --text-primary: #f8fafc;
+    --text-secondary: #e2e8f0;
+    --border-color: #475569;
+    --success-color: #3b862f;
+    --danger-color: #dc2626;
+    --background: #1f2937;
+    --white: #ffffff;
+    --text-dark: #1f2937;
+    --text-light: #f8fafc;
+    --gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+}
+
+.Form-div {
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin: 30px auto;
+    background-color: var(--background);
+    border: 1px solid var(--border-color);
+    max-width: 700px;
+    min-width: 400px; 
+    margin-top: 90px;
+}
+
+.loggin {
+    display: flex;
+    flex-direction: column;
+}
+.siggnup{
+    display: flex;
+    /* flex-direction: column; */
+}
+
+.Form-div label {
+    font-size: 2.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    text-align: center;
+    color: white;
+}
+
+.Form-div button {
+    background-color: transparent;
+    border: 1px solid #3b82f6;
+    color: white;
+    padding: 4px 25px; 
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.Form-div p{
+    margin-top: 10px;
+    text-align: center;
+    color: white;
+}
+.input, select {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    outline: none;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s ease;
+    background-color:  transparent;
+    color: #90969e;
+}
+
+.input:focus {
+    border-color:  #dd2c46;
+}
+
+input[type="submit"] {
+    padding: 0.8rem;
+    font-size: 1rem;
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+input[type="submit"]:hover {
+    background: transparent;
+    border: 1px solid #3b82f6;
+    color: #3b82f6;
+}
+
+.Form-div #signUpForm {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-evenly;
+    
+}
+
+.Form-div #signUpForm  label{
+    width: 100%;
+}
+
+.Form-div #signUpForm input, select  {
+    width: 45%;
+    align-self: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.monoton-regular {
+    font-family: "Monoton", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 4em;
+}
+
+@media (max-width: 768px) {
+    .Form-div {
+      padding: 1.5rem 1rem;
+    }
+  
+    label {
+      font-size: 1.5rem;
+    }
+  
+    input[type="submit"] {
+      padding: 0.6rem;
+      font-size: 0.9rem;
+    }
+
+    .Form-div #signUpForm {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-evenly;
+        
+    }
+    .Form-div #signUpForm input, select  {
+        width: 100%;
+        align-self: flex-start;
+        margin-bottom: 0.5rem;
+    }
+  }
+  

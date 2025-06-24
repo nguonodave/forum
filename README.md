@@ -1,101 +1,123 @@
+# PingMe — Real-Time Forum
 
-# Forum
+**PingMe** is a real-time social platform based on our previous forum project — now with WebSocket-powered live messaging. Users can create posts, comment, and chat privately in real time.
 
-## Overview
-This project is a web-based forum that facilitates user communication through posts and comments, supports category-based filtering, and allows users to like or dislike posts and comments. The forum is built using Go, SQLite, and Docker while following best practices in web development, authentication, and database management.
+---
 
-## Features
-- **User Authentication**: Registration, login, and session management using cookies.
-- **Post & Comment System**: Users can create posts and comment on existing posts.
-- **Category Association**: Posts can be categorized for better organization.
-- **Like & Dislike System**: Registered users can like or dislike posts and comments.
-- **Filtering Mechanism**:
-  - By category (acts as subforums)
-  - By user-created posts
-  - By user-liked posts
-- **Database Management**:
-  - SQLite as the primary database
-  - Implementation of at least one `SELECT`, `CREATE`, and `INSERT` query
-  - ER Diagram for structured database design
-- **Security Enhancements** (Bonus Tasks):
-  - Password encryption using bcrypt
-  - Session management using UUID
-- **Error Handling**:
-  - HTTP status handling
-  - Technical error management
-- **Dockerization**:
-  - Containerized application for better dependency management and deployment
+## 🚀 Features
 
-## Technologies Used
-- **Go** (Standard Go packages)
-- **SQLite** (sqlite3 package)
-- **Docker** (for containerization)
-- **bcrypt** (for password encryption)
-- **UUID** (for unique session management)
-- **HTML** (Frontend markup)
-- **HTTP** (For client-server communication)
+### 1. User Authentication
 
-## Installation & Setup
-### Prerequisites
-Ensure you have the following installed:
-- Go
-- Docker
-- SQLite
+* Users must register before accessing the forum.
+* **Registration fields include:**
 
-### Steps
-1. Clone the repository:
-   ```sh
-   git clone https://learn.zone01kisumu.ke/git/forum
-   cd forum
-   ```
-2. Build and run the application:
-   ```sh
-   go build -o forum .
-   ./forum
-   ```
-3. Alternatively, run the application directly:
-   ```sh
-   go run .
-   ```
-4. Run the application using Docker:
-   ```sh
-   docker build -t forum-app .
-   docker run -p 8080:8080 forum-app
-   ```
+  * Nickname
+  * Age
+  * Gender
+  * First Name
+  * Last Name
+  * Email
+  * Password
+* Users can log in using either **nickname** or **email**.
+* Logout is accessible from any page.
 
-## Usage
-1. **Register/Login** to access the forum.
-2. **Create Posts & Comments** (Only for registered users).
-3. **Browse Posts** (Public visibility for all users).
-4. **Like/Dislike** posts and comments (Only for registered users).
-5. **Filter Posts** by categories, created posts, or liked posts.
+---
 
-## Learning Outcomes
-This project helps in understanding:
-- Web development basics (HTML, HTTP, Sessions, and Cookies)
-- Authentication and security best practices
-- Database management and SQL queries
-- Containerization with Docker
-- Structuring a Go-based web application
-- Implementing filtering and category management
-- Best practices in error handling and testing
+### 2. Posts & Comments
 
+* Create posts categorized by topic.
+* View posts in a feed layout.
+* Comment on posts (visible only upon post click).
 
-## Best Practices Followed
-- Secure authentication mechanisms
-- Proper error handling
-- Database structuring with ER diagrams
-- Unit testing for core functionalities
+---
 
-## Contributors
-- **@dochiel**
-- **@ramuiruri**
-- **@wonyango**
-- **@najwang**
-- **@shfana**
+### 3. Private Messaging System (WebSocket-Based)
 
-## Issues & Contributions
-Found a bug? Have a feature request? Submit an issue or contribute to the project by creating a pull request.
+* **User list** shows online/offline users:
 
-## License
-This project is open-source and licensed under [MIT License](LICENSE).
+  * Sorted by most recent conversation or alphabetically if no messages exist.
+* **Real-time messaging** with:
+
+  * Username and timestamp per message.
+  * Automatic loading of 10 past messages on chat open.
+  * Infinite scroll up loads 10 more messages (optimized with Throttle/Debounce).
+* **Live updates** without page refresh.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer     | Tech Used                             |
+| --------- | ------------------------------------- |
+| Front-End | HTML, CSS, JavaScript                 |
+| Back-End  | Go (Golang), SQLite                   |
+| Real-Time | WebSockets (Gorilla WebSocket for Go) |
+
+---
+
+## 📦 Usage
+
+### 1. Installation
+
+Ensure **Go** and **Node.js (for npm)** are installed:
+
+```bash
+sudo apt install golang
+npm install
+```
+
+Then clone the repository:
+
+```bash
+git clone https://learn.zone01kisumu.ke/git/ramuiruri/realtime-forum
+```
+
+### 2. Running the Project
+
+```bash
+cd pingme
+make
+```
+
+This runs the Go server and launches the real-time forum.
+
+---
+
+## 👥 Authors
+
+* [shfana](https://learn.zone01kisumu.ke/git/shfana)
+* [ramuiruri](https://learn.zone01kisumu.ke/git/ramuiruri)
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions!
+
+To contribute:
+
+1. Fork the repo
+2. Create your feature branch (`git checkout -b feature/chat-enhancements`)
+3. Commit your changes (`git commit -m 'Add typing indicator'`)
+4. Push to the branch (`git push origin feature/chat-enhancements`)
+5. Open a Pull Request
+
+---
+
+## 🧠 What You'll Learn
+
+* Frontend & backend integration
+* Working with WebSockets in Go & JavaScript
+* SPA (Single Page Application) architecture using vanilla JS
+* Building real-time UIs
+* Using SQLite with Go
+
+---
+
+## ❓ Something’s Wrong?
+
+Submit an [issue here](https://learn.zone01kisumu.ke/git/ramuiruri/realtime-forum/issues) and we’ll check it out.
+
+---
+
+Let me know if you’d like badges, screenshots, or GitHub Actions setup for CI/CD added too.
