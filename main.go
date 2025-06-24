@@ -12,6 +12,7 @@ func init() {
 	controllers.InitDB()
 	controllers.CreateTables()
 }
+
 func main() {
 	file := "frontend/templates/index.html"
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer((http.Dir("frontend/static")))))
